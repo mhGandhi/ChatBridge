@@ -1,5 +1,5 @@
 discord:
-  token: ""      # or "env:DISCORD_TOKEN" if you prefer env loading
+  token: ""      # bot token (apparently you are not supposed to post this one online)
   channel_id: ""  # ID of Discord channel to mirror into MC
 
 whitelist:
