@@ -1,12 +1,11 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.dcBridge.storage.Database;
+import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -26,9 +25,8 @@ public class IdentityManager {
     public Identity resolve(Member m) {
         Identity.McIdentity mc = null;
         try {
-            var oRow = db.getActiveLinkByDc(m.getId());
-            if (oRow.isPresent()) {
-                var row = oRow.get();
+            var row = db.getActiveLinkByDc(m.getId());
+            if (row!=null) {
                 mc = new Identity.McIdentity(row.mcUuid(), row.mcName(), row.mcSkinUrl());
             }
         } catch (Exception e) {
@@ -43,9 +41,8 @@ public class IdentityManager {
     public Identity resolve(User u) {
         Identity.McIdentity mc = null;
         try {
-            var oRow = db.getActiveLinkByDc(u.getId());
-            if (oRow.isPresent()) {
-                var row = oRow.get();
+            var row = db.getActiveLinkByDc(u.getId());
+            if (row!=null) {
                 mc = new Identity.McIdentity(row.mcUuid(), row.mcName(), row.mcSkinUrl());
             }
         } catch (Exception e) {
@@ -59,9 +56,8 @@ public class IdentityManager {
     public Identity resolve(Player p) {
         Identity.DcIdentity dc = null;
         try {
-            var oRow = db.getActiveLinkByMc(p.getUniqueId().toString());
-            if (oRow.isPresent()) {
-                var row = oRow.get();
+            var row = db.getActiveLinkByMc(p.getUniqueId().toString());
+            if (row!=null) {
                 // row.dcDisplay already computed by the view todo geht was noch nd so gut
                 log.fine(row.toString());
                 dc = new Identity.DcIdentity(row.dcId(), row.dcNick(), row.dcAvatarUrl());

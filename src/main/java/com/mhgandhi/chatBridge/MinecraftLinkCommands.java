@@ -1,6 +1,6 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.dcBridge.storage.Database;
+import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.command.*;
@@ -31,19 +31,19 @@ public class MinecraftLinkCommands implements CommandExecutor, TabCompleter {
 
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(DcBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("disconnect")) {
                 db.clearMcClaim(p.getUniqueId().toString());
-                p.sendMessage(DcBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("connect")) {
                 if (args.length == 0) {
-                    p.sendMessage(DcBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
+                    p.sendMessage(ChatBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), null));
                     return true;
                 }
                 String raw = String.join(" ", args).trim(); // allow nick with spaces
@@ -60,7 +60,7 @@ public class MinecraftLinkCommands implements CommandExecutor, TabCompleter {
 
                         db.mcClaimsDiscord(p.getUniqueId().toString(), u.getId());
                         // Show immediate feedback
-                        p.sendMessage(DcBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), u.getId()));
+                        p.sendMessage(ChatBridge.getFormatter().minecraftStatus(db, p.getUniqueId(), u.getId()));
                     } catch (Exception ex) {
                         p.sendMessage("§cError: " + ex.getMessage());
                     }

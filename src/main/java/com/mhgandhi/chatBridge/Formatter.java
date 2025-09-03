@@ -1,6 +1,6 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.dcBridge.storage.Database;
+import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;

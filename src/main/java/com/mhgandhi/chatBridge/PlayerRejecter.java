@@ -1,7 +1,6 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.dcBridge.storage.Database;
-import net.kyori.adventure.text.Component;
+import com.mhgandhi.chatBridge.storage.Database;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,14 +32,14 @@ public class PlayerRejecter implements Listener {
             if (!allowed) {
                 e.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                        DcBridge.getFormatter().whitelistReject()
+                        ChatBridge.getFormatter().whitelistReject()
                 );
             }
         } catch (Exception ex) {
             plugin.getLogger().warning("[Whitelist] DB error for " + uuid + ": " + ex.getMessage());
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    DcBridge.getFormatter().notYetOnlineReject()
+                    ChatBridge.getFormatter().notYetOnlineReject()
             );
         }
     }

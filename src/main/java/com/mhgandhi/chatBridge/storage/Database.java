@@ -1,4 +1,4 @@
-package com.mhgandhi.dcBridge.storage;
+package com.mhgandhi.chatBridge.storage;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

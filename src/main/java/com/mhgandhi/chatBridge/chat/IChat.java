@@ -1,6 +1,6 @@
-package com.mhgandhi.dcBridge.chat;
+package com.mhgandhi.chatBridge.chat;
 
-import com.mhgandhi.dcBridge.Identity;
+import com.mhgandhi.chatBridge.Identity;
 
 import java.util.function.BiConsumer;
 

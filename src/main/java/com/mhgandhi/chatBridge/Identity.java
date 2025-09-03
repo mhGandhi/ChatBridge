@@ -1,4 +1,4 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
 
 public class Identity {

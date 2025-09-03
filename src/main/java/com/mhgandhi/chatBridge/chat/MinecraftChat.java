@@ -1,9 +1,9 @@
 // src/main/java/your/org/bridge/McChatListener.java
-package com.mhgandhi.dcBridge.chat;
+package com.mhgandhi.chatBridge.chat;
 
-import com.mhgandhi.dcBridge.DcBridge;
-import com.mhgandhi.dcBridge.Identity;
-import com.mhgandhi.dcBridge.IdentityManager;
+import com.mhgandhi.chatBridge.ChatBridge;
+import com.mhgandhi.chatBridge.Identity;
+import com.mhgandhi.chatBridge.IdentityManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -67,7 +67,7 @@ public final class MinecraftChat implements Listener, IChat {
     }
 
     public void sendMessage(Identity author, String content){
-        Component msg = DcBridge.getFormatter().formatMcMsg(author, content);
+        Component msg = ChatBridge.getFormatter().formatMcMsg(author, content);
 
         if(msg !=null){
             if(plugin.isEnabled()){

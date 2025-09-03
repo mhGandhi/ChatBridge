@@ -1,13 +1,13 @@
-package com.mhgandhi.dcBridge;
+package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.dcBridge.chat.DiscordChat;
-import com.mhgandhi.dcBridge.chat.MinecraftChat;
-import com.mhgandhi.dcBridge.storage.Database;
+import com.mhgandhi.chatBridge.chat.DiscordChat;
+import com.mhgandhi.chatBridge.chat.MinecraftChat;
+import com.mhgandhi.chatBridge.storage.Database;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.BiConsumer;
 
-public final class DcBridge extends JavaPlugin {
+public final class ChatBridge extends JavaPlugin {
     public static final int MSG_LIMIT = 2000;//todo implement in the gateways (mby seperate limits?)
     private DiscordChat discordChat;
     private MinecraftChat mcChat;
