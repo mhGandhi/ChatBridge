@@ -1,0 +1,24 @@
+name: ChatBridge
+version: '1.0-SNAPSHOT'
+main: com.mhgandhi.dcBridge.DcBridge
+api-version: '1.21'
+commands:
+  connect:
+    description: Link your MC account to a Discord account
+    usage: /<command> [discord-id-or-name]
+    permission: dcbridge.connect
+  disconnect:
+    description: Remove your MC→Discord claim
+    usage: /<command>
+    permission: dcbridge.disconnect
+  status:
+    description: Show your link status
+    usage: /<command>
+    permission: dcbridge.status
+permissions:
+  dcbridge.*:
+    default: true
+    children:
+      dcbridge.connect: true
+      dcbridge.disconnect: true
+      dcbridge.status: true

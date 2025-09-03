@@ -1,0 +1,54 @@
+discord:
+  token: "MTQxMTQ5NzYwMTM3NDc1Mjc2OA.G4wAL0.KqN3bRXinZpS4xhaGP08xUVYbYXpOe5dEHCwbs"      # or "env:DISCORD_TOKEN" if you prefer env loading
+  channel_id: "1411498306860744854"  # Discord channel to mirror into MC
+
+whitelist:
+  enabled: true
+
+format: #todo reduce #text format with minimessage https://docs.advntr.dev/minimessage
+  serverJoin:
+    whitelistRejection: ""
+    notReadyRejection: ""
+  minecraftChat:
+    messages:
+      pluginEnable: ""
+      pluginDisable: ""
+    commands:
+      connect:
+        description: ""
+        args: ""
+        response: ""
+      disconnect:
+        description: ""
+        args: ""
+        response: ""
+      status:
+        description: ""
+        args: ""
+        response:
+          linked: "" #<uuid><mcname><dcid><dcname>
+          not_linked: ""
+          linked_toDc: "" #<mcname><uuid>
+          linked_fromDc: "" #<dcclaims>
+          linked_fromBothNoMatch: "" #<dcclaims><mcname><uuid>
+  discordChat:
+    server_online_status: ""
+    messages:
+      join: ""
+      leave: ""
+      pluginEnable: ""
+      pluginDisable: ""
+    commands:
+      error_reply: "" # %s -> error
+      connect:
+        description: ""
+        arg_description: ""
+        response:
+          resolve_error: "" # %s -> uuid that wasn't resolved
+          missing_playerArg: ""
+      disconnect:
+        description: ""
+        response: ""
+      status:
+        description: ""
+        response: ""

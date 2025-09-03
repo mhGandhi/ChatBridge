@@ -1,0 +1,128 @@
+[21:06:54] [ServerMain/INFO]: [bootstrap] Running Java 21 (OpenJDK 64-Bit Server VM 21.0.7+6-LTS; Microsoft Microsoft-11369940) on Windows 11 10.0 (amd64)
+[21:06:54] [ServerMain/INFO]: [bootstrap] Loading Paper 1.21.8-56-main@65641d1 (2025-08-29T20:44:17Z) for Minecraft 1.21.8
+[21:06:57] [ServerMain/INFO]: [PluginInitializerManager] Initializing plugins...
+[21:06:58] [Paper Plugin Remapper Thread - 1/INFO]: [PluginRemapper] Remapping plugin 'C:\Users\rando\IdeaProjects\DcBridge\build\libs\DcBridge-1.0-SNAPSHOT.jar'...
+[21:07:13] [Paper Plugin Remapper Thread - 1/INFO]: [PluginRemapper] Done remapping plugin 'C:\Users\rando\IdeaProjects\DcBridge\build\libs\DcBridge-1.0-SNAPSHOT.jar' in 15416ms.
+[21:07:14] [ServerMain/INFO]: [PluginInitializerManager] Initialized 1 plugin
+[21:07:14] [ServerMain/INFO]: [PluginInitializerManager] Bukkit plugins (1):
+ - ChatBridge (1.0-SNAPSHOT)
+[21:07:34] [ServerMain/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[21:07:38] [ServerMain/INFO]: Loaded 1407 recipes
+[21:07:38] [ServerMain/INFO]: Loaded 1520 advancements
+[21:07:38] [ServerMain/INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+[21:07:39] [ServerMain/INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 845.9ms
+[21:07:39] [Server thread/INFO]: Starting minecraft server version 1.21.8
+[21:07:39] [Server thread/INFO]: Loading properties
+[21:07:39] [Server thread/INFO]: This server is running Paper version 1.21.8-56-main@65641d1 (2025-08-29T20:44:17Z) (Implementing API version 1.21.8-R0.1-SNAPSHOT)
+[21:07:39] [Server thread/INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+[21:07:39] [Server thread/INFO]: Using 4 threads for Netty based IO
+[21:07:39] [Server thread/INFO]: Server Ping Player Sample Count: 12
+[21:07:41] [Server thread/INFO]: [MoonriseCommon] Paper is using 2 worker threads, 1 I/O threads
+[21:07:41] [Server thread/INFO]: [ChunkTaskScheduler] Chunk system is using population gen parallelism: true
+[21:07:42] [Server thread/INFO]: Default game type: SURVIVAL
+[21:07:42] [Server thread/INFO]: Generating keypair
+[21:07:42] [Server thread/INFO]: Starting Minecraft server on *:25565
+[21:07:42] [Server thread/INFO]: Using default channel type
+[21:07:42] [Server thread/INFO]: Paper: Using Java compression from Velocity.
+[21:07:42] [Server thread/INFO]: Paper: Using Java cipher from Velocity.
+[21:07:42] [Server thread/INFO]: [ChatBridge] Loading server plugin ChatBridge v1.0-SNAPSHOT
+[21:07:42] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
+[21:07:42] [Server thread/INFO]: Preparing level "world"
+[21:07:43] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[21:07:43] [Server thread/INFO]: Preparing spawn area: 0%
+[21:07:44] [Server thread/INFO]: Preparing spawn area: 2%
+[21:07:45] [Server thread/INFO]: Preparing spawn area: 2%
+[21:07:45] [Server thread/INFO]: Preparing spawn area: 2%
+[21:07:45] [Server thread/INFO]: Time elapsed: 1745 ms
+[21:07:45] [Server thread/INFO]: Preparing start region for dimension minecraft:the_nether
+[21:07:45] [Server thread/INFO]: Preparing spawn area: 0%
+[21:07:45] [Server thread/INFO]: Time elapsed: 253 ms
+[21:07:45] [Server thread/INFO]: Preparing start region for dimension minecraft:the_end
+[21:07:45] [Server thread/INFO]: Preparing spawn area: 0%
+[21:07:45] [Server thread/INFO]: Time elapsed: 167 ms
+[21:07:45] [Server thread/INFO]: [ChatBridge] Enabling ChatBridge v1.0-SNAPSHOT
+[21:07:50] [Server thread/INFO]: [net.dv8tion.jda.api.JDA] Login Successful!
+[21:07:51] [JDA MainWS-ReadThread/INFO]: [net.dv8tion.jda.internal.requests.WebSocketClient] Connected to WebSocket
+[21:07:51] [Server thread/INFO]: [spark] Starting background profiler...
+[21:07:51] [Server thread/INFO]: [spark] The async-profiler engine is not supported for your os/arch (windows11/amd64), so the built-in Java engine will be used instead.
+[21:07:51] [Server thread/INFO]: Done preparing level "world" (9.026s)
+[21:07:51] [Server thread/INFO]: Running delayed init tasks
+[21:07:51] [Server thread/INFO]: Done (58.326s)! For help, type "help"
+[21:07:52] [JDA MainWS-ReadThread/INFO]: [net.dv8tion.jda.api.JDA] Finished Loading!
+[21:07:52] [JDA MainWS-ReadThread/WARN]: [ChatBridge] Webhook not ready, sending msg over Bot
+[21:07:52] [Server thread/INFO]: ChatBridge enabled
+[21:07:53] [ForkJoinPool.commonPool-worker-1/INFO]: [ChatBridge] Webhook client ready.
+[21:08:26] [User Authenticator #0/INFO]: UUID of player mahatmagandhrian is 6a82f599-5591-4e88-8d7c-c305338c68cf
+[21:08:29] [Server thread/INFO]: mahatmagandhrian joined the game
+[21:08:29] [Server thread/INFO]: mahatmagandhrian[/127.0.0.1:55402] logged in with entity id 74 at ([world]187.51011018856198, 84.0388145489175, -96.51189009391496)
+[21:08:30] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2566ms or 51 ticks behind
+[21:08:39] [Async Chat Thread - #1/INFO]: <mahatmagandhrian> gfdgfdhgfxdhgcxdgfc
+[21:08:49] [Server thread/INFO]: [D] <mahatmagandhrian> tgrrtzhuju
+[21:09:22] [Async Chat Thread - #1/INFO]: <mahatmagandhrian> @everyone joooo hat jmd quartz
+[21:09:45] [Server thread/INFO]: [D] <mahatmagandhrian> jo. bin in 20min zuhause!
+[21:09:52] [Server thread/INFO]: mahatmagandhrian lost connection: Disconnected
+[21:09:52] [Server thread/INFO]: mahatmagandhrian left the game
+[21:09:57] [User Authenticator #1/INFO]: UUID of player mahatmagandhrian is 6a82f599-5591-4e88-8d7c-c305338c68cf
+[21:09:57] [Server thread/INFO]: mahatmagandhrian joined the game
+[21:09:57] [Server thread/INFO]: mahatmagandhrian[/127.0.0.1:55417] logged in with entity id 380 at ([world]187.51011018856198, 84.0388145489175, -96.51189009391496)
+[21:10:03] [Server thread/INFO]: mahatmagandhrian issued server command: /stop
+[21:10:03] [Server thread/INFO]: [mahatmagandhrian: Stopping the server]
+[21:10:03] [Server thread/INFO]: Stopping server
+[21:10:03] [Server thread/INFO]: [ChatBridge] Disabling ChatBridge v1.0-SNAPSHOT
+[21:10:03] [Server thread/INFO]: Saving players
+[21:10:03] [Server thread/INFO]: mahatmagandhrian lost connection: Server closed
+[21:10:03] [Server thread/INFO]: mahatmagandhrian left the game
+[21:10:03] [JDA MainWS-ReadThread/ERROR]: [net.dv8tion.jda.internal.requests.WebSocketClient] There was an error in the WebSocket connection. Trace: [["gateway-prd-arm-us-east1-d-1lx6",{"micros":75972,"calls":["id_created",{"micros":420,"calls":[]},"session_lookup_time",{"micros":236,"calls":[]},"session_lookup_finished",{"micros":10,"calls":[]},"discord-sessions-prd-2-177",{"micros":74720,"calls":["start_session",{"micros":63201,"calls":["discord-api-rpc-dbff4cb5-m5dq6",{"micros":36671,"calls":["get_user",{"micros":5066},"get_guilds",{"micros":3108},"send_scheduled_deletion_message",{"micros":14},"guild_join_requests",{"micros":4543},"authorized_ip_coro",{"micros":6},"pending_payments",{"micros":16672},"apex_experiments",{"micros":4282},"user_activities",{"micros":3},"played_application_ids",{"micros":2}]}]},"starting_guild_connect",{"micros":32,"calls":[]},"presence_started",{"micros":407,"calls":[]},"guilds_started",{"micros":89,"calls":[]},"lobbies_started",{"micros":1,"calls":[]},"guilds_connect",{"micros":1,"calls":[]},"presence_connect",{"micros":10968,"calls":[]},"connect_finished",{"micros":10973,"calls":[]},"build_ready",{"micros":15,"calls":[]},"clean_ready",{"micros":0,"calls":[]},"optimize_ready",{"micros":0,"calls":[]},"split_ready",{"micros":1,"calls":[]}]}]}]]
+java.lang.IllegalStateException: The plugin classloader for ChatBridge has thrown a zip file error.
+	at org.bukkit.plugin.java.PluginClassLoader.findClass(PluginClassLoader.java:225) ~[paper-api-1.21.8-R0.1-SNAPSHOT.jar:?]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:593) ~[?:?]
+	at org.bukkit.plugin.java.PluginClassLoader.loadClass0(PluginClassLoader.java:177) ~[paper-api-1.21.8-R0.1-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.java.PluginClassLoader.loadClass(PluginClassLoader.java:172) ~[paper-api-1.21.8-R0.1-SNAPSHOT.jar:?]
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526) ~[?:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/net.dv8tion.jda.internal.requests.WebSocketClient.onShutdown(WebSocketClient.java:363) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/net.dv8tion.jda.internal.requests.WebSocketClient.handleDisconnect(WebSocketClient.java:547) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/net.dv8tion.jda.internal.requests.WebSocketClient.onDisconnected(WebSocketClient.java:464) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.ListenerManager.callOnDisconnected(ListenerManager.java:224) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.WebSocket.finish(WebSocket.java:3758) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.WebSocket.onThreadsFinished(WebSocket.java:3724) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.WebSocket.onReadingThreadFinished(WebSocket.java:3691) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.ReadingThread.notifyFinished(ReadingThread.java:1138) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.ReadingThread.runMain(ReadingThread.java:80) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+	at DcBridge-1.0-SNAPSHOT-1756926418245.jar/com.neovisionaries.ws.client.WebSocketThread.run(WebSocketThread.java:45) ~[DcBridge-1.0-SNAPSHOT-1756926418245.jar:?]
+Caused by: java.lang.IllegalStateException: zip file closed
+	at java.base/java.util.zip.ZipFile.ensureOpen(ZipFile.java:846) ~[?:?]
+	at java.base/java.util.zip.ZipFile.getEntry(ZipFile.java:338) ~[?:?]
+	at java.base/java.util.jar.JarFile.getEntry(JarFile.java:517) ~[?:?]
+	at java.base/java.util.jar.JarFile.getJarEntry(JarFile.java:472) ~[?:?]
+	at org.bukkit.plugin.java.PluginClassLoader.findClass(PluginClassLoader.java:220) ~[paper-api-1.21.8-R0.1-SNAPSHOT.jar:?]
+	... 14 more
+[21:10:04] [Server thread/INFO]: Saving worlds
+[21:10:04] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[21:10:04] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world'
+[21:10:04] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world'
+[21:10:04] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Saved 625 block chunks, 625 entity chunks, 0 poi chunks in world 'world' in 1.94s
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'world'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'world'
+[21:10:06] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_nether]'/minecraft:the_nether
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world_nether'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world_nether'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world_nether'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Saved 49 block chunks, 49 entity chunks, 0 poi chunks in world 'world_nether' in 0.13s
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'world_nether'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'world_nether'
+[21:10:06] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world_the_end]'/minecraft:the_end
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk system to halt for world 'world_the_end'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Halted chunk system for world 'world_the_end'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Saving all chunkholders for world 'world_the_end'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Saved 49 block chunks, 49 entity chunks, 0 poi chunks in world 'world_the_end' in 0.07s
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Waiting 60s for chunk I/O to halt for world 'world_the_end'
+[21:10:06] [Server thread/INFO]: [ChunkHolderManager] Halted I/O scheduler for world 'world_the_end'
+[21:10:06] [Server thread/INFO]: ThreadedAnvilChunkStorage (world): All chunks are saved
+[21:10:06] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[21:10:06] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[21:10:06] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[21:10:06] [Server thread/INFO]: Waiting for all RegionFile I/O tasks to complete...
+[21:10:06] [Server thread/INFO]: All RegionFile I/O tasks to complete
+[21:10:06] [Server thread/INFO]: [MoonriseCommon] Awaiting termination of worker pool for up to 60s...
+[21:10:06] [Server thread/INFO]: [MoonriseCommon] Awaiting termination of I/O pool for up to 60s...
