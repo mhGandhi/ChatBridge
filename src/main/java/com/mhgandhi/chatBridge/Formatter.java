@@ -4,6 +4,7 @@ import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -27,16 +28,14 @@ public class Formatter {//todo const for format?
         if(identity==Identity.server){
             return Component
                     .text(msg)
-                    .color(TextColor.color(0,255,255));
+                    .color(NamedTextColor.YELLOW);
         }else if(identity.getMcIdentity()!=null){
             return Component
-                    .text("[D]")
-                    .color(TextColor.color(0,0,255))
+                    .text("[D]", NamedTextColor.BLUE)
                     .append(Component.text(" <"+identity.getMcIdentity().name()+"> "+msg));
         }else if(identity.getDcIdentity()!=null){
             return Component
-                    .text("[D]")
-                    .color(TextColor.color(0,0,255))
+                    .text("[D]", NamedTextColor.BLUE)
                     .append(Component.text(" @"+identity.getDcIdentity().name()+": "+msg));
         }else{
             return null;
@@ -51,25 +50,25 @@ public class Formatter {//todo const for format?
         return mm.deserialize("Login system is temporarily unavailable. Please try again in a moment.");//todo
     }
 
-    public Component minecraftStatus(Database db, UUID mcUuid, String dcIdHint) throws Exception {
+    public Component minecraftStatus(Database db, UUID mcUuid) throws Exception {
 
         //todo from config
         String tempLinked = "<green>✅ Linked</green>\n" +
                 "<hover:show_text:'<yellow><uuid></yellow>'><mcname></hover> <-> " +
                 "<hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>";//todo show dc nick?
 
-        String tempNotLinked = "❕ Not linked\n" +
+        String tempNotLinked = "<red>❕ Not linked</red>\n" +
                 "Use /connect to link (for comfort do it on discord first)";
 
-        String tempToDc = "❕ Not linked\n" +
+        String tempToDc = "<yellow>❕ Not linked</yellow>\n" +
                 "You are currently claiming <hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>\n" +
                 "Do /connect <mcname> in discord to complete the link.";
 
-        String tempFromDc = "❕ Not linked\n" +
+        String tempFromDc = "<yellow>❕ Not linked</yellow>\n" +
                 "Your account is currently being claimed by: [<dcclaims>]\n"+
                 "Do /connect <any of the claiming discord users> to complete a link.";
 
-        String tempFromBoth = "❕ Not linked\n" +
+        String tempFromBoth = "<yellow>❕ Not linked\n</yellow>" +
                 "You are currently claiming <hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>\n" +
                 "Your account is currently being claimed by: [<dcclaims>]\n"+
                 "u know how the command works by now lil bro";
@@ -85,19 +84,19 @@ public class Formatter {//todo const for format?
             );
         }
 
-        Database.McRow mc = db.getMc(mcUuid.toString()).orElse(null);
+        Database.McRow mc = db.getMc(mcUuid.toString());
         List<Database.DcRow> dcClaimingMe = db.findPendingDiscordClaimsForMc(mcUuid.toString());
 
         if(dcClaimingMe.isEmpty()){
-            if(mc==null){//no link
+            if(mc==null || mc.claimedDcId()==null){//no link
                 return mm.deserialize(
                         tempNotLinked
                 );
             }else{//link to discord
                 return mm.deserialize(
                         tempToDc,
-                        Placeholder.unparsed("uuid",mc.mcUuid()),
-                        Placeholder.unparsed("mcname",mc.mcName())
+                        Placeholder.unparsed("dcid",mc.claimedDcId()),
+                        Placeholder.unparsed("dcname","USEIDENTITY FFS")
                 );
             }
         }else{
@@ -117,8 +116,8 @@ public class Formatter {//todo const for format?
                 return mm.deserialize(
                         tempFromBoth,
                         Placeholder.unparsed("dcclaims", claims),
-                        Placeholder.unparsed("uuid",mc.mcUuid()),
-                        Placeholder.unparsed("mcname",mc.mcName())
+                        Placeholder.unparsed("dcid",mc.claimedDcId()),
+                        Placeholder.unparsed("dcname","RESOLVE")
                 );
             }
         }
@@ -158,7 +157,7 @@ public class Formatter {//todo const for format?
         }
 
         // Not fully linked: show current claims and hints
-        var dcRow = db.getDc(dcId).orElse(null);
+        var dcRow = db.getDc(dcId);
         String claimed = (dcRow != null) ? dcRow.claimedMcUuid() : null;
 
         eb.setDescription("❕ Your Discord is **not linked** yet.");
@@ -169,7 +168,7 @@ public class Formatter {//todo const for format?
 
         if (claimed != null) {
             // If MC side also claimed you, it would be active; so hint user to run /connect in MC
-            var mc = db.getMc(claimed).orElse(null);
+            var mc = db.getMc(claimed);
             if (mc != null) {
                 eb.addField("Minecraft name", mc.mcName(), true);
                 if (mc.skinFaceUrl() != null) eb.setThumbnail(mc.skinFaceUrl());

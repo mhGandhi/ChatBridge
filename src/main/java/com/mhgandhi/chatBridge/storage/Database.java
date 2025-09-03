@@ -203,19 +203,19 @@ public final class Database implements AutoCloseable {
     }
 
 
-    public Optional<McRow> getMc(String mcUuid) throws Exception {
+    public McRow getMc(String mcUuid) throws Exception {
         try (PreparedStatement ps = conn.prepareStatement("""
             SELECT mc_uuid, mc_name, skin_face_url, claimed_dc_id FROM mc_claims WHERE mc_uuid=?""")) {
             ps.setString(1, mcUuid);
-            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? Optional.of(mapMc(rs)) : Optional.empty(); }
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? mapMc(rs) : null; }
         }
     }
 
-    public Optional<DcRow> getDc(String dcId) throws Exception {
+    public DcRow getDc(String dcId) throws Exception {
         try (PreparedStatement ps = conn.prepareStatement("""
             SELECT dc_id, dc_username, dc_nick, avatar_url, claimed_mc_uuid FROM dc_claims WHERE dc_id=?""")) {
             ps.setString(1, dcId);
-            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? Optional.of(mapDc(rs)) : Optional.empty(); }
+            try (ResultSet rs = ps.executeQuery()) { return rs.next() ? mapDc(rs) : null; }
         }
     }
 

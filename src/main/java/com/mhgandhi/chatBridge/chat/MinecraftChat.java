@@ -121,19 +121,19 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
 
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId(), null));
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId()));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("disconnect")) {
                 identityManager.clearMc(p.getUniqueId().toString());
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId(), null));
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId()));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("connect")) {
                 if (args.length == 0) {
-                    p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId(), null));
+                    p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId()));
                     return true;
                 }
                 String raw = String.join(" ", args).trim(); // allow nick with spaces
@@ -152,7 +152,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
                         identityManager.getDb().mcClaimsDiscord(p.getUniqueId().toString(), u.getId());
 
                         // Show immediate feedback
-                        p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId(), u.getId()));
+                        p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.getDb(), p.getUniqueId()));
                     } catch (Exception ex) {
                         p.sendMessage("§cError: " + ex.getMessage());
                     }

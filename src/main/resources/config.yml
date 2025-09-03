@@ -26,9 +26,9 @@ format: #todo reduce #text format with minimessage https://docs.advntr.dev/minim
         response:
           linked: "" #<uuid><mcname><dcid><dcname>
           not_linked: ""
-          linked_toDc: "" #<mcname><uuid>
+          linked_toDc: "" #<dcname><dcid>
           linked_fromDc: "" #<dcclaims>
-          linked_fromBothNoMatch: "" #<dcclaims><mcname><uuid>
+          linked_fromBothNoMatch: "" #<dcclaims><dcname><dcid>
   discordChat:
     server_online_status: ""
     messages:
