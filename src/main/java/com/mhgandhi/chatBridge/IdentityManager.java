@@ -43,7 +43,7 @@ public class IdentityManager {
     public Identity resolve(User u) {
         Identity.McIdentity mc = null;
         try {
-            var row = db.getActiveLinkByDc(u.getId());
+            var row = db.getActiveLinkByDc(u.getId());//todo maybe types for dcId and uuid?
             if (row!=null) {
                 mc = new Identity.McIdentity(row.mcUuid(), row.mcName(), row.mcSkinUrl());
             }
@@ -54,14 +54,12 @@ public class IdentityManager {
         return new Identity(mc, dc);
     }
 
-    /** From a Minecraft Player. Only fill DC if ACTIVE link exists. */
     public Identity resolve(Player p) {
         Identity.DcIdentity dc = null;
         try {
             var row = db.getActiveLinkByMc(p.getUniqueId().toString());
             if (row!=null) {
                 // row.dcDisplay already computed by the view todo geht was noch nd so gut
-                log.fine(row.toString());
                 dc = new Identity.DcIdentity(row.dcId(), row.dcNick(), row.dcAvatarUrl());
             }
         } catch (Exception e) {
@@ -119,12 +117,27 @@ public class IdentityManager {
         }
     }
 
+    //todo all these should go
     public Database getDb(){//todo remove and funnel methods instead
         return db;
     }
     public JDA getJda(){return jda;}
     public void setJda(JDA j){jda =j;}
 
+    //todo DiscordIdentity from Id, name, (cached nick or nick in channel?)
+
+    //todo McIdentity from UUID, name
+
+    //todo claim from DcIdentity
+    //todo claims on DcIdentity
+
+    //todo claim from McIdentity
+    //todo claims on McIdentity
+
+    //todo get nick (eff nm) from (User, Guild), (User, Channel)
+
+
+    //todo rename?
     private static final Pattern UUID_RE = Pattern.compile("^[0-9a-fA-F-]{32,36}$");
     public String resolveMcUuid(String raw) {
         try {
@@ -146,6 +159,4 @@ public class IdentityManager {
         }
         return null;
     }
-
-
 }
