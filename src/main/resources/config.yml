@@ -1,9 +1,9 @@
 discord:
-  token: "MTQxMTQ5NzYwMTM3NDc1Mjc2OA.G4wAL0.KqN3bRXinZpS4xhaGP08xUVYbYXpOe5dEHCwbs"      # or "env:DISCORD_TOKEN" if you prefer env loading
-  channel_id: "1411498306860744854"  # Discord channel to mirror into MC
+  token: ""      # or "env:DISCORD_TOKEN" if you prefer env loading
+  channel_id: ""  # ID of Discord channel to mirror into MC
 
 whitelist:
-  enabled: true
+  enabled: false
 
 format: #todo reduce #text format with minimessage https://docs.advntr.dev/minimessage
   serverJoin:
