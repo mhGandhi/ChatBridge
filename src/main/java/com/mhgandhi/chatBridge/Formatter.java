@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,13 +15,19 @@ import java.util.UUID;
 
 public class Formatter {//todo const for format?
     private final MiniMessage mm;
+    private final IdentityManager imgr;
 
 
-    public Formatter(FileConfiguration pConf){
+    public Formatter(FileConfiguration pConf, IdentityManager pImgr){
         mm = MiniMessage.miniMessage();
+        imgr = pImgr;
 
         //todo hook up config
     }
+
+    public String mcPluginEnabled(){return "ChatBridge enabled";}
+
+    public String mcPluginDisabled(){return "ChatBridge disabled";}
 
     public Component formatMcMsg(Identity identity, String msg){
         if(identity==Identity.server){
@@ -50,6 +55,7 @@ public class Formatter {//todo const for format?
         return mm.deserialize("Login system is temporarily unavailable. Please try again in a moment.");//todo
     }
 
+    //todo change sig to Identity (and logic), resolving happens earlier
     public Component minecraftStatus(Database db, UUID mcUuid) throws Exception {
 
         //todo from config
@@ -96,7 +102,7 @@ public class Formatter {//todo const for format?
                 return mm.deserialize(
                         tempToDc,
                         Placeholder.unparsed("dcid",mc.claimedDcId()),
-                        Placeholder.unparsed("dcname","USEIDENTITY FFS")
+                        Placeholder.unparsed("dcname","USEIDENTITYFFS")
                 );
             }
         }else{
@@ -139,6 +145,10 @@ public class Formatter {//todo const for format?
     public String dcCmdDesc_disconnect(){return "Show your link status";}
 
     public String dcServerOnlineStatus() {return "Server Online!";}
+
+    public String dcPluginEnabled(){return "`🟢` **ChatBridge enabled**";}
+
+    public String dcPluginDisabled(){return "`🔴` **ChatBridge disabled**";}
 
     //todo adjust parameters for status replies mby
     //todo

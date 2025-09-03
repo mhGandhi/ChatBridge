@@ -13,7 +13,6 @@ public final class ChatBridge extends JavaPlugin {
     private MinecraftChat mcChat;
 
     private Database db;
-    private IdentityManager identityManager;
 
     private static Formatter formatter;
     public static Formatter getFormatter(){return formatter;}
@@ -25,14 +24,13 @@ public final class ChatBridge extends JavaPlugin {
         String channelId = getConfig().getString("discord.channel_id", null);
         boolean whitelist = getConfig().getBoolean("whitelist.enabled",false);
 
-        formatter = new Formatter(getConfig());
-
         if (token == null || token.isBlank() || channelId == null || channelId.isBlank()) {
             getLogger().severe("discord.token and discord.channel_id must be set in config.yml. Disabling.");
             getServer().getPluginManager().disablePlugin(this);//todo only change functionality
             return;
         }
 
+        IdentityManager identityManager;
         {///////database and iM
             db = new Database(this);
             try {
@@ -42,12 +40,14 @@ public final class ChatBridge extends JavaPlugin {
                 return;
             }
             identityManager = new IdentityManager(db, getLogger());
+
+            formatter = new Formatter(getConfig(), identityManager);
         }
 
         {///////////////////////DC CHAT
             Runnable onReady = ()->{//todo abstract mby
-                mcChat.sendMessage(Identity.server, "ChatBridge enabled");
-                discordChat.sendMessage(Identity.server,"`🟢` **ChatBridge enabled**");
+                mcChat.sendMessage(Identity.server, formatter.mcPluginEnabled());
+                discordChat.sendMessage(Identity.server, formatter.dcPluginEnabled());
             };
 
             discordChat = new DiscordChat(this, identityManager, token, channelId, onReady);
@@ -86,7 +86,6 @@ public final class ChatBridge extends JavaPlugin {
 
             getServer().getPluginManager().registerEvents(mcChat, this);
 
-            //todo chaos eindämmen wtf soll das
             getCommand("connect").setExecutor(mcChat);
             getCommand("connect").setTabCompleter(mcChat);
             getCommand("disconnect").setExecutor(mcChat);
@@ -106,8 +105,8 @@ public final class ChatBridge extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        mcChat.sendMessage(Identity.server, "ChatBridge disabled");
-        discordChat.sendMessage(Identity.server,"`🔴` **ChatBridge disabled**");
+        mcChat.sendMessage(Identity.server, formatter.mcPluginDisabled());
+        discordChat.sendMessage(Identity.server, formatter.dcPluginDisabled());
 
         if (discordChat != null) {
             discordChat.stop();
