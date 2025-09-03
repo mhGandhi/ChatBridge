@@ -109,6 +109,8 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onReady(@NotNull net.dv8tion.jda.api.events.session.ReadyEvent event) {
+        identityResolver.setJda(jda);
+
         registerCommands();
 
         TextChannel ch = event.getJDA().getTextChannelById(channelId);
@@ -129,9 +131,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
-        // Only mirror from the configured channel
         if (mirrorChannel == null || !Objects.equals(e.getChannel().getId(), channelId)) return;
-        // Skip bot/webhook messages
         if (e.getAuthor().isBot() || e.isWebhookMessage()) return;
 
         Message m = e.getMessage();

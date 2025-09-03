@@ -17,14 +17,12 @@ format: #todo reduce #text format with minimessage https://docs.advntr.dev/minim
       connect:
         description: ""
         args: ""
-        response: ""
+        response:
+          missing_userArg: ""
       disconnect:
         description: ""
-        args: ""
-        response: ""
       status:
         description: ""
-        args: ""
         response:
           linked: "" #<uuid><mcname><dcid><dcname>
           not_linked: ""
@@ -48,7 +46,6 @@ format: #todo reduce #text format with minimessage https://docs.advntr.dev/minim
           missing_playerArg: ""
       disconnect:
         description: ""
-        response: ""
       status:
         description: ""
-        response: ""
+        response: "" # ....

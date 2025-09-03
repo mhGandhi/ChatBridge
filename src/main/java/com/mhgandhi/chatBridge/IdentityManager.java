@@ -1,6 +1,7 @@
 package com.mhgandhi.chatBridge;
 
 import com.mhgandhi.chatBridge.storage.Database;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 public class IdentityManager {
     private final Database db;
     private final Logger log;
+    private JDA jda;
 
     public IdentityManager(Database db, Logger log) {
         this.db = db;
@@ -117,10 +119,11 @@ public class IdentityManager {
         }
     }
 
-
     public Database getDb(){//todo remove and funnel methods instead
         return db;
     }
+    public JDA getJda(){return jda;}
+    public void setJda(JDA j){jda =j;}
 
     private static final Pattern UUID_RE = Pattern.compile("^[0-9a-fA-F-]{32,36}$");
     public String resolveMcUuid(String raw) {

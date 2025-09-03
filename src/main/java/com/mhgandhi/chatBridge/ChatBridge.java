@@ -86,11 +86,11 @@ public final class ChatBridge extends JavaPlugin {
 
             getServer().getPluginManager().registerEvents(mcChat, this);
 
-            var mcCmds = new MinecraftLinkCommands(db, discordChat.getJDA());//todo chaos eindämmen wtf soll das
-            getCommand("connect").setExecutor(mcCmds);
-            getCommand("connect").setTabCompleter(mcCmds);
-            getCommand("disconnect").setExecutor(mcCmds);
-            getCommand("status").setExecutor(mcCmds);
+            //todo chaos eindämmen wtf soll das
+            getCommand("connect").setExecutor(mcChat);
+            getCommand("connect").setTabCompleter(mcChat);
+            getCommand("disconnect").setExecutor(mcChat);
+            getCommand("status").setExecutor(mcChat);
         }
 
         if(whitelist){
