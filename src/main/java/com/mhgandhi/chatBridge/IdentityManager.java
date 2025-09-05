@@ -4,10 +4,12 @@ import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -124,38 +126,145 @@ public class IdentityManager {
     public JDA getJda(){return jda;}
     public void setJda(JDA j){jda =j;}
 
-    //todo DiscordIdentity from Id, name, (cached nick or nick in channel?)
 
-    //todo McIdentity from UUID, name
+    public Identity.DcIdentity resolveDcId(String pId){
+        Database.DcRow row = null;
+        int tr = 1;
+        while(row==null && tr<3) {
+            try {
+                row = db.getDc(pId);
+            } catch (Exception e) {
+                //todo
+            }
+            tr++;
+            if(row==null) refreshDcMeta_byId(pId);
+        }
+        if(row==null)return null;
 
-    //todo claim from DcIdentity
-    //todo claims on DcIdentity
+        return new Identity.DcIdentity(row.dcId(), row.dcUsername(), row.avatarUrl());
+    }
 
-    //todo claim from McIdentity
-    //todo claims on McIdentity
+    public Identity.DcIdentity resolveDcName(String pName){
+        throw new NotImplementedException();//todo
+    }
+    public Identity.DcIdentity resolveDcNick(String pNick){
+        throw new NotImplementedException();//todo
+    }
 
-    //todo get nick (eff nm) from (User, Guild), (User, Channel)
+    public Identity.McIdentity resolveMcUUID(String pUUID){
+        Database.McRow row = null;
+        int tr = 1;
+        while(row==null && tr<3) {
+            try {
+                row = db.getMc(pUUID);
+            } catch (Exception e) {
+                //todo
+            }
+            tr++;
+            if(row==null)refreshMcMeta_byUUID(pUUID);
+        }
+        if(row==null)return null;
 
+        return new Identity.McIdentity(row.mcUuid(), row.mcName(), row.skinFaceUrl());
 
-    //todo rename?
-    private static final Pattern UUID_RE = Pattern.compile("^[0-9a-fA-F-]{32,36}$");
-    public String resolveMcUuid(String raw) {
+    }
+
+    public Identity.McIdentity resolveMcName(String pName){
+        return resolveMcUUID(findMcPlayerUUID(pName).toString());//todo idk
+    }
+
+    public void refreshDcMeta_byId(String pId) {
+        throw new NotImplementedException();//todo
+    }
+    private void refreshMcMeta_byUUID(String pUUID) {
+        throw new NotImplementedException();//todo
+    }
+
+    public Identity.McIdentity outgoingClaim(Identity.DcIdentity pFrom){
+        Database.DcRow claim;
         try {
-            if (UUID_RE.matcher(raw).matches()) {
-                UUID u = UUID.fromString(raw.replaceAll("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})", "$1-$2-$3-$4-$5"));
-                return u.toString();
+            claim = db.getDc(pFrom.id());
+        } catch (Exception e) {
+            //todo err
+            return null;
+        }
+
+        if(claim == null)return null;
+
+        return resolveMcUUID(claim.claimedMcUuid());
+    }
+    public List<Identity.McIdentity> incomingClaims(Identity.DcIdentity pOn){
+        List<Database.McRow> claims;
+        try{
+            claims = db.findPendingMinecraftClaimsForDc(pOn.id());//todo ts aint implemented (psst)
+        } catch (Exception e) {
+            //todo err
+            return List.of();
+        }
+
+        if(claims.isEmpty())return List.of();
+
+        List<Identity.McIdentity> ret = new java.util.ArrayList<>(claims.size());
+        for(Database.McRow row : claims){
+            ret.add(new Identity.McIdentity(row.mcUuid(),row.mcName(),row.skinFaceUrl()));
+        }
+
+        return ret;
+    }
+
+    public Identity.DcIdentity outgoingClaim(Identity.McIdentity pFrom){
+        Database.McRow claim;
+        try {
+            claim = db.getMc(pFrom.uuid());
+        } catch (Exception e) {
+            //todo err
+            return null;
+        }
+
+        if(claim == null)return null;
+
+        return resolveDcId(claim.claimedDcId());
+    }
+    public List<Identity.DcIdentity> incomingClaims(Identity.McIdentity pOn){
+        List<Database.DcRow> claims;
+        try{
+            claims = db.findPendingDiscordClaimsForMc(pOn.uuid());
+        } catch (Exception e) {
+            //todo err
+            return List.of();
+        }
+
+        if(claims.isEmpty())return List.of();
+
+        List<Identity.DcIdentity> ret = new java.util.ArrayList<>(claims.size());
+        for(Database.DcRow row : claims){
+            ret.add(new Identity.DcIdentity(row.dcId(),row.dcUsername(),row.avatarUrl()));
+        }
+
+        return ret;
+    }
+
+    //todo get nick (effective name) from (User, Guild), (User, Channel)
+
+
+    private static final Pattern UUID_RE = Pattern.compile("^[0-9a-fA-F-]{32,36}$");
+    public UUID findMcPlayerUUID(String uuidOrName) {
+        try {
+            if (UUID_RE.matcher(uuidOrName).matches()) {
+                UUID u = UUID.fromString(uuidOrName.replaceAll("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})", "$1-$2-$3-$4-$5"));
+                return u;
             }
         } catch (Exception ignored) {}
 
         // Fall back to resolving by player name (uses the server’s known players)
         // If the name is online, prefer exact:
-        var pl = Bukkit.getPlayerExact(raw);
-        if (pl != null) return pl.getUniqueId().toString();
+        Player pl = Bukkit.getPlayerExact(uuidOrName);
+        if (pl != null) return pl.getUniqueId();
 
         // Offline cache:
-        OfflinePlayer off = Bukkit.getOfflinePlayer(raw);
-        if (off != null && off.hasPlayedBefore() || (off != null && off.getUniqueId() != null)) {
-            return off.getUniqueId().toString();
+        OfflinePlayer off = Bukkit.getOfflinePlayer(uuidOrName);
+        if (off != null && (off.hasPlayedBefore() || off.getUniqueId() != null) ) {
+            return off.getUniqueId();
         }
         return null;
     }

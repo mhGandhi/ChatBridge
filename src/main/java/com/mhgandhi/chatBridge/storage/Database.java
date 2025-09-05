@@ -1,10 +1,12 @@
 package com.mhgandhi.chatBridge.storage;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
+import java.util.List;
 import java.util.Optional;
 
 public final class Database implements AutoCloseable {
@@ -200,6 +202,11 @@ public final class Database implements AutoCloseable {
                 return out;
             }
         }
+    }
+
+    public List<McRow> findPendingMinecraftClaimsForDc(String id) {
+        //todo
+        throw new NotImplementedException();
     }
 
 

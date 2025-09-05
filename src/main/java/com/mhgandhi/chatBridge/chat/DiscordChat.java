@@ -298,15 +298,15 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         }
 
         String raw = option.getAsString().trim();
-        String mcUuid = identityResolver.resolveMcUuid(raw); // UUID string or name lookup
+        UUID mcUuid = identityResolver.findMcPlayerUUID(raw); // UUID string or name lookup
         if (mcUuid == null) {
             e.reply(ChatBridge.getFormatter().dcUnableToResolveUUID(raw)).setEphemeral(true).queue();
             return;
         }
 
-        refreshMcMeta(identityResolver.getDb(), java.util.UUID.fromString(mcUuid));
+        refreshMcMeta(identityResolver.getDb(), java.util.UUID.fromString(mcUuid.toString()));
 
-        identityResolver.getDb().dcClaimsMinecraft(dcId, mcUuid);
+        identityResolver.getDb().dcClaimsMinecraft(dcId, mcUuid.toString());
         e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.getDb(), dcId)).setEphemeral(true).queue();
     }
 
