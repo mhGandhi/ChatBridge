@@ -279,14 +279,13 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     private void handleStatus(SlashCommandInteractionEvent e) throws Exception {
         String dcId = e.getUser().getId();
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.getDb(), dcId)).setEphemeral(true).queue();
+        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();
     }
 
     private void handleDisconnect(SlashCommandInteractionEvent e) throws Exception {
         String dcId = e.getUser().getId();
         identityResolver.clearDc(dcId);
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.getDb(), dcId)).setEphemeral(true).queue();
-    }
+        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
         String dcId = e.getUser().getId();
@@ -307,8 +306,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         refreshMcMeta(identityResolver.getDb(), java.util.UUID.fromString(mcUuid.toString()));
 
         identityResolver.getDb().dcClaimsMinecraft(dcId, mcUuid.toString());
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.getDb(), dcId)).setEphemeral(true).queue();
-    }
+        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
 
 
     /** Handy to update MC meta when we only know UUID (pulls last known name if online) */

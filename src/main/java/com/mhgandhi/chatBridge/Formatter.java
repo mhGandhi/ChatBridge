@@ -55,8 +55,7 @@ public class Formatter {//todo const for format?
         return mm.deserialize("Login system is temporarily unavailable. Please try again in a moment.");//todo
     }
 
-    //todo change sig to Identity (and logic), resolving happens earlier
-    public Component minecraftStatus(Database db, UUID mcUuid) throws Exception {
+    public Component minecraftStatus(Identity pIdentity) {
 
         //todo from config
         String tempLinked = "<green>✅ Linked</green>\n" +
@@ -79,41 +78,43 @@ public class Formatter {//todo const for format?
                 "Your account is currently being claimed by: [<dcclaims>]\n"+
                 "u know how the command works by now lil bro";
 
-        Database.LinkedRow link = db.getActiveLinkByMc(mcUuid.toString());
-        if (link!=null) {
+        Identity.McIdentity mcI = pIdentity.getMcIdentity();//todo assert !=null
+        Identity.DcIdentity dcI = pIdentity.getDcIdentity();
+
+        if (dcI!=null) {
             return mm.deserialize(
                     tempLinked,
-                    Placeholder.unparsed("uuid", link.mcUuid()),
-                    Placeholder.unparsed("mcname", link.mcName()),
-                    Placeholder.unparsed("dcid", link.dcId()),
-                    Placeholder.unparsed("dcname", link.dcUsername())//todo centralize variables for config mby
+                    Placeholder.unparsed("uuid", mcI.uuid()),
+                    Placeholder.unparsed("mcname", mcI.name()),
+                    Placeholder.unparsed("dcid", dcI.id()),
+                    Placeholder.unparsed("dcname", dcI.name())//todo centralize variables for config mby
             );
         }
 
-        Database.McRow mc = db.getMc(mcUuid.toString());
-        List<Database.DcRow> dcClaimingMe = db.findPendingDiscordClaimsForMc(mcUuid.toString());
+        List<Identity.DcIdentity> dcClaimingMe = imgr.incomingClaims(mcI);
+        Identity.DcIdentity claiming = imgr.outgoingClaim(mcI);
 
         if(dcClaimingMe.isEmpty()){
-            if(mc==null || mc.claimedDcId()==null){//no link
+            if(claiming == null){//no link
                 return mm.deserialize(
                         tempNotLinked
                 );
             }else{//link to discord
                 return mm.deserialize(
                         tempToDc,
-                        Placeholder.unparsed("dcid",mc.claimedDcId()),
-                        Placeholder.unparsed("dcname","USEIDENTITYFFS")
+                        Placeholder.unparsed("dcid", claiming.id()),
+                        Placeholder.unparsed("dcname",claiming.name())
                 );
             }
         }else{
             String claims = "";
             for (int i = 0; i < dcClaimingMe.size(); i++) {
-                Database.DcRow r = dcClaimingMe.get(i);
-                claims += r.dcUsername();
+                Identity.DcIdentity r = dcClaimingMe.get(i);
+                claims += r.name();
                 if(i<dcClaimingMe.size()-1)claims+=", ";
             }
 
-            if(mc==null){//link from discord
+            if(claiming==null){//link from discord
                 return mm.deserialize(
                         tempFromDc,
                         Placeholder.unparsed("dcclaims", claims)
@@ -122,8 +123,8 @@ public class Formatter {//todo const for format?
                 return mm.deserialize(
                         tempFromBoth,
                         Placeholder.unparsed("dcclaims", claims),
-                        Placeholder.unparsed("dcid",mc.claimedDcId()),
-                        Placeholder.unparsed("dcname","RESOLVE")
+                        Placeholder.unparsed("dcid", claiming.id()),
+                        Placeholder.unparsed("dcname",claiming.name())
                 );
             }
         }
@@ -152,40 +153,40 @@ public class Formatter {//todo const for format?
 
     //todo adjust parameters for status replies mby
     //todo
-    public MessageEmbed buildDiscordFeedback(Database db, String dcId) throws Exception {
-        var eb = new EmbedBuilder().setTitle("Connection status").setColor(new Color(0x5fb95f));
-        var l = db.getActiveLinkByDc(dcId);
+    public MessageEmbed buildDiscordFeedback(Identity pIdentity) throws Exception {
 
-        if (l!=null) {
+        Identity.McIdentity mcI = pIdentity.getMcIdentity();
+        Identity.DcIdentity dcI = pIdentity.getDcIdentity();//todo assert !=null
+
+        var eb = new EmbedBuilder().setTitle("Connection status").setColor(new Color(0x5fb95f));
+
+        eb.setAuthor(dcI.name(), null, dcI.avatarURL());
+
+        if (mcI != null) {
             eb.setDescription("✅ Your Discord is **linked** to this Minecraft account.");
-            eb.addField("Minecraft", "**%s** (`%s`)".formatted(l.mcName(), l.mcUuid()), false);
-            eb.addField("Discord", "<@%s> — **%s**%s".formatted(l.dcId(), l.dcUsername(),
-                    l.dcNick() != null ? " (nick: " + l.dcNick() + ")" : ""), false);
-            if (l.mcSkinUrl() != null) eb.setThumbnail(l.mcSkinUrl());
-            if (l.dcAvatarUrl() != null) eb.setAuthor(l.dcUsername(), null, l.dcAvatarUrl());
+            eb.addField("Minecraft", "**%s** (`%s`)".formatted(mcI.name(), mcI.uuid()), false);
+            eb.addField("Discord", "<@%s> — **%s**".formatted(dcI.id(), dcI.name()), false);
+            if (mcI.avatarURL() != null) eb.setThumbnail(mcI.avatarURL());
             return eb.build();
         }
 
         // Not fully linked: show current claims and hints
-        var dcRow = db.getDc(dcId);
-        String claimed = (dcRow != null) ? dcRow.claimedMcUuid() : null;
+        Identity.McIdentity claimed = imgr.outgoingClaim(dcI);
+
+
 
         eb.setDescription("❕ Your Discord is **not linked** yet.");
-        eb.addField("Your claim", claimed != null ? ("➡ Minecraft UUID: `" + claimed + "`") : "None", false);
-        if (dcRow != null && dcRow.avatarUrl() != null) {
-            eb.setAuthor(dcRow.dcUsername(), null, dcRow.avatarUrl());
-        }
+        eb.addField("Your claim", claimed != null ? ("➡ Minecraft UUID: `" + claimed.uuid() + "`") : "None", false);//todo let people claim uuid even if it doesnt resolve
+
 
         if (claimed != null) {
-            // If MC side also claimed you, it would be active; so hint user to run /connect in MC
-            var mc = db.getMc(claimed);
-            if (mc != null) {
-                eb.addField("Minecraft name", mc.mcName(), true);
-                if (mc.skinFaceUrl() != null) eb.setThumbnail(mc.skinFaceUrl());
-            }
-            eb.addField("Next step", "Run **/connect " + dcId + "** in Minecraft **or** **/connect " + (mc != null ? mc.mcName() : claimed) + "** from Discord to confirm.", false);
+
+            eb.addField("Minecraft name", claimed.name(), true);
+            if (claimed.avatarURL() != null) eb.setThumbnail(claimed.avatarURL());
+
+            eb.addField("Next step", "Run **/connect " + dcI.name() + "** in Minecraft to confirm.", false);
         } else {
-            eb.addField("How to link", "Use `/connect <mc-uuid or name>` here **or** run `/connect <discord-id or name>` in Minecraft.", false);
+            eb.addField("How to link", "Use `/connect <mc-uuid or name>` here.", false);
         }
         return eb.build();
     }

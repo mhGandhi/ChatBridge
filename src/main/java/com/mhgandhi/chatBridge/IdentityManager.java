@@ -127,49 +127,54 @@ public class IdentityManager {
     public void setJda(JDA j){jda =j;}
 
 
-    public Identity.DcIdentity resolveDcId(String pId){
+    public Identity.DcIdentity resolveDcId(String pId){//todo build partial Ident
         Database.DcRow row = null;
-        int tr = 1;
-        while(row==null && tr<3) {
-            try {
-                row = db.getDc(pId);
-            } catch (Exception e) {
-                //todo
-            }
-            tr++;
-            if(row==null) refreshDcMeta_byId(pId);
+        try {
+            row = db.getDc(pId);
+        } catch (Exception e) {
+            //todo
         }
+
         if(row==null)return null;
 
-        return new Identity.DcIdentity(row.dcId(), row.dcUsername(), row.avatarUrl());
+        return new Identity.DcIdentity(row.dcId(),row.dcUsername(),row.avatarUrl());
     }
 
-    public Identity.DcIdentity resolveDcName(String pName){
+    public Identity resolveDcName(String pName){
         throw new NotImplementedException();//todo
     }
-    public Identity.DcIdentity resolveDcNick(String pNick){
+    public Identity resolveDcNick(String pNick){
         throw new NotImplementedException();//todo
     }
 
-    public Identity.McIdentity resolveMcUUID(String pUUID){
-        Database.McRow row = null;
-        int tr = 1;
-        while(row==null && tr<3) {
-            try {
-                row = db.getMc(pUUID);
+    public Identity resolveMcUUID(String pUUID){//todo build partial Ident, resolve to player/offline player?
+        Database.LinkedRow row = null;
+        try {
+            row = db.getActiveLinkByMc(pUUID);
+        } catch (Exception e) {
+            //todo
+        }
+
+        if(row==null){
+            Identity.McIdentity mc = null;
+            try{
+                Database.McRow mr = db.getMc(pUUID);
+
+                if(mr!=null)mc = new Identity.McIdentity(mr.mcUuid(), mr.mcName(), mr.skinFaceUrl());//todo null?
             } catch (Exception e) {
                 //todo
             }
-            tr++;
-            if(row==null)refreshMcMeta_byUUID(pUUID);
+            if(mc==null)return null;
+            return Identity.of(mc,null);
         }
-        if(row==null)return null;
 
-        return new Identity.McIdentity(row.mcUuid(), row.mcName(), row.skinFaceUrl());
+        Identity.McIdentity mc = new Identity.McIdentity(row.mcUuid(),row.mcName(),row.mcSkinUrl());
+        Identity.DcIdentity dc = new Identity.DcIdentity(row.dcId(), row.dcUsername(), row.dcAvatarUrl());
 
+        return Identity.of(mc,dc);
     }
 
-    public Identity.McIdentity resolveMcName(String pName){
+    public Identity resolveMcName(String pName){
         return resolveMcUUID(findMcPlayerUUID(pName).toString());//todo idk
     }
 
@@ -191,7 +196,7 @@ public class IdentityManager {
 
         if(claim == null)return null;
 
-        return resolveMcUUID(claim.claimedMcUuid());
+        return resolveMcUUID(claim.claimedMcUuid()).getMcIdentity();
     }
     public List<Identity.McIdentity> incomingClaims(Identity.DcIdentity pOn){
         List<Database.McRow> claims;
