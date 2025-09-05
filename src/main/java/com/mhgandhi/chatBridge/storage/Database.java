@@ -14,7 +14,10 @@ public final class Database implements AutoCloseable {
     private final Path dbPath;
     private Connection conn;
 
-    public Database(JavaPlugin plugin) { this.plugin = plugin; this.dbPath = plugin.getDataFolder().toPath().resolve("data.db"); }
+    public Database(JavaPlugin plugin) {
+        this.plugin = plugin;
+        this.dbPath = plugin.getDataFolder().toPath().resolve("data.db");
+    }
 
     public void open() throws Exception {
         Files.createDirectories(plugin.getDataFolder().toPath());
