@@ -149,7 +149,11 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
                         // Upsert DC meta so status cards look nice
                         identityManager.upsert(u);
 
-                        identityManager.getDb().mcClaimsDiscord(p.getUniqueId().toString(), u.getId());
+
+                        Identity.McIdentity mI = identityManager.resolve(p).getMcIdentity();
+                        Identity.DcIdentity dI = identityManager.resolve(u).getDcIdentity();//todo bah
+
+                        identityManager.claim(mI,dI);
 
                         // Show immediate feedback
                         p.sendMessage(ChatBridge.getFormatter().minecraftStatus(identityManager.resolve(p)));
@@ -194,13 +198,14 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         if (!cmd.getName().equalsIgnoreCase("connect")) return Collections.emptyList();
         if (args.length != 1) return Collections.emptyList();
         try {
-            var claimers = identityManager.getDb().findPendingDiscordClaimsForMc(p.getUniqueId().toString());
+            Identity sI = identityManager.resolve(p);
+            List<Identity.DcIdentity> claimers = identityManager.incomingClaims(sI.getMcIdentity());
             if (claimers.isEmpty()) return Collections.emptyList();
             var prefix = args[0].toLowerCase();
             ArrayList<String> out = new ArrayList<>();
             for (var d : claimers) {
-                var name = d.dcUsername();
-                var id = d.dcId();
+                var name = d.name();
+                var id = d.id();
                 if (name.toLowerCase().startsWith(prefix)) out.add(name);
                 if (id.startsWith(prefix)) out.add(id);
             }

@@ -102,6 +102,23 @@ public class IdentityManager {
         }
 
     }
+
+
+    public void claim(Identity.McIdentity m, Identity.DcIdentity d){
+        try {
+            db.mcClaimsDiscord(m.uuid(), d.id());
+        } catch (Exception e) {
+            //todo
+        }
+    }
+
+    public void claim(Identity.DcIdentity d, Identity.McIdentity m){
+        try {
+            db.dcClaimsMinecraft(d.id(), m.uuid());
+        } catch (Exception e) {
+            //todo
+        }
+    }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void clearDc(String id){
         try{
@@ -120,9 +137,6 @@ public class IdentityManager {
     }
 
     //todo all these should go
-    public Database getDb(){//todo remove and funnel methods instead
-        return db;
-    }
     public JDA getJda(){return jda;}
     public void setJda(JDA j){jda =j;}
 
@@ -138,13 +152,6 @@ public class IdentityManager {
         if(row==null)return null;
 
         return new Identity.DcIdentity(row.dcId(),row.dcUsername(),row.avatarUrl());
-    }
-
-    public Identity resolveDcName(String pName){
-        throw new NotImplementedException();//todo
-    }
-    public Identity resolveDcNick(String pNick){
-        throw new NotImplementedException();//todo
     }
 
     public Identity resolveMcUUID(String pUUID){//todo build partial Ident, resolve to player/offline player?
@@ -174,16 +181,6 @@ public class IdentityManager {
         return Identity.of(mc,dc);
     }
 
-    public Identity resolveMcName(String pName){
-        return resolveMcUUID(findMcPlayerUUID(pName).toString());//todo idk
-    }
-
-    public void refreshDcMeta_byId(String pId) {
-        throw new NotImplementedException();//todo
-    }
-    private void refreshMcMeta_byUUID(String pUUID) {
-        throw new NotImplementedException();//todo
-    }
 
     public Identity.McIdentity outgoingClaim(Identity.DcIdentity pFrom){
         Database.DcRow claim;
@@ -272,5 +269,14 @@ public class IdentityManager {
             return off.getUniqueId();
         }
         return null;
+    }
+
+    /** Handy to update MC meta when we only know UUID (pulls last known name if online) */
+    public void refreshMcMeta(UUID mcUuid) {
+        // Try to enrich name & skin if you have a skin provider; this keeps it simple
+        OfflinePlayer off = Bukkit.getOfflinePlayer(mcUuid);
+        var name = off.getName() != null ? off.getName() : "unknown";
+        String skin = null; // plug your skin-face provider URL here if you have one todo
+        try { db.upsertMcMeta(mcUuid.toString(), name, skin); } catch (Exception ignored) {}
     }
 }

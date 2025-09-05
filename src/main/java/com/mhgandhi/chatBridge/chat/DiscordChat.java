@@ -303,18 +303,14 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             return;
         }
 
-        refreshMcMeta(identityResolver.getDb(), java.util.UUID.fromString(mcUuid.toString()));
+        identityResolver.refreshMcMeta(java.util.UUID.fromString(mcUuid.toString()));//todo
 
-        identityResolver.getDb().dcClaimsMinecraft(dcId, mcUuid.toString());
+        Identity.McIdentity mI = identityResolver.resolveMcUUID(mcUuid.toString()).getMcIdentity();
+        Identity.DcIdentity dI = identityResolver.resolve(e.getUser()).getDcIdentity();//todo bah
+
+        identityResolver.claim(dI,mI);
         e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
 
 
-    /** Handy to update MC meta when we only know UUID (pulls last known name if online) */
-    public static void refreshMcMeta(Database db, UUID mcUuid) {
-        // Try to enrich name & skin if you have a skin provider; this keeps it simple
-        OfflinePlayer off = Bukkit.getOfflinePlayer(mcUuid);
-        var name = off.getName() != null ? off.getName() : "unknown";
-        String skin = null; // plug your skin-face provider URL here if you have one todo
-        try { db.upsertMcMeta(mcUuid.toString(), name, skin); } catch (Exception ignored) {}
-    }
+
 }
