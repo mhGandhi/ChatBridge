@@ -57,4 +57,8 @@ public class Identity {
     public int hashCode() {
         return Objects.hash(mcIdentity, dcIdentity);
     }
+
+    public static Identity of(McIdentity pM, DcIdentity pD){
+        return new Identity(pM, pD);
+    }
 }
