@@ -4,15 +4,19 @@ discord:
 
 whitelist:
   enabled: false
+  kick_on_disconnect: false #only valid if whitelist is enabled
 
-format: #todo reduce #text format with minimessage https://docs.advntr.dev/minimessage
-  serverJoin:
-    whitelistRejection: ""
-    notReadyRejection: ""
-  minecraftChat:
+format: #todo reduce
+  minecraftChat: #text format with minimessage https://docs.advntr.dev/minimessage
+    serverJoin:
+      whitelistRejection: ""
+      notReadyRejection: ""
     messages:
-      pluginEnable: ""
-      pluginDisable: ""
+      pluginEnable: "ChatBridge Enabled!"
+      pluginDisable: "ChatBridge Disabled!"
+      serverMsg: "<yellow><message></yellow>" #todo customize different kinds
+      linkedMsg: "<blue>[D]</blue> <<sender>> <message>"
+      unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>" #eg
     commands:
       connect:
         description: ""
