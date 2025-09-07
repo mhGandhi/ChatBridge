@@ -1,6 +1,5 @@
 package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
@@ -11,7 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 import java.awt.*;
 import java.util.List;
-import java.util.UUID;
 
 public class Formatter {//todo const for format?
     private final MiniMessage mm;
@@ -131,7 +129,7 @@ public class Formatter {//todo const for format?
     }
 
     /// ///7/////////////////////////////////////////////////////////////////////////////////////////////////
-    public String dcUnableToResolveUUID(String uuid){return "❌ Could not resolve **%s** to a Minecraft UUID.".formatted(uuid);}
+    public String dcUnableToResolvePlayer(String player){return "❌ Could not resolve **%s** to a Minecraft Player. Check for typos and try joining the server once.".formatted(player);}
 
     public String dcMissingPlayerArg(){return "Please Enter a Player name or UUID as argument";}
 
@@ -151,10 +149,8 @@ public class Formatter {//todo const for format?
 
     public String dcPluginDisabled(){return "`🔴` **ChatBridge disabled**";}
 
-    //todo adjust parameters for status replies mby
-    //todo
-    public MessageEmbed buildDiscordFeedback(Identity pIdentity) throws Exception {
-
+    public MessageEmbed discordStatus(Identity pIdentity) throws Exception {
+        //todo
         Identity.McIdentity mcI = pIdentity.getMcIdentity();
         Identity.DcIdentity dcI = pIdentity.getDcIdentity();//todo assert !=null
 
