@@ -4,52 +4,74 @@ discord:
 
 whitelist:
   enabled: false
-  kick_on_disconnect: false #only valid if whitelist is enabled
+  kick_on_disconnect: false #only valid if whitelist is enabled todo
 
-format: #todo reduce
+format:
   minecraftChat: #text format with minimessage https://docs.advntr.dev/minimessage
+    avatarApi: "https://mc-heads.net/avatar/%s/128" # %s -> player UUID
     serverJoin:
-      whitelistRejection: ""
-      notReadyRejection: ""
+      whitelistRejection: "Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first."
+      loginUnavailableRejection: "Login system is temporarily unavailable. Try again in a moment or contact Server Admin."
     messages:
-      pluginEnable: "ChatBridge Enabled!"
-      pluginDisable: "ChatBridge Disabled!"
+      pluginEnabled: "ChatBridge Enabled!"
+      pluginDisabled: "ChatBridge Disabled!"
       serverMsg: "<yellow><message></yellow>" #todo customize different kinds
       linkedMsg: "<blue>[D]</blue> <<sender>> <message>"
       unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>" #eg
     commands:
+      error_reply: "Error: %s" # %s -> error msg
       connect:
-        description: ""
-        args: ""
+        description: "Link to a Minecraft account"
+        arg_description: "Minecraft UUID or player name"
         response:
-          missing_userArg: ""
+          missing_userArg: "Missing user argument." # (not currently used)
       disconnect:
-        description: ""
+        description: "Remove your Discord→MC claim"
       status:
-        description: ""
+        description: "Show your link status"
         response:
-          linked: "" #<uuid><mcname><dcid><dcname>
-          not_linked: ""
-          linked_toDc: "" #<dcname><dcid>
-          linked_fromDc: "" #<dcclaims>
-          linked_fromBothNoMatch: "" #<dcclaims><dcname><dcid>
+          linked: "<green>✅ Linked to</green> <dcid>" #<dcid>
+          linked_toDc: "<yellow>❕ Not linked</yellow>\nYou are currently claiming <dcid>\nDo /connect in discord to complete the link." #<dcid>
+          linked_fromDc: "<yellow>❕ Not linked</yellow>\nYour account is currently being claimed by: [<dcclaims>]\nDo /connect <any of the claiming discord users> to complete a link." #<dcclaims>
+          linked_fromBothNoMatch: "<yellow>❕ Not linked\n</yellow>You are currently claiming <dcid>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro" #<dcclaims><dcid>
+
   discordChat:
-    server_online_status: ""
+    server_online_status: "Server Online!"
     messages:
-      join: ""
-      leave: ""
-      pluginEnable: ""
-      pluginDisable: ""
-    commands:
-      error_reply: "" # %s -> error
+      join: "`➕` **%s** joined the server" # %s -> player
+      leave: "`➖` **%s** left the server" # %s -> player
+      pluginEnabled: "`🟢` **ChatBridge enabled**"
+      pluginDisabled: "`🔴` **ChatBridge disabled**"
+    commands: #if you set the commands to have the same name you can go fuck yourself
+      error_reply: "❌ Error: %s" # %s -> error
       connect:
-        description: ""
-        arg_description: ""
+        name: "connect"
+        description: "Link to a Minecraft account"
+        arg_name: "player"
+        arg_description: "Minecraft UUID or player name"
         response:
-          resolve_error: "" # %s -> uuid that wasn't resolved
-          missing_playerArg: ""
+          resolving_status: "Resolving Player Name to UUID..."
+          resolve_error:
+            reason_notExist: "'%s' does not seem to be a player. Check for typos or enter your UUID directly." # %s -> name that wasn't resolved
+            reason_api: "Could not Resolve name to an UUID due to API problems. Try again later or enter your UUID directly."
+            reason_other: "Could not Resolve name to an UUID for an unspecified reason. Cry about it."
       disconnect:
-        description: ""
+        name: "disconnect"
+        description: "Remove your Discord→MC claim"
       status:
-        description: ""
-        response: "" # ....
+        name: "status"
+        description: "Show your link status"
+        response:
+          title: "Connection status"
+          linked: "✅ Your Discord is **linked** to this Minecraft account."
+          not_linked: "❕ Your Discord is **not linked** yet."
+          info_field:
+            title: "Claimed Minecraft UUID"
+            content: "[%s]" # %s -> player uuid
+          instruction_field:
+            complete:
+              title: "How to link"
+              content: "Use `/connect <mc-uuid or name>` here."
+            minecraft:
+              title: "Next step"
+              content: "Run **/connect %s** in Minecraft to confirm. (autocompletes)" # %s -> user id

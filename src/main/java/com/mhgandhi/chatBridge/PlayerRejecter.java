@@ -7,40 +7,38 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.UUID;
+
 public class PlayerRejecter implements Listener {
-    private final Database db;
+    private final IdentityManager imgr;
     private final JavaPlugin plugin;
 
-    public PlayerRejecter(JavaPlugin plugin, Database db) {
+    public PlayerRejecter(JavaPlugin plugin, IdentityManager pI) {
         this.plugin = plugin;
-        this.db = db;
+        this.imgr = pI;
 
         plugin.getLogger().fine("REJECTING UNCLAIMED PLAYERS");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
-        String uuid = e.getUniqueId().toString();
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {//todo fix msg display
+        UUID uuid = e.getUniqueId();
 
-        try {
-            // Database uses a single Connection — guard it if other threads (e.g. JDA) also hit it. todo digga was labert der
-            boolean allowed;
-            synchronized (db) {
-                allowed = db.whitelistAllow(uuid);
-            }
-
+        try{
+            boolean allowed = !imgr.claimsOnMc(uuid).isEmpty();
             if (!allowed) {
                 e.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
                         ChatBridge.getFormatter().whitelistReject()
                 );
+                plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+uuid+"] from joining because the uuid is not claimed");
             }
         } catch (Exception ex) {
-            plugin.getLogger().warning("[Whitelist] DB error for " + uuid + ": " + ex.getMessage());
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    ChatBridge.getFormatter().notYetOnlineReject()
+                    ChatBridge.getFormatter().loginUnavailableReject()
             );
+            plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+uuid+"] there was an db exception.");
         }
     }
 }

@@ -3,6 +3,7 @@ package com.mhgandhi.chatBridge;
 import com.mhgandhi.chatBridge.chat.DiscordChat;
 import com.mhgandhi.chatBridge.chat.MinecraftChat;
 import com.mhgandhi.chatBridge.storage.Database;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.BiConsumer;
@@ -42,6 +43,11 @@ public final class ChatBridge extends JavaPlugin {
             identityManager = new IdentityManager(db, getLogger());
 
             formatter = new Formatter(getConfig(), identityManager);
+        }
+
+        if(whitelist){
+            PlayerRejecter pr = new PlayerRejecter(this, identityManager);
+            getServer().getPluginManager().registerEvents(pr, this);
         }
 
         {///////////////////////DC CHAT
@@ -91,11 +97,6 @@ public final class ChatBridge extends JavaPlugin {
             getCommand("disconnect").setExecutor(mcChat);
             getCommand("status").setExecutor(mcChat);
         }
-
-        if(whitelist){
-            PlayerRejecter pr = new PlayerRejecter(this, db);
-            getServer().getPluginManager().registerEvents(pr, this);
-        }
     }
 
     private void abort(Exception e){
@@ -114,7 +115,8 @@ public final class ChatBridge extends JavaPlugin {
             discordChat.stop();
         }
 
-        if(db!=null)db.close();
+        if(db!=null)
+            db.close();
 
         formatter = null;
     }

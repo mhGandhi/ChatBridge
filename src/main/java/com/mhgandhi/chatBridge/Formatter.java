@@ -3,189 +3,342 @@ package com.mhgandhi.chatBridge;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.awt.*;
 import java.util.List;
+import java.util.UUID;
 
 public class Formatter {//todo const for format?
     private final MiniMessage mm;
     private final IdentityManager imgr;
 
+    // -------------------- Minecraft Chat: general messages --------------------
+    private final String tPluginEnabled;
+    private final String tPluginDisabled;
+    private final String tServerMsg;
+    private final String tLinkedMsg;
+    private final String tUnlinkedMsg;
+
+    // -------------------- Minecraft Chat: join/whitelist/login ----------------
+    private final String tWhitelistReject;
+    private final String tUnavailableReject;
+
+    // -------------------- Minecraft Chat: command error -----------------------
+    private final String tMcCmdError; // format: "Error: %s"
+
+    // -------------------- Minecraft Chat: status response ---------------------
+    // Uses MiniMessage placeholders <dcid> and <dcclaims> like your current method
+    private final String tMcStatus_linked;         // "✅ Linked to <dcid>"
+    private final String tMcStatus_notLinked;      // general not linked
+    private final String tMcStatus_toDc;           // you are claiming <dcid>
+    private final String tMcStatus_fromDc;         // claimed by [<dcclaims>]
+    private final String tMcStatus_fromBoth;       // claiming + claimed
+
+    // -------------------- Minecraft Chat: avatar URL pattern ------------------
+    private final String tAvatarApi; // e.g. "https://mc-heads.net/avatar/%s/128"
+
+    // -------------------- Discord Chat: general messages ----------------------
+    private final String sServerOnlineStatus;
+    private final String sPlayerJoined;   // format: "%s"
+    private final String sPlayerLeft;     // format: "%s"
+    private final String sPluginEnabled;
+    private final String sPluginDisabled;
+
+    // -------------------- Discord Chat: command boilerplate -------------------
+    private final String sDcCmdError; // format: "❌ Error: %s"
+
+    private final String sDcCmdConnect_desc;
+    private final String sDcCmdConnect_argDesc;
+    private final String sDcCmdDisconnect_desc;
+    private final String sDcCmdStatus_desc;
+
+    // -------------------- Discord Chat: /connect resolve messages -------------
+    private final String sDcResolve_status;
+    private final String sDcResolve_err_notExist; // format: "%s"
+    private final String sDcResolve_err_api;
+    private final String sDcResolve_err_other;
+
+    // -------------------- Discord Chat: /status embed strings -----------------
+    private final String sDcStatus_title;
+    private final String sDcStatus_linked;
+    private final String sDcStatus_notLinked;
+    private final String sDcStatus_info_title;
+    private final String sDcStatus_info_content; // format: "%s" (uuid)
+    private final String sDcStatus_instr_complete_title;
+    private final String sDcStatus_instr_complete_content; // text only
+    private final String sDcStatus_instr_mc_title;
+    private final String sDcStatus_instr_mc_content; // format: "%s" (user id)
+
+    private final IdentityManager imgrAliasForCommentsOnly = null; // (no-op; just to keep comment alignment consistent)
 
     public Formatter(FileConfiguration pConf, IdentityManager pImgr){
         mm = MiniMessage.miniMessage();
         imgr = pImgr;
 
-        //todo hook up config
+        // ---------------- Minecraft Chat: general messages ----------------
+        tPluginEnabled = pConf.getString("format.minecraftChat.messages.pluginEnabled",
+                "ChatBridge Enabled!");
+        tPluginDisabled = pConf.getString("format.minecraftChat.messages.pluginDisabled",
+                "ChatBridge Disabled!");
+        tServerMsg = pConf.getString("format.minecraftChat.messages.serverMsg",
+                "<yellow><message></yellow>");
+        tLinkedMsg = pConf.getString("format.minecraftChat.messages.linkedMsg",
+                "<blue>[D]</blue> <<sender>> <message>");
+        tUnlinkedMsg = pConf.getString("format.minecraftChat.messages.unlinkedMsg",
+                "<blue>[D]</blue> @<sender>: <message>");
+
+        // ---------------- Minecraft Chat: join/whitelist/login ------------
+        tWhitelistReject = pConf.getString("format.minecraftChat.serverJoin.whitelistRejection",
+                "Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first.");
+        tUnavailableReject = pConf.getString("format.minecraftChat.serverJoin.loginUnavailableRejection",
+                "Login system is temporarily unavailable. Try again in a moment or contact Server Admin.");
+
+        // ---------------- Minecraft Chat: command error -------------------
+        tMcCmdError = pConf.getString("format.minecraftChat.commands.error_reply",
+                "Error: %s");
+
+        // ---------------- Minecraft Chat: status response -----------------
+        tMcStatus_linked = pConf.getString("format.minecraftChat.commands.status.response.linked",
+                "<green>✅ Linked to</green> <dcid>");
+        tMcStatus_notLinked = pConf.getString("format.minecraftChat.commands.status.response.linked_toDc",
+                "<red>❕ Not linked</red>\nUse /connect to link (for comfort do it on discord first)");
+        tMcStatus_toDc = pConf.getString("format.minecraftChat.commands.status.response.linked_toDc",
+                "<yellow>❕ Not linked</yellow>\nYou are currently claiming <dcid>\nDo /connect in discord to complete the link.");
+        tMcStatus_fromDc = pConf.getString("format.minecraftChat.commands.status.response.linked_fromDc",
+                "<yellow>❕ Not linked</yellow>\nYour account is currently being claimed by: [<dcclaims>]\nDo /connect <any of the claiming discord users> to complete a link.");
+        tMcStatus_fromBoth = pConf.getString("format.minecraftChat.commands.status.response.linked_fromBothNoMatch",
+                "<yellow>❕ Not linked\n</yellow>You are currently claiming <dcid>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro");
+
+        // ---------------- Minecraft Chat: avatar API ----------------------
+        tAvatarApi = pConf.getString("format.minecraftChat.avatarApi",
+                "https://mc-heads.net/avatar/%s/128");
+
+        // ---------------- Discord Chat: general messages ------------------
+        sServerOnlineStatus = pConf.getString("format.discordChat.server_online_status",
+                "Server Online!");
+        sPlayerJoined = pConf.getString("format.discordChat.messages.join",
+                "`➕` **%s** joined the server");
+        sPlayerLeft = pConf.getString("format.discordChat.messages.leave",
+                "`➖` **%s** left the server");
+        sPluginEnabled = pConf.getString("format.discordChat.messages.pluginEnabled",
+                "`🟢` **ChatBridge enabled**");
+        sPluginDisabled = pConf.getString("format.discordChat.messages.pluginDisabled",
+                "`🔴` **ChatBridge disabled**");
+
+        // ---------------- Discord Chat: command boilerplate ---------------
+        sDcCmdError = pConf.getString("format.discordChat.commands.error_reply",
+                "❌ Error: %s");
+        sDcCmdConnect_desc = pConf.getString("format.discordChat.commands.connect.description",
+                "Link to a Minecraft account");
+        sDcCmdConnect_argDesc = pConf.getString("format.discordChat.commands.connect.arg_description",
+                "Minecraft UUID or player name");
+        sDcCmdDisconnect_desc = pConf.getString("format.discordChat.commands.disconnect.description",
+                "Remove your Discord→MC claim");
+        sDcCmdStatus_desc = pConf.getString("format.discordChat.commands.status.description",
+                "Show your link status");
+
+        // ---------------- Discord Chat: /connect resolve messages ---------
+        sDcResolve_status = pConf.getString("format.discordChat.commands.connect.response.resolving_status",
+                "Resolving Player Name to UUID...");
+        sDcResolve_err_notExist = pConf.getString("format.discordChat.commands.connect.response.resolve_error.reason_notExist",
+                "'%s' does not seem to be a player. Check for typos or enter your UUID directly.");
+        sDcResolve_err_api = pConf.getString("format.discordChat.commands.connect.response.resolve_error.reason_api",
+                "Could not Resolve name to an UUID due to API problems. Try again later or enter your UUID directly.");
+        sDcResolve_err_other = pConf.getString("format.discordChat.commands.connect.response.resolve_error.reason_other",
+                "Could not Resolve name to an UUID for an unspecified reason. Cry about it.");
+
+        // ---------------- Discord Chat: /status embed strings -------------
+        sDcStatus_title = pConf.getString("format.discordChat.commands.status.response.title",
+                "Connection status");
+        sDcStatus_linked = pConf.getString("format.discordChat.commands.status.response.linked",
+                "✅ Your Discord is **linked** to this Minecraft account.");
+        sDcStatus_notLinked = pConf.getString("format.discordChat.commands.status.response.not_linked",
+                "❕ Your Discord is **not linked** yet.");
+        sDcStatus_info_title = pConf.getString("format.discordChat.commands.status.response.info_field.title",
+                "Claimed Minecraft UUID");
+        sDcStatus_info_content = pConf.getString("format.discordChat.commands.status.response.info_field.content",
+                "[%s]");
+        sDcStatus_instr_complete_title = pConf.getString("format.discordChat.commands.status.response.instruction_field.complete.title",
+                "How to link");
+        sDcStatus_instr_complete_content = pConf.getString("format.discordChat.commands.status.response.instruction_field.complete.content",
+                "Use `/connect <mc-uuid or name>` here.");
+        sDcStatus_instr_mc_title = pConf.getString("format.discordChat.commands.status.response.instruction_field.minecraft.title",
+                "Next step");
+        sDcStatus_instr_mc_content = pConf.getString("format.discordChat.commands.status.response.instruction_field.minecraft.content",
+                "Run **/connect %s** in Minecraft to confirm. (autocompletes)");
+
+
+        dcCmdDisconnect_name = pConf.getString("format.discordChat.commands.disconnect.name",
+                "disconnect");
+        dcCmdStatus_name = pConf.getString("format.discordChat.commands.status.name",
+                "status");
+        dcCmdConnect_name =pConf.getString("format.discordChat.commands.connect.name",
+                "connect");
+        dcCmdConnectArg_name = pConf.getString("format.discordChat.commands.connect.arg_name",
+                "player");
     }
 
-    public String mcPluginEnabled(){return "ChatBridge enabled";}
 
-    public String mcPluginDisabled(){return "ChatBridge disabled";}
+    public String mcCommandError(String message) {
+        return tMcCmdError.formatted(message);
+    }
+
+    public String mcPluginEnabled(){return tPluginEnabled;}
+
+    public String mcPluginDisabled(){return tPluginDisabled;}
 
     public Component formatMcMsg(Identity identity, String msg){
-        if(identity==Identity.server){
-            return Component
-                    .text(msg)
-                    .color(NamedTextColor.YELLOW);
-        }else if(identity.getMcIdentity()!=null){
-            return Component
-                    .text("[D]", NamedTextColor.BLUE)
-                    .append(Component.text(" <"+identity.getMcIdentity().name()+"> "+msg));
-        }else if(identity.getDcIdentity()!=null){
-            return Component
-                    .text("[D]", NamedTextColor.BLUE)
-                    .append(Component.text(" @"+identity.getDcIdentity().name()+": "+msg));
-        }else{
-            return null;
+        switch(identity.type()){//todo hover for dc name etc (identity rework)
+            case Discord -> {
+                return mm.deserialize(
+                        tUnlinkedMsg,
+                        Placeholder.unparsed("sender",identity.name()),
+                        Placeholder.unparsed("message",msg)
+                );
+            }
+            case Minecraft -> {
+                return mm.deserialize(
+                        tLinkedMsg,
+                        Placeholder.unparsed("sender",identity.name()),
+                        Placeholder.unparsed("message",msg)
+                );
+            }
+            default -> {
+                return mm.deserialize(
+                        tServerMsg,
+                        Placeholder.unparsed("message",msg)
+                );
+            }
         }
     }
 
-    public Component whitelistReject(){
-        return mm.deserialize("Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first.");//todo
-    }
+    public Component whitelistReject(){return mm.deserialize(tWhitelistReject);}
 
-    public Component notYetOnlineReject(){
-        return mm.deserialize("Login system is temporarily unavailable. Please try again in a moment.");//todo
-    }
+    public Component loginUnavailableReject(){return mm.deserialize(tUnavailableReject);}
 
-    public Component minecraftStatus(Identity pIdentity) {
+    public Component minecraftStatus(UUID pUUID) {
+        String tLinked = tMcStatus_linked;
 
-        //todo from config
-        String tempLinked = "<green>✅ Linked</green>\n" +
-                "<hover:show_text:'<yellow><uuid></yellow>'><mcname></hover> <-> " +
-                "<hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>";//todo show dc nick?
+        String tNotLinked = tMcStatus_notLinked;
 
-        String tempNotLinked = "<red>❕ Not linked</red>\n" +
-                "Use /connect to link (for comfort do it on discord first)";
+        String tToDc = tMcStatus_toDc;
 
-        String tempToDc = "<yellow>❕ Not linked</yellow>\n" +
-                "You are currently claiming <hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>\n" +
-                "Do /connect <mcname> in discord to complete the link.";
+        String tFromDc = tMcStatus_fromDc;
 
-        String tempFromDc = "<yellow>❕ Not linked</yellow>\n" +
-                "Your account is currently being claimed by: [<dcclaims>]\n"+
-                "Do /connect <any of the claiming discord users> to complete a link.";
+        String tFromBoth = tMcStatus_fromBoth;
 
-        String tempFromBoth = "<yellow>❕ Not linked\n</yellow>" +
-                "You are currently claiming <hover:show_text:'<yellow><dcid></yellow>'><dcname></hover>\n" +
-                "Your account is currently being claimed by: [<dcclaims>]\n"+
-                "u know how the command works by now lil bro";
 
-        Identity.McIdentity mcI = pIdentity.getMcIdentity();//todo assert !=null
-        Identity.DcIdentity dcI = pIdentity.getDcIdentity();
+        boolean linked = imgr.isLinkedMc(pUUID);//todo
+        String claim = imgr.getClaimMc(pUUID);
+        String claimsOn;
+        {
+            List<String> claimsonlist = imgr.claimsOnMc(pUUID);
+            if(claimsonlist.isEmpty()){
+                claimsOn = "";
+            }else{
+                claimsOn = String.join(", ", claimsonlist);
+            }
+        }
 
-        if (dcI!=null) {
-            return mm.deserialize(
-                    tempLinked,
-                    Placeholder.unparsed("uuid", mcI.uuid()),
-                    Placeholder.unparsed("mcname", mcI.name()),
-                    Placeholder.unparsed("dcid", dcI.id()),
-                    Placeholder.unparsed("dcname", dcI.name())//todo centralize variables for config mby
+        if(linked){
+            return mm.deserialize(tLinked,
+                    Placeholder.unparsed("dcid",claim)
             );
         }
 
-        List<Identity.DcIdentity> dcClaimingMe = imgr.incomingClaims(mcI);
-        Identity.DcIdentity claiming = imgr.outgoingClaim(mcI);
-
-        if(dcClaimingMe.isEmpty()){
-            if(claiming == null){//no link
-                return mm.deserialize(
-                        tempNotLinked
-                );
-            }else{//link to discord
-                return mm.deserialize(
-                        tempToDc,
-                        Placeholder.unparsed("dcid", claiming.id()),
-                        Placeholder.unparsed("dcname",claiming.name())
+        if(claimsOn.isEmpty()){
+            if(claim==null){
+                return mm.deserialize(tNotLinked);
+            }else{
+                return mm.deserialize(tToDc,
+                        Placeholder.unparsed("dcid",claim)
                 );
             }
         }else{
-            String claims = "";
-            for (int i = 0; i < dcClaimingMe.size(); i++) {
-                Identity.DcIdentity r = dcClaimingMe.get(i);
-                claims += r.name();
-                if(i<dcClaimingMe.size()-1)claims+=", ";
-            }
-
-            if(claiming==null){//link from discord
-                return mm.deserialize(
-                        tempFromDc,
-                        Placeholder.unparsed("dcclaims", claims)
+            if(claim==null){
+                return mm.deserialize(tFromDc,
+                        Placeholder.unparsed("dcclaims",claimsOn)
                 );
-            }else{//link from and to discord but not matching
-                return mm.deserialize(
-                        tempFromBoth,
-                        Placeholder.unparsed("dcclaims", claims),
-                        Placeholder.unparsed("dcid", claiming.id()),
-                        Placeholder.unparsed("dcname",claiming.name())
+            }else{
+                return mm.deserialize(tFromBoth,
+                        Placeholder.unparsed("dcid",claim),
+                        Placeholder.unparsed("dcclaims",claimsOn)
                 );
             }
         }
     }
 
     /// ///7/////////////////////////////////////////////////////////////////////////////////////////////////
-    public String dcUnableToResolvePlayer(String player){return "❌ Could not resolve **%s** to a Minecraft Player. Check for typos and try joining the server once.".formatted(player);}
+    public String dcResolvingUUIDStatus(){return sDcResolve_status;}
+    public String dcPlayerResolve_notExist(String p){return sDcResolve_err_notExist.formatted(p);}
+    public String dcPlayerResolve_api(){return sDcResolve_err_api;}
+    public String dcPlayerResolve_unknown() {return sDcResolve_err_other;}
 
-    public String dcMissingPlayerArg(){return "Please Enter a Player name or UUID as argument";}
+    public String dcCommandError(String error){return sDcCmdError.formatted(error);}
 
-    public String dcCommandError(String error){return "❌ Error: %s".formatted(error);}
+    public String dcCmdStatus_desc(){return sDcCmdStatus_desc;}
 
-    public String dcCmdDesc_connect(){return "Link to a Minecraft account";}
+    private final String dcCmdStatus_name;
+    public String dcCmdStatus_name(){return dcCmdStatus_name;}
 
-    public String dcCmdDesc_connectArg(){return "Minecraft UUID or player name";}
+    public String dcCmdDisconnect_desc(){return sDcCmdDisconnect_desc;}
+    private final String dcCmdDisconnect_name;
+    public String dcCmdDisconnect_name(){return dcCmdDisconnect_name;}
 
-    public String dcCmdDesc_status(){return "Remove your Discord→MC claim";}
+    public String dcCmdConnect_desc(){return sDcCmdConnect_desc;}
+    private final String dcCmdConnect_name;
+    public String dcCmdConnect_name(){return dcCmdConnect_name;}
+    public String dcCmdConnectArg_desc(){return sDcCmdConnect_argDesc;}
+    private final String dcCmdConnectArg_name;
+    public String dcCmdConnectArg_name(){return dcCmdConnectArg_name;}
 
-    public String dcCmdDesc_disconnect(){return "Show your link status";}
 
-    public String dcServerOnlineStatus() {return "Server Online!";}
+    public String dcServerOnlineStatus() {return sServerOnlineStatus;}
 
-    public String dcPluginEnabled(){return "`🟢` **ChatBridge enabled**";}
+    public String dcPluginEnabled(){return sPluginEnabled;}
 
-    public String dcPluginDisabled(){return "`🔴` **ChatBridge disabled**";}
+    public String dcPluginDisabled(){return sPluginDisabled;}
 
-    public MessageEmbed discordStatus(Identity pIdentity) throws Exception {
-        //todo
-        Identity.McIdentity mcI = pIdentity.getMcIdentity();
-        Identity.DcIdentity dcI = pIdentity.getDcIdentity();//todo assert !=null
+    public String dcPlayerJoined(String pName){return sPlayerJoined.formatted(pName);}
 
-        var eb = new EmbedBuilder().setTitle("Connection status").setColor(new Color(0x5fb95f));
+    public String dcPlayerLeft(String pName){return sPlayerLeft.formatted(pName);}
 
-        eb.setAuthor(dcI.name(), null, dcI.avatarURL());
+    public MessageEmbed discordStatus(String dcId) throws Exception {
+        var eb = new EmbedBuilder().setTitle(sDcStatus_title);//title
+        //eb.setAuthor(dcI.name(), null, dcI.avatarURL());
 
-        if (mcI != null) {
-            eb.setDescription("✅ Your Discord is **linked** to this Minecraft account.");
-            eb.addField("Minecraft", "**%s** (`%s`)".formatted(mcI.name(), mcI.uuid()), false);
-            eb.addField("Discord", "<@%s> — **%s**".formatted(dcI.id(), dcI.name()), false);
-            if (mcI.avatarURL() != null) eb.setThumbnail(mcI.avatarURL());
-            return eb.build();
+        boolean linked = imgr.isLinkedDc(dcId);
+        UUID claim = imgr.getClaimDc(dcId);
+
+        if(linked){
+            eb.setDescription(sDcStatus_linked);//linked
+            eb.setColor(Color.GREEN);
+        }else{
+            eb.setDescription(sDcStatus_notLinked);//notlinked
+            eb.setColor(Color.GRAY);
         }
 
-        // Not fully linked: show current claims and hints
-        Identity.McIdentity claimed = imgr.outgoingClaim(dcI);
-
-
-
-        eb.setDescription("❕ Your Discord is **not linked** yet.");
-        eb.addField("Your claim", claimed != null ? ("➡ Minecraft UUID: `" + claimed.uuid() + "`") : "None", false);//todo let people claim uuid even if it doesnt resolve
-
-
-        if (claimed != null) {
-
-            eb.addField("Minecraft name", claimed.name(), true);
-            if (claimed.avatarURL() != null) eb.setThumbnail(claimed.avatarURL());
-
-            eb.addField("Next step", "Run **/connect " + dcI.name() + "** in Minecraft to confirm.", false);
-        } else {
-            eb.addField("How to link", "Use `/connect <mc-uuid or name>` here.", false);
+        if(claim!=null){//info field
+            eb.addField(sDcStatus_info_title, sDcStatus_info_content.formatted(claim), false);
+            eb.setThumbnail(getMcAvatar(claim));
+            eb.setColor(Color.YELLOW);
         }
+
+        if(!linked){
+            if(claim == null){//instruction field
+                eb.addField(sDcStatus_instr_complete_title, sDcStatus_instr_complete_content, false);//complete
+            }else{
+                eb.addField(sDcStatus_instr_mc_title, sDcStatus_instr_mc_content.formatted(dcId), false);//minecraft
+            }
+        }
+
         return eb.build();
     }
 
-
+    public String getMcAvatar(UUID pUUID){
+        return tAvatarApi.formatted(pUUID.toString());
+    }
 }

@@ -8,10 +8,7 @@ import com.mhgandhi.chatBridge.IdentityManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,14 +17,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.UUID;
+import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
 
 public final class DiscordChat extends ListenerAdapter implements IChat {
@@ -35,7 +32,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     private final JavaPlugin plugin;
     private BiConsumer<Identity, String> inboundHandler; // (authorDisplay, content)
-    private final IdentityManager identityResolver;
+    private final IdentityManager identityManager;
 
     private final String token;
     private final String channelId;
@@ -53,7 +50,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     public DiscordChat(JavaPlugin plugin, IdentityManager idRes, String token, String channelId, Runnable onReady) {
         this.plugin = plugin;
-        this.identityResolver = idRes;
+        this.identityManager = idRes;
 
         this.token = token;
         this.channelId = channelId;
@@ -93,7 +90,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onReady(@NotNull net.dv8tion.jda.api.events.session.ReadyEvent event) {
-        identityResolver.setJda(jda);
+        identityManager.setJda(jda);
 
         registerCommands();
 
@@ -105,12 +102,22 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         }
         mirrorChannel = ch;
 
-        assertWebhook();//todo catch rte?
+        try{
+            assertWebhook();
+        } catch (RuntimeException e) {
+            plugin.getLogger().severe("Exception while setting up Webhook: "+e.getMessage());
+        }
 
         if(onR!=null){
-            while (webhookClient == null) {//heheheha (dafür komme ich in die hölle)
+            final int timeout = 20*1000;//20sek timeout
+            long startTime = System.currentTimeMillis();
+            boolean timedOut = false;
+            while (webhookClient == null && !timedOut) {//heheheha (dafür komme ich in die hölle) nvm jz mit timeout
                 Thread.onSpinWait();
+                if(startTime-System.currentTimeMillis()>timeout)timedOut = true;
             }
+            if(timedOut)
+                plugin.getLogger().warning("Timed out while waiting for webhookClient for "+timeout+"s");
             onR.run();
         }
     }
@@ -164,11 +171,11 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
         if (content.isBlank()) return;
 
-        if(e.getMember()!=null){
-            inboundHandler.accept(identityResolver.resolve(e.getMember()), content);
-        }else{
-            inboundHandler.accept(identityResolver.resolve(e.getAuthor()), content);
-        }
+        Member mb = e.getMember();
+        if(mb==null)return;
+        identityManager.upsertDcName(mb.getId(), e.getGuild().getId(), mb.getEffectiveName());
+
+        inboundHandler.accept(identityManager.resolve(mb), content);
     }
 
     private String sanitizeAndFlatten(Message m) {
@@ -197,16 +204,18 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     /// //////////////////////////////////////////////////////////////////////OUTBOUND
     @Override
     public void sendMessage(Identity author, String content){
-        if(author==Identity.server){
-            sendViaWebhook("Server",null,content);//todo customizable via config
-        }else if(author.getDcIdentity()!=null){
-            Identity.DcIdentity di = author.getDcIdentity();
-            sendViaWebhook(di.name(),di.avatarURL(),content);
-        }else if(author.getMcIdentity()!=null){
-            Identity.McIdentity mi = author.getMcIdentity();
-            sendViaWebhook("[MC]"+mi.name(),mi.avatarURL(),content);
-        }else{
-            plugin.getLogger().severe("Unknown Identity for message: "+content);
+        if(content.isEmpty())return;
+
+        switch(author.type()){
+            case Discord -> {
+                sendViaWebhook(author.name(), author.avatarUrl(), content);
+            }
+            case Minecraft -> {
+                sendViaWebhook("[MC] "+author.name(), author.avatarUrl(), content);
+            }
+            default -> {
+                sendViaWebhook("Server",null,content);//todo customizable via config
+            }
         }
     }
 
@@ -243,10 +252,10 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             if (g != null) {
                 g.updateCommands()
                         .addCommands(//todo constants for command names
-                                Commands.slash("connect", ChatBridge.getFormatter().dcCmdDesc_connect())
-                                        .addOption(OptionType.STRING, "target", ChatBridge.getFormatter().dcCmdDesc_connectArg(), true),
-                                Commands.slash("disconnect", ChatBridge.getFormatter().dcCmdDesc_status()),
-                                Commands.slash("status", ChatBridge.getFormatter().dcCmdDesc_disconnect())
+                                Commands.slash(ChatBridge.getFormatter().dcCmdConnect_name(), ChatBridge.getFormatter().dcCmdConnect_desc())
+                                        .addOption(OptionType.STRING, ChatBridge.getFormatter().dcCmdConnectArg_name(), ChatBridge.getFormatter().dcCmdConnectArg_desc(), true),
+                                Commands.slash(ChatBridge.getFormatter().dcCmdDisconnect_name(), ChatBridge.getFormatter().dcCmdDisconnect_desc()),
+                                Commands.slash(ChatBridge.getFormatter().dcCmdStatus_name(), ChatBridge.getFormatter().dcCmdStatus_desc())
                         ).queue();
             }
         }//todo else global
@@ -254,18 +263,13 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
-        //always upsert metadata into database on command use
-        if(e.getMember()==null){
-            identityResolver.upsert(e.getUser());//todo always member? just dont cache name tf
-        }else{
-            identityResolver.upsert(e.getMember());
-        }
-
         try {
-            switch (e.getName()) {
-                case "connect" -> handleConnect(e);
-                case "disconnect" -> handleDisconnect(e);
-                case "status" -> handleStatus(e);
+            if(e.getName().equals(ChatBridge.getFormatter().dcCmdConnect_name())){
+                handleConnect(e);
+            } else if (e.getName().equals(ChatBridge.getFormatter().dcCmdDisconnect_name())) {
+                handleDisconnect(e);
+            } else if (e.getName().equals(ChatBridge.getFormatter().dcCmdStatus_name())) {
+                handleStatus(e);
             }
         } catch (Exception ex) {
             e.reply(ChatBridge.getFormatter().dcCommandError(ex.getMessage())).setEphemeral(true).queue();
@@ -273,42 +277,64 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     }
 
     private void handleStatus(SlashCommandInteractionEvent e) throws Exception {
-        e.replyEmbeds(ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();
+        e.replyEmbeds(ChatBridge.getFormatter().discordStatus( e.getUser().getId() )).setEphemeral(true).queue();
     }
 
     private void handleDisconnect(SlashCommandInteractionEvent e) throws Exception {
         String dcId = e.getUser().getId();
-        identityResolver.clearDc(dcId);
-        e.replyEmbeds(ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
+        identityManager.clearDc(dcId);
+        e.replyEmbeds( ChatBridge.getFormatter().discordStatus(dcId) ).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
-        OptionMapping option = e.getOption("target");
+        OptionMapping option = e.getOption(ChatBridge.getFormatter().dcCmdConnectArg_name());//todo constant for option name
         if (option == null) {
-            e.reply(ChatBridge.getFormatter().dcMissingPlayerArg()).setEphemeral(true).queue();
+            plugin.getLogger().severe("Idk how but someone managed to execute /connect without args on dc");
             return;
         }
 
         String raw = option.getAsString().trim();
 
-        identityResolver.resolveToPlayer(raw).thenAccept(
-                (target)->{
-                    if(target!=null){
-                        identityResolver.upsert(target);
-                        Identity.McIdentity mI = identityResolver.resolve(target).getMcIdentity();
-                        Identity.DcIdentity dI = identityResolver.resolve(e.getUser()).getDcIdentity();//todo bah
-                        identityResolver.claim(dI,mI);
-                    }else{
-                        //todo set only uuid claim instead?
-                        e.reply(ChatBridge.getFormatter().dcUnableToResolvePlayer(raw)).setEphemeral(true).queue();
-                        return;
-                    }
+        UUID uuid;
+        try{
+            uuid = UUID.fromString(raw);
+        } catch (IllegalArgumentException ex) {
+            uuid = null;
+        }
 
-                    try {
-                        e.replyEmbeds( ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser())) ).setEphemeral(true).queue();
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-        );
+        if(uuid!=null){
+            identityManager.claimDcMc(e.getUser().getId(), uuid);
+
+            e.replyEmbeds(ChatBridge.getFormatter().discordStatus(e.getUser().getId())).setEphemeral(true).queue();
+        }else{
+            e.deferReply(true).queue(hook -> {
+                hook.editOriginal(ChatBridge.getFormatter().dcResolvingUUIDStatus()).queue();
+
+                identityManager.resolveMcName(raw).thenAccept(
+                        resolvedUUID -> {
+                            //hook.editOriginal("Done!").queue();
+                            hook.deleteOriginal().queue();
+                            identityManager.claimDcMc(e.getUser().getId(), resolvedUUID);
+                            try {
+                                hook.sendMessageEmbeds(ChatBridge.getFormatter().discordStatus(e.getUser().getId())).setEphemeral(true).queue();
+                            } catch (Exception ex) {
+                                plugin.getLogger().severe("Ex replying to user after deferring: "+ex.getMessage());
+                            }
+                        }
+                ).exceptionally(
+                        ex ->{
+                            if(ex instanceof CompletionException ce){
+                                if(ce.getCause() instanceof IllegalArgumentException){
+                                    hook.editOriginal(ChatBridge.getFormatter().dcPlayerResolve_notExist(raw)).queue();
+                                }else{
+                                    hook.editOriginal(ChatBridge.getFormatter().dcPlayerResolve_api()).queue();
+                                }
+                            }else{
+                                hook.editOriginal(ChatBridge.getFormatter().dcPlayerResolve_unknown()).queue();
+                            }
+                            return null;
+                        }
+                );
+            });
+        }
     }
 }
