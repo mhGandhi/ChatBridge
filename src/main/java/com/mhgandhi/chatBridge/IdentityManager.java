@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -56,7 +58,7 @@ public class IdentityManager {
         return new Identity(mc, dc);
     }
 
-    public Identity resolve(Player p) {
+    public Identity resolve(OfflinePlayer p) {
         Identity.DcIdentity dc = null;
         try {
             var row = db.getActiveLinkByMc(p.getUniqueId().toString());
@@ -93,7 +95,7 @@ public class IdentityManager {
         }
     }
 
-    public void upsert(Player player) {
+    public void upsert(OfflinePlayer player) {
         if(player==null)return;
         try{
             db.upsertMcMeta(player.getUniqueId().toString(), player.getName(), "https://mc-heads.net/avatar/" + player.getUniqueId() + "/128");//todo one spot for URL gen
@@ -154,34 +156,6 @@ public class IdentityManager {
         return new Identity.DcIdentity(row.dcId(),row.dcUsername(),row.avatarUrl());
     }
 
-    public Identity resolveMcUUID(String pUUID){//todo build partial Ident, resolve to player/offline player?
-        Database.LinkedRow row = null;
-        try {
-            row = db.getActiveLinkByMc(pUUID);
-        } catch (Exception e) {
-            //todo
-        }
-
-        if(row==null){
-            Identity.McIdentity mc = null;
-            try{
-                Database.McRow mr = db.getMc(pUUID);
-
-                if(mr!=null)mc = new Identity.McIdentity(mr.mcUuid(), mr.mcName(), mr.skinFaceUrl());//todo null?
-            } catch (Exception e) {
-                //todo
-            }
-            if(mc==null)return null;
-            return Identity.of(mc,null);
-        }
-
-        Identity.McIdentity mc = new Identity.McIdentity(row.mcUuid(),row.mcName(),row.mcSkinUrl());
-        Identity.DcIdentity dc = new Identity.DcIdentity(row.dcId(), row.dcUsername(), row.dcAvatarUrl());
-
-        return Identity.of(mc,dc);
-    }
-
-
     public Identity.McIdentity outgoingClaim(Identity.DcIdentity pFrom){
         Database.DcRow claim;
         try {
@@ -193,7 +167,8 @@ public class IdentityManager {
 
         if(claim == null)return null;
 
-        return resolveMcUUID(claim.claimedMcUuid()).getMcIdentity();
+        OfflinePlayer op = Bukkit.getOfflinePlayer(claim.claimedMcUuid());
+        return resolve(op).getMcIdentity();
     }
     public List<Identity.McIdentity> incomingClaims(Identity.DcIdentity pOn){
         List<Database.McRow> claims;
@@ -249,34 +224,8 @@ public class IdentityManager {
     //todo get nick (effective name) from (User, Guild), (User, Channel)
 
 
-    private static final Pattern UUID_RE = Pattern.compile("^[0-9a-fA-F-]{32,36}$");
-    public UUID findMcPlayerUUID(String uuidOrName) {
-        try {
-            if (UUID_RE.matcher(uuidOrName).matches()) {
-                UUID u = UUID.fromString(uuidOrName.replaceAll("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{12})", "$1-$2-$3-$4-$5"));
-                return u;
-            }
-        } catch (Exception ignored) {}
-
-        // Fall back to resolving by player name (uses the server’s known players)
-        // If the name is online, prefer exact:
-        Player pl = Bukkit.getPlayerExact(uuidOrName);
-        if (pl != null) return pl.getUniqueId();
-
-        // Offline cache:
-        OfflinePlayer off = Bukkit.getOfflinePlayer(uuidOrName);
-        if (off != null && (off.hasPlayedBefore() || off.getUniqueId() != null) ) {
-            return off.getUniqueId();
-        }
-        return null;
-    }
-
-    /** Handy to update MC meta when we only know UUID (pulls last known name if online) */
-    public void refreshMcMeta(UUID mcUuid) {
-        // Try to enrich name & skin if you have a skin provider; this keeps it simple
-        OfflinePlayer off = Bukkit.getOfflinePlayer(mcUuid);
-        var name = off.getName() != null ? off.getName() : "unknown";
-        String skin = null; // plug your skin-face provider URL here if you have one todo
-        try { db.upsertMcMeta(mcUuid.toString(), name, skin); } catch (Exception ignored) {}
+    public CompletableFuture<OfflinePlayer> resolveToPlayer(String string) {
+        return CompletableFuture.supplyAsync(() -> PlayerResolver.resolve(string))
+                .orTimeout(2, TimeUnit.SECONDS);
     }
 }

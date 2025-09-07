@@ -5,7 +5,6 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.IdentityManager;
-import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -17,18 +16,18 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public final class DiscordChat extends ListenerAdapter implements IChat {
@@ -65,21 +64,6 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     @Override
     public void setMessageCallback(BiConsumer<Identity, String> handler) {
         inboundHandler = handler;
-    }
-
-    @Override
-    public void sendMessage(Identity author, String content){
-        if(author==Identity.server){
-            sendViaWebhook("Server",null,content);//todo customizable via config
-        }else if(author.getDcIdentity()!=null){
-            Identity.DcIdentity di = author.getDcIdentity();
-            sendViaWebhook(di.name(),di.avatarURL(),content);
-        }else if(author.getMcIdentity()!=null){
-            Identity.McIdentity mi = author.getMcIdentity();
-            sendViaWebhook("[MC]"+mi.name(),mi.avatarURL(),content);
-        }else{
-            plugin.getLogger().severe("Unknown Identity for message: "+content);
-        }
     }
 
     public void start() throws LoginException {
@@ -123,26 +107,11 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
         assertWebhook();//todo catch rte?
 
-        //todo postpone until webhook ready
         if(onR!=null){
+            while (webhookClient == null) {//heheheha (dafür komme ich in die hölle)
+                Thread.onSpinWait();
+            }
             onR.run();
-        }
-    }
-
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent e) {
-        if (mirrorChannel == null || !Objects.equals(e.getChannel().getId(), channelId)) return;
-        if (e.getAuthor().isBot() || e.isWebhookMessage()) return;
-
-        Message m = e.getMessage();
-        String content = sanitizeAndFlatten(m);
-
-        if (content.isBlank()) return;
-
-        if(e.getMember()!=null){
-            inboundHandler.accept(identityResolver.resolve(e.getMember()), content);
-        }else{
-            inboundHandler.accept(identityResolver.resolve(e.getAuthor()), content);
         }
     }
 
@@ -184,6 +153,62 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         return mirrorChannel != null && jda != null && jda.getStatus().isInit();
     }
 
+/// /////////////////////////////////////////////////////////////////////////////INBOUND
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent e) {
+        if (mirrorChannel == null || !Objects.equals(e.getChannel().getId(), channelId)) return;
+        if (e.getAuthor().isBot() || e.isWebhookMessage()) return;
+
+        Message m = e.getMessage();
+        String content = sanitizeAndFlatten(m);
+
+        if (content.isBlank()) return;
+
+        if(e.getMember()!=null){
+            inboundHandler.accept(identityResolver.resolve(e.getMember()), content);
+        }else{
+            inboundHandler.accept(identityResolver.resolve(e.getAuthor()), content);
+        }
+    }
+
+    private String sanitizeAndFlatten(Message m) {
+        String text = m.getContentDisplay(); // resolves mentions to names
+
+        // Append attachment URLs (images/files)
+        if (!m.getAttachments().isEmpty()) {
+            StringJoiner atts = new StringJoiner(" ");
+            m.getAttachments().forEach(att -> atts.add(att.getUrl()));
+            if (!atts.toString().isBlank()) {
+                if (!text.isBlank()) text += " ";
+                text += atts;
+            }
+        }
+
+        // Include referenced message (reply) short hint
+        if (m.getReferencedMessage() != null) {
+            String refSnippet = m.getReferencedMessage().getContentDisplay();
+            if (refSnippet.length() > 60) refSnippet = refSnippet.substring(0, 57) + "...";
+            text = "<hover:show_text:'"+refSnippet+"'>(↪)</hover> " + text;
+        }
+
+        return text;
+    }
+
+    /// //////////////////////////////////////////////////////////////////////OUTBOUND
+    @Override
+    public void sendMessage(Identity author, String content){
+        if(author==Identity.server){
+            sendViaWebhook("Server",null,content);//todo customizable via config
+        }else if(author.getDcIdentity()!=null){
+            Identity.DcIdentity di = author.getDcIdentity();
+            sendViaWebhook(di.name(),di.avatarURL(),content);
+        }else if(author.getMcIdentity()!=null){
+            Identity.McIdentity mi = author.getMcIdentity();
+            sendViaWebhook("[MC]"+mi.name(),mi.avatarURL(),content);
+        }else{
+            plugin.getLogger().severe("Unknown Identity for message: "+content);
+        }
+    }
 
     private void sendViaWebhook(String username, String avatarUrl, String content) {
         if (webhookClient == null) {
@@ -210,36 +235,6 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
                 .queue(null, err -> plugin.getLogger().warning("Failed to send to Discord: " + err.getMessage()));
     }
 
-
-    private String sanitizeAndFlatten(Message m) {
-        String text = m.getContentDisplay(); // resolves mentions to names
-
-        // Append attachment URLs (images/files)
-        if (!m.getAttachments().isEmpty()) {
-            StringJoiner atts = new StringJoiner(" ");
-            m.getAttachments().forEach(att -> atts.add(att.getUrl()));
-            if (!atts.toString().isBlank()) {
-                if (!text.isBlank()) text += " ";
-                text += atts;
-            }
-        }
-
-        // Include referenced message (reply) short hint todo remove?
-        if (m.getReferencedMessage() != null) {
-            String refAuthor = m.getReferencedMessage().getAuthor().getName();
-            String refSnippet = m.getReferencedMessage().getContentDisplay();
-            if (refSnippet.length() > 60) refSnippet = refSnippet.substring(0, 57) + "...";
-            text = "↪ " + refAuthor + ": " + refSnippet + " | " + text;
-        }
-
-        // Hard cap to something sensible (Paper side can handle very long, but keep it tidy)
-        if (text.length() > 800) {
-            text = text.substring(0, 797) + "...";
-        }
-
-        return text;
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////COMMANDS todo seperate class mby?
     private void registerCommands(){//todo global
         String guildId = "842749415978041354"; //todo was für per guild der shit ist per plugin/bot
@@ -258,7 +253,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {//todo
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         //always upsert metadata into database on command use
         if(e.getMember()==null){
             identityResolver.upsert(e.getUser());//todo always member? just dont cache name tf
@@ -278,39 +273,42 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     }
 
     private void handleStatus(SlashCommandInteractionEvent e) throws Exception {
-        String dcId = e.getUser().getId();
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();
+        e.replyEmbeds(ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();
     }
 
     private void handleDisconnect(SlashCommandInteractionEvent e) throws Exception {
         String dcId = e.getUser().getId();
         identityResolver.clearDc(dcId);
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
+        e.replyEmbeds(ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
-        String dcId = e.getUser().getId();
-        var option = e.getOption("target");
-
+        OptionMapping option = e.getOption("target");
         if (option == null) {
             e.reply(ChatBridge.getFormatter().dcMissingPlayerArg()).setEphemeral(true).queue();
             return;
         }
 
         String raw = option.getAsString().trim();
-        UUID mcUuid = identityResolver.findMcPlayerUUID(raw); // UUID string or name lookup
-        if (mcUuid == null) {
-            e.reply(ChatBridge.getFormatter().dcUnableToResolveUUID(raw)).setEphemeral(true).queue();
-            return;
-        }
 
-        identityResolver.refreshMcMeta(java.util.UUID.fromString(mcUuid.toString()));//todo
+        identityResolver.resolveToPlayer(raw).thenAccept(
+                (target)->{
+                    if(target!=null){
+                        identityResolver.upsert(target);
+                        Identity.McIdentity mI = identityResolver.resolve(target).getMcIdentity();
+                        Identity.DcIdentity dI = identityResolver.resolve(e.getUser()).getDcIdentity();//todo bah
+                        identityResolver.claim(dI,mI);
+                    }else{
+                        //todo set only uuid claim instead?
+                        e.reply(ChatBridge.getFormatter().dcUnableToResolvePlayer(raw)).setEphemeral(true).queue();
+                        return;
+                    }
 
-        Identity.McIdentity mI = identityResolver.resolveMcUUID(mcUuid.toString()).getMcIdentity();
-        Identity.DcIdentity dI = identityResolver.resolve(e.getUser()).getDcIdentity();//todo bah
-
-        identityResolver.claim(dI,mI);
-        e.replyEmbeds(ChatBridge.getFormatter().buildDiscordFeedback(identityResolver.resolve(e.getUser()))).setEphemeral(true).queue();    }
-
-
-
+                    try {
+                        e.replyEmbeds( ChatBridge.getFormatter().discordStatus(identityResolver.resolve(e.getUser())) ).setEphemeral(true).queue();
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+        );
+    }
 }
