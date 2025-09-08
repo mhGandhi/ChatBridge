@@ -52,7 +52,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
     @EventHandler
     public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {//refresh meta on join
-            identityManager.upsertMcName(e.getPlayer().getUniqueId(),e.getPlayer().getName());
+            identityManager.upsertMcName(Identity.get(e.getPlayer()),e.getPlayer().getName());
         });
 
         if(inboundHandler==null)return;

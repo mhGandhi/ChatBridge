@@ -259,6 +259,14 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
+        Identity.Dc dci = Identity.get(e.getUser());
+        if(e.getMember()!=null && e.getGuild()!=null){//upsert names
+            identityManager.upsertDcName(dci, e.getGuild().getId(), e.getMember().getEffectiveName());
+        }
+        identityManager.upsertDcName(dci, null, e.getUser().getName());
+
+        //todo upsert avatar url?
+
         try {
             if(e.getName().equals(ChatBridge.getFormatter().dcCmdConnect_name())){
                 handleConnect(e);

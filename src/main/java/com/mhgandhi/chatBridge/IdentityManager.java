@@ -148,8 +148,8 @@ public class IdentityManager {
 
     private final Map<UUID,String> mcNames = new HashMap<>();
 
-    public void upsertMcName(UUID uuid, String name){//called on join, on startup?, on connect?, on Resolve?
-        mcNames.put(uuid, name);
+    public void upsertMcName(Identity.Mc mci, String name){//called on join, on startup?, on connect?, on Resolve?
+        mcNames.put(mci.uuid, name);
     }
 
     public String getMcName(Identity.Mc mci){
@@ -161,13 +161,10 @@ public class IdentityManager {
         }
     }
 
-    private final Map<String,String> dcNames = new HashMap<>();//todo maybe dont concat keys?
+    private final Map<String,String> dcNames = new HashMap<>();
 
-    private String dcNameKey(String id, String guild){
-        return id+(guild==null?"":guild);
-    }
-    public void upsertDcName(String pId, String pGuild, String pName){//called on command, on startup?, on Resolve?
-        String key = dcNameKey(pId,pGuild);
+    public void upsertDcName(Identity.Dc dci, String pGuild, String pName){//called on command, on startup?, on Resolve?
+        String key = dcNameKey(dci,pGuild);
         dcNames.put(key,pName);
     }
 
@@ -175,7 +172,7 @@ public class IdentityManager {
         return getDcName(dci,null);
     }
     public String getDcName(Identity.Dc dci, String pGuild){
-        String key = dcNameKey(dci.id,pGuild);
+        String key = dcNameKey(dci,pGuild);
 
         if(dcNames.containsKey(key)){
             return dcNames.get(key);
@@ -183,6 +180,9 @@ public class IdentityManager {
             //todo query with api idk (what about async?)
             return pGuild==null?null:getDcName(dci);
         }
+    }
+    private String dcNameKey(Identity.Dc mci, String guild){
+        return mci.id+(guild==null?"":guild);
     }
 
 
