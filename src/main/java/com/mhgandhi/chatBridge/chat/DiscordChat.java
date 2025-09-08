@@ -173,7 +173,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
         Member mb = e.getMember();
         if(mb==null)return;
-        identityManager.upsertDcName(mb.getId(), e.getGuild().getId(), mb.getEffectiveName());
+        //identityManager.upsertDcName(mb.getId(), e.getGuild().getId(), mb.getEffectiveName());
 
         inboundHandler.accept(identityManager.resolve(mb), content);
     }

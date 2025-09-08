@@ -103,8 +103,6 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         p.setOp(true);
         UUID uuid = p.getUniqueId();
 
-        identityManager.upsertMcName(uuid,p.getName());
-
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
                 p.sendMessage(ChatBridge.getFormatter().minecraftStatus(uuid));

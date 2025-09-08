@@ -149,7 +149,7 @@ public class IdentityManager {
 
     private final Map<UUID,String> mcNames = new HashMap<>();
 
-    public void upsertMcName(UUID uuid, String name){
+    public void upsertMcName(UUID uuid, String name){//called on join, on startup?, on connect?, on Resolve?
         mcNames.put(uuid, name);
     }
 
@@ -158,7 +158,7 @@ public class IdentityManager {
             return mcNames.get(pUUID);
         }else{
             //todo query with api idk (what about async?)
-            return "NAME NOT CACHED YET";
+            return null;
         }
     }
 
@@ -167,7 +167,7 @@ public class IdentityManager {
     private String dcNameKey(String id, String guild){
         return id+(guild==null?"":guild);
     }
-    public void upsertDcName(String pId, String pGuild, String pName){
+    public void upsertDcName(String pId, String pGuild, String pName){//called on command, on startup?, on Resolve?
         String key = dcNameKey(pId,pGuild);
         dcNames.put(key,pName);
     }
@@ -182,7 +182,7 @@ public class IdentityManager {
             return dcNames.get(key);
         }else{
             //todo query with api idk (what about async?)
-            return "NAME NOT CACHED YET";
+            return pGuild==null?null:getDcName(pId);
         }
     }
 
