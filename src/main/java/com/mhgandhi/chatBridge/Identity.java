@@ -1,5 +1,9 @@
 package com.mhgandhi.chatBridge;
 
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import org.bukkit.OfflinePlayer;
+
 import java.util.UUID;
 
 public class Identity {
@@ -31,5 +35,15 @@ public class Identity {
         public String toString() {
             return id;
         }
+    }
+
+    public static Identity.Dc get(Member m){
+        return get(m.getUser());
+    }
+    public static Identity.Dc get(User u){
+        return new Dc(u.getId());
+    }
+    public static Identity.Mc get(OfflinePlayer p){
+        return new Mc(p.getUniqueId());
     }
 }
