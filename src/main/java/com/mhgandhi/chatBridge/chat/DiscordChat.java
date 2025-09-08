@@ -211,7 +211,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         }else if(author instanceof Identity.Mc mca){
             sendViaWebhook("[MC] "+identityManager.getMcName(mca), ChatBridge.getFormatter().getMcAvatar(mca), content);
         }else if(author instanceof Identity.Dc dca){
-            sendViaWebhook("[MC] "+identityManager.getDcName(dca), null, content);
+            sendViaWebhook(identityManager.getDcName(dca), null, content);
         }
     }
 

@@ -198,16 +198,16 @@ public class Formatter {//todo const for format?
                     tServerMsg,
                     Placeholder.unparsed("message",msg)
             );//todo customizable via config
-        }else if(identity instanceof Identity.Dc dca){
-            return mm.deserialize(
-                    tLinkedMsg,
-                    Placeholder.unparsed("sender",imgr.getDcName(dca)),
-                    Placeholder.unparsed("message",msg)
-            );
         }else if(identity instanceof Identity.Mc mca){
             return mm.deserialize(
-                    tUnlinkedMsg,
+                    tLinkedMsg,
                     Placeholder.unparsed("sender",imgr.getMcName(mca)),
+                    Placeholder.unparsed("message",msg)
+            );
+        }else if(identity instanceof Identity.Dc dca){
+            return mm.deserialize(
+                    tUnlinkedMsg,
+                    Placeholder.unparsed("sender",imgr.getDcName(dca)),
                     Placeholder.unparsed("message",msg)
             );
         }
@@ -311,7 +311,14 @@ public class Formatter {//todo const for format?
         return null;
     }
 
-    public String dcPlayerLeft(Identity pName){return sPlayerLeft.formatted(pName);}
+    public String dcPlayerLeft(Identity i){
+        if(i instanceof Identity.Dc dci){
+            return sPlayerJoined.formatted(imgr.getDcName(dci));
+        }else if(i instanceof Identity.Mc mci){
+            return sPlayerJoined.formatted(imgr.getMcName(mci));
+        }
+        return null;
+    }
 
     public MessageEmbed discordStatus(Identity.Dc dci) throws Exception {
         var eb = new EmbedBuilder().setTitle(sDcStatus_title);//title
