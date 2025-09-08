@@ -36,6 +36,7 @@ public class Formatter {//todo const for format?
     private final String tMcStatus_toDc;           // you are claiming <dcid>
     private final String tMcStatus_fromDc;         // claimed by [<dcclaims>]
     private final String tMcStatus_fromBoth;       // claiming + claimed
+    private final String tMcConnectReminder;
 
     // -------------------- Minecraft Chat: avatar URL pattern ------------------
     private final String tAvatarApi; // e.g. "https://mc-heads.net/avatar/%s/128"
@@ -89,6 +90,9 @@ public class Formatter {//todo const for format?
                 "<blue>[D]</blue> <<sender>> <message>");
         tUnlinkedMsg = pConf.getString("format.minecraftChat.messages.unlinkedMsg",
                 "<blue>[D]</blue> @<sender>: <message>");
+        tMcConnectReminder = pConf.getString("format.minecraftChat.messages.connectionReminder",
+                "");
+
 
         // ---------------- Minecraft Chat: join/whitelist/login ------------
         tWhitelistReject = pConf.getString("format.minecraftChat.serverJoin.whitelistRejection",
@@ -190,7 +194,9 @@ public class Formatter {//todo const for format?
 
     public String mcPluginDisabled(){return tPluginDisabled;}
 
-    public Component formatMcMsg(Identity identity, String msg){
+    public Component mcConnectionReminder(){return mm.deserialize(tMcConnectReminder);}
+
+    public Component formatMcMsg(Identity identity, String msg){//todo spoiler hover
         if(msg.isEmpty())return null;
 
         if(identity == Identity.server){//todo hover for dc name etc (identity rework)

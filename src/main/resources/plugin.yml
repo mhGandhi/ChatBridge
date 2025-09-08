@@ -1,5 +1,5 @@
 name: ChatBridge
-version: '1.0-SNAPSHOT'
+version: '1.0'
 main: com.mhgandhi.chatBridge.ChatBridge
 api-version: '1.21'
 commands:

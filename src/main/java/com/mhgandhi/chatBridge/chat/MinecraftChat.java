@@ -30,11 +30,14 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
     private BiConsumer<Identity, String> inboundHandler;
     private final IdentityManager identityManager;
 
+    private final boolean sendConRem;
+
     private final PlainTextComponentSerializer serializer;
 
-    public MinecraftChat(JavaPlugin pPlugin, IdentityManager idRes) {
+    public MinecraftChat(JavaPlugin pPlugin, IdentityManager idRes, boolean connectionReminders) {
         this.plugin = pPlugin;
         this.identityManager = idRes;
+        sendConRem = connectionReminders;
 
         this.serializer = PlainTextComponentSerializer.plainText();
     }
@@ -51,11 +54,13 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
 
     @EventHandler
     public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {//refresh meta on join
-            identityManager.upsertMcName(Identity.get(e.getPlayer()),e.getPlayer().getName());
-        });
+        identityManager.upsertMcName(Identity.get(e.getPlayer()),e.getPlayer().getName());
 
         if(inboundHandler==null)return;
+
+        if(sendConRem){
+            e.getPlayer().sendMessage(ChatBridge.getFormatter().mcConnectionReminder());
+        }
 
         Identity player = identityManager.resolve(e.getPlayer());
         inboundHandler.accept(Identity.server, ChatBridge.getFormatter().dcPlayerJoined(player));

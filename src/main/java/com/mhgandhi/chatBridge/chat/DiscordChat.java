@@ -10,6 +10,10 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateAvatarEvent;
+import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -21,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
@@ -67,7 +72,8 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         JDABuilder builder = JDABuilder.createDefault(token)
                 .enableIntents(
                         GatewayIntent.GUILD_MESSAGES,
-                        GatewayIntent.MESSAGE_CONTENT
+                        GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.GUILD_MEMBERS
                 )
                 .setStatus(OnlineStatus.ONLINE)
                 .setActivity(Activity.customStatus(ChatBridge.getFormatter().dcServerOnlineStatus()))
@@ -101,6 +107,13 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             return;
         }
         mirrorChannel = ch;
+
+        try{
+            mirrorChannel.getGuild().loadMembers(identityManager::upsertDc);
+        } catch (Exception e) {
+            plugin.getLogger().severe(e.getMessage());
+        }
+
 
         try{
             assertWebhook();
@@ -160,7 +173,23 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         return mirrorChannel != null && jda != null && jda.getStatus().isInit();
     }
 
-/// /////////////////////////////////////////////////////////////////////////////INBOUND
+
+    @Override
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
+        identityManager.upsertDc(event.getMember());
+    }
+
+    @Override
+    public void onGuildMemberUpdateNickname(@NotNull GuildMemberUpdateNicknameEvent event) {
+        identityManager.upsertDc(event.getMember());
+    }
+
+    @Override
+    public void onGuildMemberUpdateAvatar(@NotNull GuildMemberUpdateAvatarEvent event) {
+        identityManager.upsertDc(event.getMember());
+    }
+
+    /// /////////////////////////////////////////////////////////////////////////////INBOUND
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
         if (mirrorChannel == null || !Objects.equals(e.getChannel().getId(), channelId)) return;
@@ -211,7 +240,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         }else if(author instanceof Identity.Mc mca){
             sendViaWebhook("[MC] "+identityManager.getMcName(mca), ChatBridge.getFormatter().getMcAvatar(mca), content);
         }else if(author instanceof Identity.Dc dca){
-            sendViaWebhook(identityManager.getDcName(dca), null, content);
+            sendViaWebhook(identityManager.getDcName(dca), identityManager.getDcAvatar(dca), content);
         }
     }
 
@@ -259,13 +288,8 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
-        Identity.Dc dci = Identity.get(e.getUser());
-        if(e.getMember()!=null && e.getGuild()!=null){//upsert names
-            identityManager.upsertDcName(dci, e.getGuild().getId(), e.getMember().getEffectiveName());
-        }
-        identityManager.upsertDcName(dci, null, e.getUser().getName());
-
-        //todo upsert avatar url?
+        if(e.getMember()!=null)
+            identityManager.upsertDc(e.getMember());
 
         try {
             if(e.getName().equals(ChatBridge.getFormatter().dcCmdConnect_name())){

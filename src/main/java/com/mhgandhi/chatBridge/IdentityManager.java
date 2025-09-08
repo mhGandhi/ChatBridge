@@ -157,34 +157,46 @@ public class IdentityManager {
             return mcNames.get(mci.uuid);
         }else{
             //todo query with api idk (what about async?)
-            return null;
+            return "["+mci+"]";
         }
     }
 
     private final Map<String,String> dcNames = new HashMap<>();
+    private final Map<String,String> dcAvatars = new HashMap<>();
 
-    public void upsertDcName(Identity.Dc dci, String pGuild, String pName){//called on command, on startup?, on Resolve?
-        String key = dcNameKey(dci,pGuild);
-        dcNames.put(key,pName);
+    public void upsertDcName(Identity.Dc dci, String pName){//called on command, on startup?, on Resolve?
+        dcNames.put(dci.id,pName);
+    }
+
+    public void upsertDcAvatarUrl(Identity.Dc dci, String pAvatarUrl){
+        dcAvatars.put(dci.id, pAvatarUrl);
+    }
+
+    public void upsertDc(Member m){
+        log.info("Upsert member "+m.getUser().getName());
+        Identity.Dc dci = Identity.get(m);
+        upsertDcName(dci, m.getEffectiveName());
+        upsertDcAvatarUrl(dci, m.getEffectiveAvatarUrl());
     }
 
     public String getDcName(Identity.Dc dci){
-        return getDcName(dci,null);
-    }
-    public String getDcName(Identity.Dc dci, String pGuild){
-        String key = dcNameKey(dci,pGuild);
-
-        if(dcNames.containsKey(key)){
-            return dcNames.get(key);
+        if(dcNames.containsKey(dci.id)){
+            return dcNames.get(dci.id);
         }else{
             //todo query with api idk (what about async?)
-            return pGuild==null?null:getDcName(dci);
+            return "["+dci+"]";
         }
     }
-    private String dcNameKey(Identity.Dc mci, String guild){
-        return mci.id+(guild==null?"":guild);
-    }
 
+    public String getDcAvatar(Identity.Dc dci){
+
+        if(dcAvatars.containsKey(dci.id)){
+            return dcAvatars.get(dci.id);
+        }else{
+            //todo query with api idk (what about async?)
+            return null;
+        }
+    }
 
     //todo
     public CompletableFuture<Identity.Dc> resolveDcName(String name){
@@ -218,7 +230,12 @@ public class IdentityManager {
                             "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
                             "$1-$2-$3-$4-$5"
                     );
-                    return Identity.Mc.fromString(dashed);
+
+                    Identity.Mc mci = Identity.Mc.fromString(dashed);
+
+                    upsertMcName(mci,name);
+
+                    return mci;
                 });
     }
 }
