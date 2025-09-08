@@ -22,23 +22,23 @@ public class PlayerRejecter implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent e) {//todo fix msg display
-        UUID uuid = e.getUniqueId();
+        Identity.Mc mci = new Identity.Mc(e.getUniqueId());
 
         try{
-            boolean allowed = !imgr.claimsOnMc(uuid).isEmpty();
+            boolean allowed = !imgr.claimsOnMc(mci).isEmpty();
             if (!allowed) {
                 e.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
                         ChatBridge.getFormatter().whitelistReject()
                 );
-                plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+uuid+"] from joining because the uuid is not claimed");
+                plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] from joining because the uuid is not claimed");
             }
         } catch (Exception ex) {
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
                     ChatBridge.getFormatter().loginUnavailableReject()
             );
-            plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+uuid+"] there was an db exception.");
+            plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] there was an db exception.");
         }
     }
 }

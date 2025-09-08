@@ -191,35 +191,35 @@ public class Formatter {//todo const for format?
     public String mcPluginDisabled(){return tPluginDisabled;}
 
     public Component formatMcMsg(Identity identity, String msg){
-        switch(identity.type()){//todo hover for dc name etc (identity rework)
-            case Discord -> {
-                return mm.deserialize(
-                        tUnlinkedMsg,
-                        Placeholder.unparsed("sender",identity.name()),
-                        Placeholder.unparsed("message",msg)
-                );
-            }
-            case Minecraft -> {
-                return mm.deserialize(
-                        tLinkedMsg,
-                        Placeholder.unparsed("sender",identity.name()),
-                        Placeholder.unparsed("message",msg)
-                );
-            }
-            default -> {
-                return mm.deserialize(
-                        tServerMsg,
-                        Placeholder.unparsed("message",msg)
-                );
-            }
+        if(msg.isEmpty())return null;
+
+        if(identity == Identity.server){//todo hover for dc name etc (identity rework)
+            return mm.deserialize(
+                    tServerMsg,
+                    Placeholder.unparsed("message",msg)
+            );//todo customizable via config
+        }else if(identity instanceof Identity.Dc dca){
+            return mm.deserialize(
+                    tLinkedMsg,
+                    Placeholder.unparsed("sender",imgr.getDcName(dca)),
+                    Placeholder.unparsed("message",msg)
+            );
+        }else if(identity instanceof Identity.Mc mca){
+            return mm.deserialize(
+                    tUnlinkedMsg,
+                    Placeholder.unparsed("sender",imgr.getMcName(mca)),
+                    Placeholder.unparsed("message",msg)
+            );
         }
+
+        return null;
     }
 
     public Component whitelistReject(){return mm.deserialize(tWhitelistReject);}
 
     public Component loginUnavailableReject(){return mm.deserialize(tUnavailableReject);}
 
-    public Component minecraftStatus(UUID pUUID) {
+    public Component minecraftStatus(Identity.Mc mci) {
         String tLinked = tMcStatus_linked;
 
         String tNotLinked = tMcStatus_notLinked;
@@ -231,11 +231,11 @@ public class Formatter {//todo const for format?
         String tFromBoth = tMcStatus_fromBoth;
 
 
-        boolean linked = imgr.isLinkedMc(pUUID);//todo
-        String claim = imgr.getClaimMc(pUUID);
+        boolean linked = imgr.isLinkedMc(mci);//todo
+        String claim = imgr.getClaimMc(mci);
         String claimsOn;
         {
-            List<String> claimsonlist = imgr.claimsOnMc(pUUID);
+            List<String> claimsonlist = imgr.claimsOnMc(mci);
             if(claimsonlist.isEmpty()){
                 claimsOn = "";
             }else{
@@ -302,16 +302,23 @@ public class Formatter {//todo const for format?
 
     public String dcPluginDisabled(){return sPluginDisabled;}
 
-    public String dcPlayerJoined(String pName){return sPlayerJoined.formatted(pName);}
+    public String dcPlayerJoined(Identity i){
+        if(i instanceof Identity.Dc dci){
+            return sPlayerJoined.formatted(imgr.getDcName(dci));
+        }else if(i instanceof Identity.Mc mci){
+            return sPlayerJoined.formatted(imgr.getMcName(mci));
+        }
+        return null;
+    }
 
-    public String dcPlayerLeft(String pName){return sPlayerLeft.formatted(pName);}
+    public String dcPlayerLeft(Identity pName){return sPlayerLeft.formatted(pName);}
 
-    public MessageEmbed discordStatus(String dcId) throws Exception {
+    public MessageEmbed discordStatus(Identity.Dc dci) throws Exception {
         var eb = new EmbedBuilder().setTitle(sDcStatus_title);//title
         //eb.setAuthor(dcI.name(), null, dcI.avatarURL());
 
-        boolean linked = imgr.isLinkedDc(dcId);
-        UUID claim = imgr.getClaimDc(dcId);
+        boolean linked = imgr.isLinkedDc(dci);
+        Identity.Mc claim = imgr.getClaimDc(dci);
 
         if(linked){
             eb.setDescription(sDcStatus_linked);//linked
@@ -331,14 +338,14 @@ public class Formatter {//todo const for format?
             if(claim == null){//instruction field
                 eb.addField(sDcStatus_instr_complete_title, sDcStatus_instr_complete_content, false);//complete
             }else{
-                eb.addField(sDcStatus_instr_mc_title, sDcStatus_instr_mc_content.formatted(dcId), false);//minecraft
+                eb.addField(sDcStatus_instr_mc_title, sDcStatus_instr_mc_content.formatted(dci.toString()), false);//minecraft
             }
         }
 
         return eb.build();
     }
 
-    public String getMcAvatar(UUID pUUID){
-        return tAvatarApi.formatted(pUUID.toString());
+    public String getMcAvatar(Identity.Mc mci){
+        return tAvatarApi.formatted(mci.uuid.toString());
     }
 }

@@ -206,16 +206,12 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     public void sendMessage(Identity author, String content){
         if(content.isEmpty())return;
 
-        switch(author.type()){
-            case Discord -> {
-                sendViaWebhook(author.name(), author.avatarUrl(), content);
-            }
-            case Minecraft -> {
-                sendViaWebhook("[MC] "+author.name(), author.avatarUrl(), content);
-            }
-            default -> {
-                sendViaWebhook("Server",null,content);//todo customizable via config
-            }
+        if(author == Identity.server){
+            sendViaWebhook("Server",null,content);//todo customizable via config
+        }else if(author instanceof Identity.Mc mca){
+            sendViaWebhook("[MC] "+identityManager.getMcName(mca), ChatBridge.getFormatter().getMcAvatar(mca), content);
+        }else if(author instanceof Identity.Dc dca){
+            sendViaWebhook("[MC] "+identityManager.getDcName(dca), null, content);
         }
     }
 
@@ -277,13 +273,13 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
     }
 
     private void handleStatus(SlashCommandInteractionEvent e) throws Exception {
-        e.replyEmbeds(ChatBridge.getFormatter().discordStatus( e.getUser().getId() )).setEphemeral(true).queue();
+        e.replyEmbeds(ChatBridge.getFormatter().discordStatus( new Identity.Dc(e.getUser().getId()) )).setEphemeral(true).queue();
     }
 
     private void handleDisconnect(SlashCommandInteractionEvent e) throws Exception {
-        String dcId = e.getUser().getId();
-        identityManager.clearDc(dcId);
-        e.replyEmbeds( ChatBridge.getFormatter().discordStatus(dcId) ).setEphemeral(true).queue();    }
+        Identity.Dc dci = new Identity.Dc(e.getUser().getId());
+        identityManager.clearDc(dci);
+        e.replyEmbeds( ChatBridge.getFormatter().discordStatus(dci) ).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
         OptionMapping option = e.getOption(ChatBridge.getFormatter().dcCmdConnectArg_name());//todo constant for option name
@@ -294,28 +290,29 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
         String raw = option.getAsString().trim();
 
-        UUID uuid;
+        Identity.Dc dci = new Identity.Dc(e.getUser().getId());
+        Identity.Mc mci;
         try{
-            uuid = UUID.fromString(raw);
+            mci = Identity.Mc.fromString(raw);
         } catch (IllegalArgumentException ex) {
-            uuid = null;
+            mci = null;
         }
 
-        if(uuid!=null){
-            identityManager.claimDcMc(e.getUser().getId(), uuid);
+        if(mci!=null){
+            identityManager.claimDcMc(dci, mci);
 
-            e.replyEmbeds(ChatBridge.getFormatter().discordStatus(e.getUser().getId())).setEphemeral(true).queue();
+            e.replyEmbeds(ChatBridge.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
         }else{
             e.deferReply(true).queue(hook -> {
                 hook.editOriginal(ChatBridge.getFormatter().dcResolvingUUIDStatus()).queue();
 
                 identityManager.resolveMcName(raw).thenAccept(
-                        resolvedUUID -> {
+                        resolvedMci -> {
                             //hook.editOriginal("Done!").queue();
                             hook.deleteOriginal().queue();
-                            identityManager.claimDcMc(e.getUser().getId(), resolvedUUID);
+                            identityManager.claimDcMc(dci, resolvedMci);
                             try {
-                                hook.sendMessageEmbeds(ChatBridge.getFormatter().discordStatus(e.getUser().getId())).setEphemeral(true).queue();
+                                hook.sendMessageEmbeds(ChatBridge.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
                             } catch (Exception ex) {
                                 plugin.getLogger().severe("Ex replying to user after deferring: "+ex.getMessage());
                             }

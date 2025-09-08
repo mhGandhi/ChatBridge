@@ -58,7 +58,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         if(inboundHandler==null)return;
 
         Identity player = identityManager.resolve(e.getPlayer());
-        inboundHandler.accept(Identity.server, ChatBridge.getFormatter().dcPlayerJoined(player.name()));
+        inboundHandler.accept(Identity.server, ChatBridge.getFormatter().dcPlayerJoined(player));
     }
 
     @EventHandler
@@ -66,7 +66,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         if(inboundHandler==null)return;
 
         Identity player = identityManager.resolve(e.getPlayer());
-        inboundHandler.accept(Identity.server,ChatBridge.getFormatter().dcPlayerLeft(player.name()));
+        inboundHandler.accept(Identity.server,ChatBridge.getFormatter().dcPlayerLeft(player));
     }
 
     public void sendMessage(Identity author, String content){
@@ -101,17 +101,17 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
             return true;
         }
         p.setOp(true);
-        UUID uuid = p.getUniqueId();
+        Identity.Mc mci = new Identity.Mc(p.getUniqueId());
 
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(uuid));
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("disconnect")) {
-                identityManager.clearMc(uuid);
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(uuid));
+                identityManager.clearMc(mci);
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
@@ -120,12 +120,12 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
                     return false;
                 }
 
-                String claim = args[0];
-
+                String claimId = args[0];
                 //todo resolve if name
+                Identity.Dc claim = new Identity.Dc(claimId);
 
-                identityManager.claimMcDc(uuid,claim);
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(uuid));
+                identityManager.claimMcDc(mci,claim);
+                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
             }
         } catch (Exception ex) {
             sender.sendMessage(Component.text(ChatBridge.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
@@ -141,9 +141,10 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         if (!cmd.getName().equalsIgnoreCase("connect")) return Collections.emptyList();
         if (args.length != 1) return Collections.emptyList();
 
-        UUID uuid = p.getUniqueId();
+        Identity.Mc mci = new Identity.Mc(p.getUniqueId());
+
         try {
-            List<String> claimers = identityManager.claimsOnMc(uuid);
+            List<String> claimers = identityManager.claimsOnMc(mci);
             if (claimers.isEmpty()) return Collections.emptyList();
 
             String prefix = args[0].toLowerCase();

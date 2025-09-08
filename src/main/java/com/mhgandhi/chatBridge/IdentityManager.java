@@ -33,51 +33,51 @@ public class IdentityManager {
         this.log = log;
     }
 
-    public void clearDc(String dc){
+    public void clearDc(Identity.Dc dci){
         try {
-            db.clearDcClaim(dc);
+            db.clearDcClaim(dci.id);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void clearMc(UUID uuid) {
+    public void clearMc(Identity.Mc mci) {
         try {
-            db.clearMcClaim(uuid.toString());
+            db.clearMcClaim(mci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void claimDcMc(String dc, UUID mc){
+    public void claimDcMc(Identity.Dc dci, Identity.Mc mci){
         try {
-            db.linkDcToMc(dc,mc.toString());
+            db.linkDcToMc(dci.id, mci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void claimMcDc(UUID mc, String dc){
+    public void claimMcDc(Identity.Mc mci, Identity.Dc dci){
         try {
-            db.linkMcToDc(mc.toString(),dc);
+            db.linkMcToDc(mci.toString(),dci.id);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public UUID getClaimDc(String dId) {
+    public Identity.Mc getClaimDc(Identity.Dc dci) {
         try {
-            var sUUID = db.getClaimedMinecraftForDc(dId);
+            var sUUID = db.getClaimedMinecraftForDc(dci.id);
             if(!sUUID.isPresent())return null;
-            return UUID.fromString(sUUID.get());
+            return Identity.Mc.fromString(sUUID.get());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e);//todo do sth if invalid
         }
     }
 
-    public String getClaimMc(UUID pUUID) {
+    public String getClaimMc(Identity.Mc mci) {
         try {
-            return db.getClaimedDiscordForMc(pUUID.toString()).orElse(null);
+            return db.getClaimedDiscordForMc(mci.toString()).orElse(null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -85,53 +85,52 @@ public class IdentityManager {
 
 
     public Identity resolve(Member m){
-        String id = m.getUser().getId();
-        if(isLinkedDc(id)){
-            UUID uuid = getClaimDc(id);
-            return new Identity(getMcName(uuid),/*ChatBridge.getFormatter().getMcAvatar(uuid)*/null, Identity.Type.Minecraft);
+        Identity.Dc dci = new Identity.Dc(m.getUser().getId());
+        if(isLinkedDc(dci)){
+            return getClaimDc(dci);
         }else{
-            return new Identity(m.getEffectiveName(),/*m.getEffectiveAvatarUrl()*/null, Identity.Type.Discord);
+            return new Identity.Dc(m.getUser().getId());
         }
     }
 
     public Identity resolve(OfflinePlayer player) {
-        UUID uuid = player.getUniqueId();
-        if(isLinkedMc(uuid)){
-            String dcId = getClaimMc(uuid);
-            return new Identity(dcId,null, Identity.Type.Discord);//todo
+        Identity.Mc mci = new Identity.Mc(player.getUniqueId());
+        if(isLinkedMc(mci)){
+            String dcId = getClaimMc(mci);
+            return new Identity.Dc(dcId);//todo
         }else{
-            return new Identity(player.getName(),ChatBridge.getFormatter().getMcAvatar(uuid), Identity.Type.Minecraft);
+            return new Identity.Mc(player.getUniqueId());
         }
     }
 
 
-    public boolean isLinkedDc(String dcId){
+    public boolean isLinkedDc(Identity.Dc dci){
         try {
-            return db.isActiveByDc(dcId);
+            return db.isActiveByDc(dci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public boolean isLinkedMc(UUID mcUUID){
+    public boolean isLinkedMc(Identity.Mc mci){
         try {
-            return db.isActiveByMc(mcUUID.toString());
+            return db.isActiveByMc(mci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<String> claimsOnDc(String pId){
+    public List<String> claimsOnDc(Identity.Dc dci){
         try {
-            return db.getClaimsOnDc(pId);
+            return db.getClaimsOnDc(dci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<String> claimsOnMc(UUID uuid) {
+    public List<String> claimsOnMc(Identity.Mc mci) {
         try {
-            return db.getClaimsOnMc(uuid.toString());
+            return db.getClaimsOnMc(mci.toString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -153,9 +152,9 @@ public class IdentityManager {
         mcNames.put(uuid, name);
     }
 
-    public String getMcName(UUID pUUID){
-        if(mcNames.containsKey(pUUID)){
-            return mcNames.get(pUUID);
+    public String getMcName(Identity.Mc mci){
+        if(mcNames.containsKey(mci.uuid)){
+            return mcNames.get(mci.uuid);
         }else{
             //todo query with api idk (what about async?)
             return null;
@@ -172,27 +171,27 @@ public class IdentityManager {
         dcNames.put(key,pName);
     }
 
-    public String getDcName(String pId){
-        return getDcName(pId,null);
+    public String getDcName(Identity.Dc dci){
+        return getDcName(dci,null);
     }
-    public String getDcName(String pId, String pGuild){
-        String key = dcNameKey(pId,pGuild);
+    public String getDcName(Identity.Dc dci, String pGuild){
+        String key = dcNameKey(dci.id,pGuild);
 
         if(dcNames.containsKey(key)){
             return dcNames.get(key);
         }else{
             //todo query with api idk (what about async?)
-            return pGuild==null?null:getDcName(pId);
+            return pGuild==null?null:getDcName(dci);
         }
     }
 
 
     //todo
-    public CompletableFuture<String> resolveDcName(String name){
+    public CompletableFuture<Identity.Dc> resolveDcName(String name){
         throw new NotImplementedException();
     }
 
-    public CompletableFuture<UUID> resolveMcName(String name) {
+    public CompletableFuture<Identity.Mc> resolveMcName(String name) {
         HttpClient client = HttpClient.newHttpClient();
         String url = "https://api.mojang.com/users/profiles/minecraft/" + name;
 
@@ -219,7 +218,7 @@ public class IdentityManager {
                             "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
                             "$1-$2-$3-$4-$5"
                     );
-                    return UUID.fromString(dashed);
+                    return Identity.Mc.fromString(dashed);
                 });
     }
 }

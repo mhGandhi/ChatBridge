@@ -1,12 +1,35 @@
 package com.mhgandhi.chatBridge;
 
-public record Identity(String name, String avatarUrl, Type type) {
+import java.util.UUID;
 
-    public enum Type{
-        Minecraft,
-        Discord,
-        Server
+public class Identity {
+    public static final Identity server = new Identity();
+
+    public static class Mc extends Identity {
+        public final UUID uuid;
+        public Mc(UUID pUUID){
+            uuid = pUUID;
+        }
+
+        public static Mc fromString(String pS)throws IllegalArgumentException{
+            return new Identity.Mc(UUID.fromString(pS));
+        }
+
+        @Override
+        public String toString() {
+            return uuid.toString();
+        }
     }
 
-    public static final Identity server = new Identity("",null, Type.Server);
+    public static class Dc extends Identity{
+        public final String id;
+        public Dc(String pId){
+            id = pId;
+        }
+
+        @Override
+        public String toString() {
+            return id;
+        }
+    }
 }
