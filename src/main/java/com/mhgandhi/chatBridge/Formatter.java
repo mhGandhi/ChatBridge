@@ -16,62 +16,68 @@ public class Formatter {
     private final IdentityManager imgr;
 
     // -------------------- Minecraft Chat: general messages --------------------
-    private final String tPluginEnabled;
-    private final String tPluginDisabled;
-    private final String tServerMsg;
-    private final String tLinkedMsg;
-    private final String tUnlinkedMsg;
+    private final String tPluginEnabled;   // text
+    private final String tPluginDisabled;  // text
+    private final String tServerMsg;       // MiniMessage template: <message>
+    private final String tLinkedMsg;       // MiniMessage template: <senderdc>, <sender>, <message>
+    private final String tUnlinkedMsg;     // MiniMessage template: <sender>, <message>
+    private final String tMcConnectReminder; // text (empty string disables reminder)
 
     // -------------------- Minecraft Chat: join/whitelist/login ----------------
-    private final String tWhitelistReject;
-    private final String tUnavailableReject;
+    private final String tWhitelistReject;   // text
+    private final String tUnavailableReject; // text
+    private final String tDisconnectKick;    // text shown when kicked on disconnect (may be empty -> disabled)
 
     // -------------------- Minecraft Chat: command error -----------------------
     private final String tMcCmdError; // format: "Error: %s"
 
     // -------------------- Minecraft Chat: status response ---------------------
-    // Uses MiniMessage placeholders <dcid> and <dcclaims> like your current method
-    private final String tMcStatus_linked;         // "✅ Linked to <dcid>"
-    private final String tMcStatus_notLinked;      // general not linked
-    private final String tMcStatus_toDc;           // you are claiming <dcid>
-    private final String tMcStatus_fromDc;         // claimed by [<dcclaims>]
-    private final String tMcStatus_fromBoth;       // claiming + claimed
-    private final String tMcConnectReminder;
+    // Uses MiniMessage placeholders <dcid>, <dcname>, <dcclaims>
+    private final String tMcStatus_unlinked; // general not linked
+    private final String tMcStatus_linked;   // linked to dc
+    private final String tMcStatus_toDc;     // you are claiming <dcid>/<dcname>
+    private final String tMcStatus_fromDc;   // claimed by [<dcclaims>]
+    private final String tMcStatus_fromBoth; // claiming + claimed
 
     // -------------------- Minecraft Chat: avatar URL pattern ------------------
-    private final String tAvatarApi; // e.g. "https://mc-heads.net/avatar/%s/128"
+    private final String tAvatarApi; // e.g. "https://mc-heads.net/avatar/%s/128" (uuid string)
 
     // -------------------- Discord Chat: general messages ----------------------
-    private final String sServerOnlineStatus;
-    private final String sPlayerJoined;   // format: "%s"
-    private final String sPlayerLeft;     // format: "%s"
-    private final String sPluginEnabled;
-    private final String sPluginDisabled;
+    private final String sServerOnlineStatus; // text
+    private final String sPlayerJoined;       // format: "%s"
+    private final String sPlayerLeft;         // format: "%s"
+    private final String sPluginEnabled;      // text
+    private final String sPluginDisabled;     // text
 
     // -------------------- Discord Chat: command boilerplate -------------------
     private final String sDcCmdError; // format: "❌ Error: %s"
-
     private final String sDcCmdConnect_desc;
     private final String sDcCmdConnect_argDesc;
     private final String sDcCmdDisconnect_desc;
     private final String sDcCmdStatus_desc;
 
+    // Command names / arg names (used when registering slash cmds)
+    private final String dcCmdConnect_name;
+    private final String dcCmdConnectArg_name;
+    private final String dcCmdDisconnect_name;
+    private final String dcCmdStatus_name;
+
     // -------------------- Discord Chat: /connect resolve messages -------------
-    private final String sDcResolve_status;
-    private final String sDcResolve_err_notExist; // format: "%s"
-    private final String sDcResolve_err_api;
-    private final String sDcResolve_err_other;
+    private final String sDcResolve_status;       // text
+    private final String sDcResolve_err_notExist; // format: "%s" (name)
+    private final String sDcResolve_err_api;      // text
+    private final String sDcResolve_err_other;    // text
 
     // -------------------- Discord Chat: /status embed strings -----------------
-    private final String sDcStatus_title;
-    private final String sDcStatus_linked;
-    private final String sDcStatus_notLinked;
-    private final String sDcStatus_info_title;
-    private final String sDcStatus_info_content; // format: "%s" (uuid)
-    private final String sDcStatus_instr_complete_title;
-    private final String sDcStatus_instr_complete_content; // text only
-    private final String sDcStatus_instr_mc_title;
-    private final String sDcStatus_instr_mc_content; // format: "%s" (user id)
+    private final String sDcStatus_title;                  // title
+    private final String sDcStatus_linked;                 // description when linked
+    private final String sDcStatus_notLinked;              // description when not linked
+    private final String sDcStatus_info_title;             // field title
+    private final String sDcStatus_info_content;           // format: "[%s]" (uuid)
+    private final String sDcStatus_instr_complete_title;   // field title
+    private final String sDcStatus_instr_complete_content; // field content
+    private final String sDcStatus_instr_mc_title;         // field title
+    private final String sDcStatus_instr_mc_content;       // format: "Run **/connect %s** ..." (user id)
 
     public Formatter(FileConfiguration pConf, IdentityManager pImgr){
         mm = MiniMessage.miniMessage();
@@ -89,30 +95,31 @@ public class Formatter {
         tUnlinkedMsg = pConf.getString("format.minecraftChat.messages.unlinkedMsg",
                 "<blue>[D]</blue> @<sender>: <message>");
         tMcConnectReminder = pConf.getString("format.minecraftChat.messages.connectionReminder",
-                "");
-
+                "Use /connect to link your Discord account now!"); // leave empty to disable
 
         // ---------------- Minecraft Chat: join/whitelist/login ------------
         tWhitelistReject = pConf.getString("format.minecraftChat.serverJoin.whitelistRejection",
                 "Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first.");
         tUnavailableReject = pConf.getString("format.minecraftChat.serverJoin.loginUnavailableRejection",
                 "Login system is temporarily unavailable. Try again in a moment or contact Server Admin.");
+        tDisconnectKick = pConf.getString("format.minecraftChat.disconnectKickMsg",
+                "Your account is no longer associated with a discord account.\nRun /connect in Discord.");
 
         // ---------------- Minecraft Chat: command error -------------------
         tMcCmdError = pConf.getString("format.minecraftChat.commands.error_reply",
                 "Error: %s");
 
         // ---------------- Minecraft Chat: status response -----------------
+        tMcStatus_unlinked = pConf.getString("format.minecraftChat.commands.status.response.unlinked",
+                "<red>❕ Not linked</red>\n<gray>Use /connect to link (for comfort do it on discord first)</gray>");
         tMcStatus_linked = pConf.getString("format.minecraftChat.commands.status.response.linked",
-                "<green>✅ Linked to</green> <dcid>");
-        tMcStatus_notLinked = pConf.getString("format.minecraftChat.commands.status.response.linked_toDc",
-                "<red>❕ Not linked</red>\nUse /connect to link (for comfort do it on discord first)");
+                "<green>✅ Linked to <hover:show_text:'<dcid>'><dcname></hover></green>");
         tMcStatus_toDc = pConf.getString("format.minecraftChat.commands.status.response.linked_toDc",
-                "<yellow>❕ Not linked</yellow>\nYou are currently claiming <dcid>\nDo /connect in discord to complete the link.");
+                "<yellow>❕ Not linked yet</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nUse /connect in discord to complete the link.</gray>");
         tMcStatus_fromDc = pConf.getString("format.minecraftChat.commands.status.response.linked_fromDc",
-                "<yellow>❕ Not linked</yellow>\nYour account is currently being claimed by: [<dcclaims>]\nDo /connect <any of the claiming discord users> to complete a link.");
+                "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>");
         tMcStatus_fromBoth = pConf.getString("format.minecraftChat.commands.status.response.linked_fromBothNoMatch",
-                "<yellow>❕ Not linked\n</yellow>You are currently claiming <dcid>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro");
+                "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>");
 
         // ---------------- Minecraft Chat: avatar API ----------------------
         tAvatarApi = pConf.getString("format.minecraftChat.avatarApi",
@@ -133,12 +140,20 @@ public class Formatter {
         // ---------------- Discord Chat: command boilerplate ---------------
         sDcCmdError = pConf.getString("format.discordChat.commands.error_reply",
                 "❌ Error: %s");
+        dcCmdConnect_name = pConf.getString("format.discordChat.commands.connect.name",
+                "connect");
         sDcCmdConnect_desc = pConf.getString("format.discordChat.commands.connect.description",
                 "Link to a Minecraft account");
+        dcCmdConnectArg_name = pConf.getString("format.discordChat.commands.connect.arg_name",
+                "player");
         sDcCmdConnect_argDesc = pConf.getString("format.discordChat.commands.connect.arg_description",
                 "Minecraft UUID or player name");
+        dcCmdDisconnect_name = pConf.getString("format.discordChat.commands.disconnect.name",
+                "disconnect");
         sDcCmdDisconnect_desc = pConf.getString("format.discordChat.commands.disconnect.description",
                 "Remove your Discord→MC claim");
+        dcCmdStatus_name = pConf.getString("format.discordChat.commands.status.name",
+                "status");
         sDcCmdStatus_desc = pConf.getString("format.discordChat.commands.status.description",
                 "Show your link status");
 
@@ -166,26 +181,12 @@ public class Formatter {
         sDcStatus_instr_complete_title = pConf.getString("format.discordChat.commands.status.response.instruction_field.complete.title",
                 "How to link");
         sDcStatus_instr_complete_content = pConf.getString("format.discordChat.commands.status.response.instruction_field.complete.content",
-                "Use `/connect <mc-uuid or name>` here.");
+                "Use `/connect <mc-uuid or name>`.");
         sDcStatus_instr_mc_title = pConf.getString("format.discordChat.commands.status.response.instruction_field.minecraft.title",
                 "Next step");
         sDcStatus_instr_mc_content = pConf.getString("format.discordChat.commands.status.response.instruction_field.minecraft.content",
                 "Run **/connect %s** in Minecraft to confirm. (autocompletes)");
-
-
-        dcCmdDisconnect_name = pConf.getString("format.discordChat.commands.disconnect.name",
-                "disconnect");
-        dcCmdStatus_name = pConf.getString("format.discordChat.commands.status.name",
-                "status");
-        dcCmdConnect_name =pConf.getString("format.discordChat.commands.connect.name",
-                "connect");
-        dcCmdConnectArg_name = pConf.getString("format.discordChat.commands.connect.arg_name",
-                "player");
-
-
-        tDisconnectKick = pConf.getString("format.minecraftChat.disconnectKickMsg", "cry");
     }
-
 
     public String mcCommandError(String message) {
         return tMcCmdError.formatted(message);
@@ -195,7 +196,11 @@ public class Formatter {
 
     public String mcPluginDisabled(){return tPluginDisabled;}
 
-    public Component mcConnectionReminder(){return mm.deserialize(tMcConnectReminder);}
+    // returns null if disabled via empty config value
+    public @Nullable Component mcConnectionReminder(){
+        if (tMcConnectReminder == null || tMcConnectReminder.isBlank()) return null;
+        return mm.deserialize(tMcConnectReminder);
+    }
 
     public Component formatMcMsg(Identity identity, String msg){
         if(msg.isEmpty())return null;
@@ -208,15 +213,15 @@ public class Formatter {
         }else if(identity instanceof Identity.Mc mca){
             return mm.deserialize(
                     tLinkedMsg,
-                    Placeholder.unparsed("sender",imgr.getMcName(mca)),
+                    Placeholder.unparsed("sender", imgr.getMcName(mca)),
                     Placeholder.unparsed("senderdc", imgr.getDcName(imgr.getClaimMc(mca))),
-                    Placeholder.parsed("message",msg)
+                    Placeholder.parsed("message", msg)
             );
         }else if(identity instanceof Identity.Dc dca){
             return mm.deserialize(
                     tUnlinkedMsg,
-                    Placeholder.unparsed("sender",imgr.getDcName(dca)),
-                    Placeholder.parsed("message",msg)
+                    Placeholder.unparsed("sender", imgr.getDcName(dca)),
+                    Placeholder.parsed("message", msg)
             );
         }
 
@@ -247,18 +252,18 @@ public class Formatter {
 
         if(linked){
             return mm.deserialize(tMcStatus_linked,
-                    Placeholder.unparsed("dcid",claim.toString()),
-                    Placeholder.unparsed("dcname",imgr.getDcName(claim))
+                    Placeholder.unparsed("dcid", claim.toString()),
+                    Placeholder.unparsed("dcname", imgr.getDcName(claim))
             );
         }
 
         if(claimsOn.isEmpty()){
             if(claim==null){
-                return mm.deserialize(tMcStatus_notLinked);
+                return mm.deserialize(tMcStatus_unlinked);
             }else{
                 return mm.deserialize(tMcStatus_toDc,
-                        Placeholder.unparsed("dcid",claim.toString()),
-                        Placeholder.unparsed("dcname",imgr.getDcName(claim))
+                        Placeholder.unparsed("dcid", claim.toString()),
+                        Placeholder.unparsed("dcname", imgr.getDcName(claim))
                 );
             }
         }else{
@@ -268,9 +273,9 @@ public class Formatter {
                 );
             }else{
                 return mm.deserialize(tMcStatus_fromBoth,
-                        Placeholder.unparsed("dcid",claim.toString()),
+                        Placeholder.unparsed("dcid", claim.toString()),
                         Placeholder.unparsed("dcclaims", claimsOn),
-                        Placeholder.unparsed("dcname",imgr.getDcName(claim))
+                        Placeholder.unparsed("dcname", imgr.getDcName(claim))
                 );
             }
         }
@@ -285,21 +290,15 @@ public class Formatter {
     public String dcCommandError(String error){return sDcCmdError.formatted(error);}
 
     public String dcCmdStatus_desc(){return sDcCmdStatus_desc;}
-
-    private final String dcCmdStatus_name;
     public String dcCmdStatus_name(){return dcCmdStatus_name;}
 
     public String dcCmdDisconnect_desc(){return sDcCmdDisconnect_desc;}
-    private final String dcCmdDisconnect_name;
     public String dcCmdDisconnect_name(){return dcCmdDisconnect_name;}
 
     public String dcCmdConnect_desc(){return sDcCmdConnect_desc;}
-    private final String dcCmdConnect_name;
     public String dcCmdConnect_name(){return dcCmdConnect_name;}
     public String dcCmdConnectArg_desc(){return sDcCmdConnect_argDesc;}
-    private final String dcCmdConnectArg_name;
     public String dcCmdConnectArg_name(){return dcCmdConnectArg_name;}
-
 
     public String dcServerOnlineStatus() {return sServerOnlineStatus;}
 
@@ -361,8 +360,9 @@ public class Formatter {
         return tAvatarApi.formatted(mci.uuid.toString());
     }
 
-    private final String tDisconnectKick;
+    // returns null if disabled via empty config value
     public @Nullable Component disconnectKick() {
+        if (tDisconnectKick == null || tDisconnectKick.isBlank()) return null;
         return mm.deserialize(tDisconnectKick);
     }
 }

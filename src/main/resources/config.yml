@@ -2,6 +2,8 @@ discord:
   token: ""      # bot token (apparently you are not supposed to post this one online)
   channel_id: ""  # ID of Discord channel to mirror into MC
 
+sendConnectionReminder: true
+
 whitelist:
   enabled: false
   kick_on_disconnect: false #only valid if whitelist is enabled
@@ -18,24 +20,23 @@ format:
       pluginDisabled: "ChatBridge Disabled!"
       serverMsg: "<yellow><message></yellow>"
       linkedMsg: "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>"
-      unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>" #eg
-      connectionReminder: "You are not fully linked to a discord account yet! Do /connect to link now!" # leave empty to disable
+      unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>"
+      connectionReminder: "Use /connect to link your Discord account now!"
     commands:
       error_reply: "Error: %s" # %s -> error msg
       connect:
         description: "Link to a Minecraft account"
         arg_description: "Minecraft UUID or player name"
-        response:
-          missing_userArg: "Missing user argument." # (not currently used)
       disconnect:
         description: "Remove your Discord→MC claim"
       status:
         description: "Show your link status"
         response:
-          linked: "<green>✅ Linked to</green> <hover:show_text:'<dcid>'><dcname></hover>" #<dcid><dcname>
-          linked_toDc: "<yellow>❕ Not linked</yellow>\nYou are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nDo /connect in discord to complete the link." #<dcid><dcname>
-          linked_fromDc: "<yellow>❕ Not linked</yellow>\nYour account is currently being claimed by: [<dcclaims>]\nDo /connect <any of the claiming discord users> to complete a link." #<dcclaims>
-          linked_fromBothNoMatch: "<yellow>❕ Not linked\n</yellow>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro" #<dcclaims><dcid><dcname>
+          unlinked: "<red>❕ Not linked</red>\n<gray>Use /connect to link (for comfort do it on discord first)</gray>"
+          linked: "<green>✅ Linked to <hover:show_text:'<dcid>'><dcname></hover></green>" #<dcid><dcname>
+          linked_toDc: "<yellow>❕ Not linked yet</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nUse /connect in discord to complete the link.</gray>" #<dcid><dcname>
+          linked_fromDc: "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>" #<dcclaims>
+          linked_fromBothNoMatch: "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>" #<dcclaims><dcid><dcname>
 
   discordChat:
     server_online_status: "Server Online!"
@@ -73,7 +74,7 @@ format:
           instruction_field:
             complete:
               title: "How to link"
-              content: "Use `/connect <mc-uuid or name>` here."
+              content: "Use `/connect <mc-uuid or name>`."
             minecraft:
               title: "Next step"
               content: "Run **/connect %s** in Minecraft to confirm. (autocompletes)" # %s -> user id
