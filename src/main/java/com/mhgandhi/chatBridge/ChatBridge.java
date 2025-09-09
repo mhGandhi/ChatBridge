@@ -8,6 +8,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.BiConsumer;
 
+//todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
+
 public final class ChatBridge extends JavaPlugin {
     public static final int MSG_LIMIT = 2000;//todo implement in the gateways (mby seperate limits?)
     private DiscordChat discordChat;
@@ -40,7 +42,7 @@ public final class ChatBridge extends JavaPlugin {
                 abort(e);
                 return;
             }
-            identityManager = new IdentityManager(db, getLogger());
+            identityManager = new IdentityManager(db, getLogger(), getConfig().getBoolean("whitelist.kick_on_disconnect",false));
 
             formatter = new Formatter(getConfig(), identityManager);
         }

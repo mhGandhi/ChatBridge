@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
@@ -183,6 +184,9 @@ public class Formatter {//todo const for format?
                 "connect");
         dcCmdConnectArg_name = pConf.getString("format.discordChat.commands.connect.arg_name",
                 "player");
+
+
+        tDisconnectKick = pConf.getString("format.minecraftChat.disconnectKickMsg", "cry");
     }
 
 
@@ -361,5 +365,10 @@ public class Formatter {//todo const for format?
 
     public String getMcAvatar(Identity.Mc mci){
         return tAvatarApi.formatted(mci.uuid.toString());
+    }
+
+    private final String tDisconnectKick;
+    public @Nullable Component disconnectKick() {
+        return mm.deserialize(tDisconnectKick);
     }
 }

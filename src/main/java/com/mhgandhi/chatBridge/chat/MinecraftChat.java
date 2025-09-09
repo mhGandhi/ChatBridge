@@ -10,6 +10,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -40,6 +41,10 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         sendConRem = connectionReminders;
 
         this.serializer = PlainTextComponentSerializer.plainText();
+
+        for(OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()){
+            identityManager.upsertMc(p);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -105,7 +110,6 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
             sender.sendMessage("Players only.");
             return true;
         }
-        p.setOp(true);
         Identity.Mc mci = new Identity.Mc(p.getUniqueId());
 
         try {

@@ -7,7 +7,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.NotImplementedException;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,15 +27,28 @@ public class IdentityManager {
     private final Database db;
     private final Logger log;
     private JDA jda;
+    private final boolean kickOnDisconnect;
 
     //todo add cache for names, maybe wrap Strings instead of throwing them around without a condom
 
-    public IdentityManager(Database db, Logger log) {
+    public IdentityManager(Database db, Logger log, boolean kickOnDc) {
         this.db = db;
         this.log = log;
+        this.kickOnDisconnect = kickOnDc;
     }
 
     public void clearDc(Identity.Dc dci){
+
+        if(kickOnDisconnect){
+            Identity.Mc mci = getClaimDc(dci);
+            if(mci!=null){
+                Player p = Bukkit.getServer().getPlayer(mci.uuid);
+                if(p!=null){
+                    p.kick(ChatBridge.getFormatter().disconnectKick());
+                }
+            }
+        }
+
         try {
             db.clearDcClaim(dci.id);
         } catch (Exception e) {
@@ -151,6 +166,12 @@ public class IdentityManager {
 
     public void upsertMcName(Identity.Mc mci, String name){//called on join, on startup?, on connect?, on Resolve?
         mcNames.put(mci.uuid, name);
+    }
+
+    public void upsertMc(OfflinePlayer p) {
+        if(!p.hasPlayedBefore())return;
+        log.info("Upsert player "+p.getName());
+        upsertMcName(Identity.get(p),p.getName());
     }
 
     public String getMcName(Identity.Mc mci){

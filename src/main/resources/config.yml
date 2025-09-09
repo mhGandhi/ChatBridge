@@ -4,21 +4,22 @@ discord:
 
 whitelist:
   enabled: false
-  kick_on_disconnect: false #only valid if whitelist is enabled todo
+  kick_on_disconnect: false #only valid if whitelist is enabled
 
 format:
   minecraftChat: #text format with minimessage https://docs.advntr.dev/minimessage
     avatarApi: "https://mc-heads.net/avatar/%s/128" # %s -> player UUID
+    disconnectKickMsg: "Your account is no longer associated with a discord account.\nRun /connect in Discord."
     serverJoin:
       whitelistRejection: "Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first."
       loginUnavailableRejection: "Login system is temporarily unavailable. Try again in a moment or contact Server Admin."
     messages:
       pluginEnabled: "ChatBridge Enabled!"
       pluginDisabled: "ChatBridge Disabled!"
-      serverMsg: "<yellow><message></yellow>" #todo customize different kinds
+      serverMsg: "<yellow><message></yellow>"
       linkedMsg: "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>"
       unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>" #eg
-      connectionReminder: "You are not linked to a discord account yet! Do /connect to link now!" # leave empty to disable
+      connectionReminder: "You are not fully linked to a discord account yet! Do /connect to link now!" # leave empty to disable
     commands:
       error_reply: "Error: %s" # %s -> error msg
       connect:
