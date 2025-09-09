@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
 public final class ChatBridge extends JavaPlugin {
-    public static final int MSG_LIMIT = 2000;//todo implement in the gateways (mby seperate limits?)
+    //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
     private DiscordChat discordChat;
     private MinecraftChat mcChat;
 

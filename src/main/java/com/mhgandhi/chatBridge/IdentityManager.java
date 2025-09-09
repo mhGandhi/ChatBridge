@@ -3,9 +3,7 @@ package com.mhgandhi.chatBridge;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mhgandhi.chatBridge.storage.Database;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
-import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -134,13 +132,13 @@ public class IdentityManager {
         }
     }
 
-    public List<String> claimsOnDc(Identity.Dc dci){
-        try {
-            return db.getClaimsOnDc(dci.toString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public List<String> claimsOnDc(Identity.Dc dci){
+//        try {
+//            return db.getClaimsOnDc(dci.toString());
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public List<String> claimsOnMc(Identity.Mc mci) {
         try {
@@ -218,9 +216,9 @@ public class IdentityManager {
     }
 
     //todo
-    public CompletableFuture<Identity.Dc> resolveDcName(String name){
-        throw new NotImplementedException();
-    }
+//    public CompletableFuture<Identity.Dc> resolveDcName(String name){
+//        throw new NotImplementedException();
+//    }
 
     public CompletableFuture<Identity.Mc> resolveMcName(String name) {
         try (HttpClient client = HttpClient.newHttpClient()) {

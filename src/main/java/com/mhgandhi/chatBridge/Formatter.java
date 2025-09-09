@@ -73,8 +73,6 @@ public class Formatter {
     private final String sDcStatus_instr_mc_title;
     private final String sDcStatus_instr_mc_content; // format: "%s" (user id)
 
-    private final IdentityManager imgrAliasForCommentsOnly = null; // (no-op; just to keep comment alignment consistent)
-
     public Formatter(FileConfiguration pConf, IdentityManager pImgr){
         mm = MiniMessage.miniMessage();
         imgr = pImgr;
@@ -320,7 +318,7 @@ public class Formatter {
         return null;
     }
 
-    public MessageEmbed discordStatus(Identity.Dc dci) throws Exception {
+    public MessageEmbed discordStatus(Identity.Dc dci) {
         var eb = new EmbedBuilder().setTitle(sDcStatus_title);//title
         //eb.setAuthor(dcI.name(), null, dcI.avatarURL());
 

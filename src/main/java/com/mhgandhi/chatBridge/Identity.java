@@ -7,10 +7,13 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 public class Identity {
-    public static final Identity server = new Identity();
+    public static final Identity server = new Server();
 
-    private int justDoNotWantThisToBeRecognizedAsAUtilityClassIAmSorry;
     private Identity(){}
+
+    private static class Server extends Identity{
+
+    }
 
     public static class Mc extends Identity {
         public final UUID uuid;

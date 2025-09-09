@@ -81,9 +81,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
         Component msg = ChatBridge.getFormatter().formatMcMsg(author, content);
 
         if(plugin.isEnabled()){
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                Bukkit.getServer().broadcast(msg);
-            });
+            Bukkit.getScheduler().runTask(plugin, ()->Bukkit.getServer().broadcast(msg) );
         }else{//if plugin is already disabled scheduler won't work hihi
             Bukkit.getServer().broadcast(msg);
         }

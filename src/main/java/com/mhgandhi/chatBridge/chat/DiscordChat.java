@@ -5,7 +5,6 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.IdentityManager;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
@@ -23,7 +22,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import javax.security.auth.login.LoginException;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionException;
@@ -44,10 +42,6 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     private volatile TextChannel mirrorChannel;
 
-    public JDA getJDA(){
-        return this.jda;
-    }
-
     private final Runnable onR;
 
     public DiscordChat(JavaPlugin plugin, IdentityManager idRes, String token, String channelId, Runnable onReady) {
@@ -65,7 +59,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         inboundHandler = handler;
     }
 
-    public void start() throws LoginException {
+    public void start() {
         JDABuilder builder = JDABuilder.createDefault(token)
                 .enableIntents(
                         GatewayIntent.GUILD_MESSAGES,
@@ -77,6 +71,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
                 .addEventListeners(this);
 
         jda = builder.build();
+
     }
 
     public void stop() {
@@ -296,16 +291,16 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         }
     }
 
-    private void handleStatus(SlashCommandInteractionEvent e) throws Exception {
+    private void handleStatus(SlashCommandInteractionEvent e) {
         e.replyEmbeds(ChatBridge.getFormatter().discordStatus( new Identity.Dc(e.getUser().getId()) )).setEphemeral(true).queue();
     }
 
-    private void handleDisconnect(SlashCommandInteractionEvent e) throws Exception {
+    private void handleDisconnect(SlashCommandInteractionEvent e) {
         Identity.Dc dci = new Identity.Dc(e.getUser().getId());
         identityManager.clearDc(dci);
         e.replyEmbeds( ChatBridge.getFormatter().discordStatus(dci) ).setEphemeral(true).queue();    }
 
-    private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
+    private void handleConnect(SlashCommandInteractionEvent e) {
         OptionMapping option = e.getOption(ChatBridge.getFormatter().dcCmdConnectArg_name());
         if (option == null) {
             plugin.getLogger().severe("Idk how but someone managed to execute /connect without args on dc");
