@@ -75,9 +75,11 @@ public class IdentityManager {
         }
     }
 
-    public String getClaimMc(Identity.Mc mci) {
+    public Identity.Dc getClaimMc(Identity.Mc mci) {
         try {
-            return db.getClaimedDiscordForMc(mci.toString()).orElse(null);
+            String dc = db.getClaimedDiscordForMc(mci.toString()).orElse(null);
+            if(dc==null)return null;
+            return new Identity.Dc(dc);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -96,8 +98,7 @@ public class IdentityManager {
     public Identity resolve(OfflinePlayer player) {
         Identity.Mc mci = new Identity.Mc(player.getUniqueId());
         if(isLinkedMc(mci)){
-            String dcId = getClaimMc(mci);
-            return new Identity.Dc(dcId);//todo
+            return getClaimMc(mci);
         }else{
             return new Identity.Mc(player.getUniqueId());
         }

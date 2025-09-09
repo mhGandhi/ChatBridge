@@ -16,7 +16,7 @@ format:
       pluginEnabled: "ChatBridge Enabled!"
       pluginDisabled: "ChatBridge Disabled!"
       serverMsg: "<yellow><message></yellow>" #todo customize different kinds
-      linkedMsg: "<blue>[D]</blue> <<sender>> <message>"
+      linkedMsg: "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>"
       unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>" #eg
       connectionReminder: "You are not linked to a discord account yet! Do /connect to link now!" # leave empty to disable
     commands:

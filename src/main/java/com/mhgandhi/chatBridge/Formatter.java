@@ -87,7 +87,7 @@ public class Formatter {//todo const for format?
         tServerMsg = pConf.getString("format.minecraftChat.messages.serverMsg",
                 "<yellow><message></yellow>");
         tLinkedMsg = pConf.getString("format.minecraftChat.messages.linkedMsg",
-                "<blue>[D]</blue> <<sender>> <message>");
+                "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>");
         tUnlinkedMsg = pConf.getString("format.minecraftChat.messages.unlinkedMsg",
                 "<blue>[D]</blue> @<sender>: <message>");
         tMcConnectReminder = pConf.getString("format.minecraftChat.messages.connectionReminder",
@@ -202,19 +202,20 @@ public class Formatter {//todo const for format?
         if(identity == Identity.server){//todo hover for dc name etc (identity rework)
             return mm.deserialize(
                     tServerMsg,
-                    Placeholder.unparsed("message",msg)
+                    Placeholder.parsed("message",msg)
             );//todo customizable via config
         }else if(identity instanceof Identity.Mc mca){
             return mm.deserialize(
                     tLinkedMsg,
                     Placeholder.unparsed("sender",imgr.getMcName(mca)),
-                    Placeholder.unparsed("message",msg)
-            );
+                    Placeholder.unparsed("senderdc", imgr.getDcName(imgr.getClaimMc(mca))),
+                    Placeholder.parsed("message",msg)
+            );//todo ehh
         }else if(identity instanceof Identity.Dc dca){
             return mm.deserialize(
                     tUnlinkedMsg,
                     Placeholder.unparsed("sender",imgr.getDcName(dca)),
-                    Placeholder.unparsed("message",msg)
+                    Placeholder.parsed("message",msg)
             );
         }
 
@@ -236,9 +237,9 @@ public class Formatter {//todo const for format?
 
         String tFromBoth = tMcStatus_fromBoth;
 
-
+//todo dc naming
         boolean linked = imgr.isLinkedMc(mci);//todo
-        String claim = imgr.getClaimMc(mci);
+        Identity.Dc claim = imgr.getClaimMc(mci);
         String claimsOn;
         {
             List<String> claimsonlist = imgr.claimsOnMc(mci);
@@ -251,7 +252,7 @@ public class Formatter {//todo const for format?
 
         if(linked){
             return mm.deserialize(tLinked,
-                    Placeholder.unparsed("dcid",claim)
+                    Placeholder.unparsed("dcid",claim.toString())
             );
         }
 
@@ -260,7 +261,7 @@ public class Formatter {//todo const for format?
                 return mm.deserialize(tNotLinked);
             }else{
                 return mm.deserialize(tToDc,
-                        Placeholder.unparsed("dcid",claim)
+                        Placeholder.unparsed("dcid",claim.toString())
                 );
             }
         }else{
@@ -270,7 +271,7 @@ public class Formatter {//todo const for format?
                 );
             }else{
                 return mm.deserialize(tFromBoth,
-                        Placeholder.unparsed("dcid",claim),
+                        Placeholder.unparsed("dcid",claim.toString()),
                         Placeholder.unparsed("dcclaims",claimsOn)
                 );
             }
@@ -319,9 +320,9 @@ public class Formatter {//todo const for format?
 
     public String dcPlayerLeft(Identity i){
         if(i instanceof Identity.Dc dci){
-            return sPlayerJoined.formatted(imgr.getDcName(dci));
+            return sPlayerLeft.formatted(imgr.getDcName(dci));
         }else if(i instanceof Identity.Mc mci){
-            return sPlayerJoined.formatted(imgr.getMcName(mci));
+            return sPlayerLeft.formatted(imgr.getMcName(mci));
         }
         return null;
     }
