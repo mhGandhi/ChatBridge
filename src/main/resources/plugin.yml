@@ -5,7 +5,7 @@ api-version: '1.21'
 commands:
   connect:
     description: Mirror your Minecraft Chat into Discord and back and link identities!
-    usage: /connect <discord-id>
+    usage: /connect <discord-id> (do it in discord first)
     permission: chatbridge.connect
   disconnect:
     description: Remove your MC→Discord claim
