@@ -3,9 +3,9 @@ package com.mhgandhi.chatBridge;
 import com.mhgandhi.chatBridge.chat.DiscordChat;
 import com.mhgandhi.chatBridge.chat.MinecraftChat;
 import com.mhgandhi.chatBridge.storage.Database;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
@@ -29,7 +29,7 @@ public final class ChatBridge extends JavaPlugin {
 
         if (token == null || token.isBlank() || channelId == null || channelId.isBlank()) {
             getLogger().severe("discord.token and discord.channel_id must be set in config.yml. Disabling.");
-            getServer().getPluginManager().disablePlugin(this);//todo only change functionality
+            getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
@@ -83,22 +83,23 @@ public final class ChatBridge extends JavaPlugin {
             mcChat = new MinecraftChat(this, identityManager, !sc.isBlank());
 
             BiConsumer<Identity, String> mcChatHandler = (author, text) -> {
-                if(discordChat ==null||!discordChat.isReady()){
-                    //todo not ready
-                    return;
+                if(discordChat !=null&&discordChat.isReady()){
+                    //todo resolve mentions?
+                    discordChat.sendMessage(author, text);
                 }
-
-                //todo resolve mentions?
-                discordChat.sendMessage(author, text);
             };
             mcChat.setMessageCallback(mcChatHandler);
 
             getServer().getPluginManager().registerEvents(mcChat, this);
 
-            getCommand("connect").setExecutor(mcChat);
-            getCommand("connect").setTabCompleter(mcChat);
-            getCommand("disconnect").setExecutor(mcChat);
-            getCommand("status").setExecutor(mcChat);
+            try{
+                Objects.requireNonNull(getCommand("connect")).setExecutor(mcChat);
+                Objects.requireNonNull(getCommand("connect")).setTabCompleter(mcChat);
+                Objects.requireNonNull(getCommand("disconnect")).setExecutor(mcChat);
+                Objects.requireNonNull(getCommand("status")).setExecutor(mcChat);
+            } catch (Exception e) {
+                //ohh no
+            }
         }
     }
 

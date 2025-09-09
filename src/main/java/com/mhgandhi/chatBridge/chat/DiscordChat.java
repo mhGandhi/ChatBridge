@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
@@ -25,10 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.security.auth.login.LoginException;
-import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
 
@@ -87,7 +84,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             try { webhookClient.close(); } catch (Exception ignored) {}
             webhookClient = null;
         }
-        if (jda != null) {//todo change status
+        if (jda != null) {
             try {
                 jda.shutdownNow();
             } catch (Exception ignored) {}
@@ -96,8 +93,6 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onReady(@NotNull net.dv8tion.jda.api.events.session.ReadyEvent event) {
-        identityManager.setJda(jda);
-
         registerCommands();
 
         TextChannel ch = event.getJDA().getTextChannelById(channelId);
@@ -227,6 +222,8 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             text = "<hover:show_text:'"+refSnippet+"'>(↪)</hover> " + text;
         }
 
+        //todo spoiler hover
+
         return text;
     }
 
@@ -269,21 +266,16 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
                 .queue(null, err -> plugin.getLogger().warning("Failed to send to Discord: " + err.getMessage()));
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////COMMANDS todo seperate class mby?
+    //////////////////////////////////////////////////////////////////////////////////////////////////////COMMANDS
     private void registerCommands(){//todo global
-        String guildId = "842749415978041354"; //todo was für per guild der shit ist per plugin/bot
-        if (guildId != null && !guildId.isBlank()) {
-            Guild g = jda.getGuildById(guildId);
-            if (g != null) {
-                g.updateCommands()
-                        .addCommands(//todo constants for command names
-                                Commands.slash(ChatBridge.getFormatter().dcCmdConnect_name(), ChatBridge.getFormatter().dcCmdConnect_desc())
-                                        .addOption(OptionType.STRING, ChatBridge.getFormatter().dcCmdConnectArg_name(), ChatBridge.getFormatter().dcCmdConnectArg_desc(), true),
-                                Commands.slash(ChatBridge.getFormatter().dcCmdDisconnect_name(), ChatBridge.getFormatter().dcCmdDisconnect_desc()),
-                                Commands.slash(ChatBridge.getFormatter().dcCmdStatus_name(), ChatBridge.getFormatter().dcCmdStatus_desc())
-                        ).queue();
-            }
-        }//todo else global
+        Guild g = mirrorChannel.getGuild();
+        g.updateCommands()
+                .addCommands(
+                        Commands.slash(ChatBridge.getFormatter().dcCmdConnect_name(), ChatBridge.getFormatter().dcCmdConnect_desc())
+                                .addOption(OptionType.STRING, ChatBridge.getFormatter().dcCmdConnectArg_name(), ChatBridge.getFormatter().dcCmdConnectArg_desc(), true),
+                        Commands.slash(ChatBridge.getFormatter().dcCmdDisconnect_name(), ChatBridge.getFormatter().dcCmdDisconnect_desc()),
+                        Commands.slash(ChatBridge.getFormatter().dcCmdStatus_name(), ChatBridge.getFormatter().dcCmdStatus_desc())
+                ).queue();
     }
 
     @Override
@@ -314,7 +306,7 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
         e.replyEmbeds( ChatBridge.getFormatter().discordStatus(dci) ).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) throws Exception {
-        OptionMapping option = e.getOption(ChatBridge.getFormatter().dcCmdConnectArg_name());//todo constant for option name
+        OptionMapping option = e.getOption(ChatBridge.getFormatter().dcCmdConnectArg_name());
         if (option == null) {
             plugin.getLogger().severe("Idk how but someone managed to execute /connect without args on dc");
             return;

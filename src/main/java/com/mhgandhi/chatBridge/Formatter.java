@@ -10,9 +10,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
-import java.util.UUID;
 
-public class Formatter {//todo const for format?
+public class Formatter {
     private final MiniMessage mm;
     private final IdentityManager imgr;
 
@@ -200,21 +199,21 @@ public class Formatter {//todo const for format?
 
     public Component mcConnectionReminder(){return mm.deserialize(tMcConnectReminder);}
 
-    public Component formatMcMsg(Identity identity, String msg){//todo spoiler hover
+    public Component formatMcMsg(Identity identity, String msg){
         if(msg.isEmpty())return null;
 
-        if(identity == Identity.server){//todo hover for dc name etc (identity rework)
+        if(identity == Identity.server){
             return mm.deserialize(
                     tServerMsg,
                     Placeholder.parsed("message",msg)
-            );//todo customizable via config
+            );
         }else if(identity instanceof Identity.Mc mca){
             return mm.deserialize(
                     tLinkedMsg,
                     Placeholder.unparsed("sender",imgr.getMcName(mca)),
                     Placeholder.unparsed("senderdc", imgr.getDcName(imgr.getClaimMc(mca))),
                     Placeholder.parsed("message",msg)
-            );//todo ehh
+            );
         }else if(identity instanceof Identity.Dc dca){
             return mm.deserialize(
                     tUnlinkedMsg,
@@ -231,18 +230,8 @@ public class Formatter {//todo const for format?
     public Component loginUnavailableReject(){return mm.deserialize(tUnavailableReject);}
 
     public Component minecraftStatus(Identity.Mc mci) {
-        String tLinked = tMcStatus_linked;
-
-        String tNotLinked = tMcStatus_notLinked;
-
-        String tToDc = tMcStatus_toDc;
-
-        String tFromDc = tMcStatus_fromDc;
-
-        String tFromBoth = tMcStatus_fromBoth;
-
-//todo dc naming
-        boolean linked = imgr.isLinkedMc(mci);//todo
+        //todo dc naming
+        boolean linked = imgr.isLinkedMc(mci);
         Identity.Dc claim = imgr.getClaimMc(mci);
         String claimsOn;
         {
@@ -255,26 +244,26 @@ public class Formatter {//todo const for format?
         }
 
         if(linked){
-            return mm.deserialize(tLinked,
+            return mm.deserialize(tMcStatus_linked,
                     Placeholder.unparsed("dcid",claim.toString())
             );
         }
 
         if(claimsOn.isEmpty()){
             if(claim==null){
-                return mm.deserialize(tNotLinked);
+                return mm.deserialize(tMcStatus_notLinked);
             }else{
-                return mm.deserialize(tToDc,
+                return mm.deserialize(tMcStatus_toDc,
                         Placeholder.unparsed("dcid",claim.toString())
                 );
             }
         }else{
             if(claim==null){
-                return mm.deserialize(tFromDc,
+                return mm.deserialize(tMcStatus_fromDc,
                         Placeholder.unparsed("dcclaims",claimsOn)
                 );
             }else{
-                return mm.deserialize(tFromBoth,
+                return mm.deserialize(tMcStatus_fromBoth,
                         Placeholder.unparsed("dcid",claim.toString()),
                         Placeholder.unparsed("dcclaims",claimsOn)
                 );

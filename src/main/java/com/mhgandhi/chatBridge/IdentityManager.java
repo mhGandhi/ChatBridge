@@ -5,7 +5,6 @@ import com.google.gson.JsonParser;
 import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -26,10 +25,8 @@ import java.util.logging.Logger;
 public class IdentityManager {
     private final Database db;
     private final Logger log;
-    private JDA jda;
+    //private JDA jda;
     private final boolean kickOnDisconnect;
-
-    //todo add cache for names, maybe wrap Strings instead of throwing them around without a condom
 
     public IdentityManager(Database db, Logger log, boolean kickOnDc) {
         this.db = db;
@@ -83,10 +80,10 @@ public class IdentityManager {
     public Identity.Mc getClaimDc(Identity.Dc dci) {
         try {
             var sUUID = db.getClaimedMinecraftForDc(dci.id);
-            if(!sUUID.isPresent())return null;
-            return Identity.Mc.fromString(sUUID.get());
+            return sUUID.map(Identity.Mc::fromString).orElse(null);
         } catch (Exception e) {
-            throw new RuntimeException(e);//todo do sth if invalid
+            log.severe("Error resolving Mc UUID: "+e.getMessage());
+            return null;
         }
     }
 
@@ -96,7 +93,8 @@ public class IdentityManager {
             if(dc==null)return null;
             return new Identity.Dc(dc);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.severe("Error resolving Dc Id: "+e.getMessage());
+            return null;
         }
     }
 
@@ -154,10 +152,9 @@ public class IdentityManager {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    //todo begone
-    public void setJda(JDA d){
-        jda = d;
-    }
+    //public void setJda(JDA d){
+    //    jda = d;
+    //}
 
 
     /// ////////////////////////////////////////////////////////////////////////////////////CACHE
@@ -178,7 +175,7 @@ public class IdentityManager {
         if(mcNames.containsKey(mci.uuid)){
             return mcNames.get(mci.uuid);
         }else{
-            //todo query with api idk (what about async?)
+            log.fine("cant resolve name of mc "+mci);//todo query with api async for next call
             return "["+mci+"]";
         }
     }
@@ -205,7 +202,7 @@ public class IdentityManager {
         if(dcNames.containsKey(dci.id)){
             return dcNames.get(dci.id);
         }else{
-            //todo query with api idk (what about async?)
+            log.fine("cant resolve name of dc "+dci);//todo query with api async for next call
             return "["+dci+"]";
         }
     }
@@ -215,7 +212,7 @@ public class IdentityManager {
         if(dcAvatars.containsKey(dci.id)){
             return dcAvatars.get(dci.id);
         }else{
-            //todo query with api idk (what about async?)
+            log.fine("cant resolve avatar of dc "+dci);//todo query with api async for next call
             return null;
         }
     }
@@ -226,38 +223,39 @@ public class IdentityManager {
     }
 
     public CompletableFuture<Identity.Mc> resolveMcName(String name) {
-        HttpClient client = HttpClient.newHttpClient();
-        String url = "https://api.mojang.com/users/profiles/minecraft/" + name;
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            String url = "https://api.mojang.com/users/profiles/minecraft/" + name;
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .GET()
+                    .build();
 
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> {
-                    if (response.statusCode() == 204 || response.statusCode() == 404) {
-                        throw new CompletionException(
-                                new IllegalArgumentException("No player with name: " + name));
-                    }
-                    if (response.statusCode() != 200) {
-                        throw new CompletionException(
-                                new RuntimeException("Mojang API error: " + response.statusCode()));
-                    }
+            return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenApply(response -> {
+                        if (response.statusCode() == 204 || response.statusCode() == 404) {
+                            throw new CompletionException(
+                                    new IllegalArgumentException("No player with name: " + name));
+                        }
+                        if (response.statusCode() != 200) {
+                            throw new CompletionException(
+                                    new RuntimeException("Mojang API error: " + response.statusCode()));
+                        }
 
-                    JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
-                    String id = json.get("id").getAsString(); // UUID without dashes, 32 hex chars
-                    // Insert dashes in UUID string
-                    String dashed = id.replaceFirst(
-                            "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
-                            "$1-$2-$3-$4-$5"
-                    );
+                        JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
+                        String id = json.get("id").getAsString(); // UUID without dashes, 32 hex chars
+                        // Insert dashes in UUID string
+                        String dashed = id.replaceFirst(
+                                "(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})",
+                                "$1-$2-$3-$4-$5"
+                        );
 
-                    Identity.Mc mci = Identity.Mc.fromString(dashed);
+                        Identity.Mc mci = Identity.Mc.fromString(dashed);
 
-                    upsertMcName(mci,name);
+                        upsertMcName(mci, name);
 
-                    return mci;
-                });
+                        return mci;
+                    });
+        }
     }
 }

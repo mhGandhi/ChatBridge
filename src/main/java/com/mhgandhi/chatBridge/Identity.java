@@ -9,6 +9,9 @@ import java.util.UUID;
 public class Identity {
     public static final Identity server = new Identity();
 
+    private int justDoNotWantThisToBeRecognizedAsAUtilityClassIAmSorry;
+    private Identity(){}
+
     public static class Mc extends Identity {
         public final UUID uuid;
         public Mc(UUID pUUID){

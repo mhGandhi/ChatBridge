@@ -5,7 +5,6 @@ import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.Identity;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.dv8tion.jda.api.entities.User;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -20,11 +19,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 
 public final class MinecraftChat implements Listener, IChat, CommandExecutor, TabCompleter {
     private final JavaPlugin plugin;
@@ -105,7 +103,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
 
     /// ///////////////////////////////////////////////////////////COMMANDS
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player p)) {//todo Brigadeer for Config names etc
             sender.sendMessage("Players only.");
             return true;
@@ -145,7 +143,7 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, String @NotNull [] args) {
         if (!(sender instanceof Player p)) return Collections.emptyList();
         if (!cmd.getName().equalsIgnoreCase("connect")) return Collections.emptyList();
         if (args.length != 1) return Collections.emptyList();

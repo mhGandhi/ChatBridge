@@ -1,13 +1,10 @@
 package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.chatBridge.storage.Database;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.UUID;
 
 public class PlayerRejecter implements Listener {
     private final IdentityManager imgr;
@@ -21,7 +18,7 @@ public class PlayerRejecter implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPreLogin(AsyncPlayerPreLoginEvent e) {//todo fix msg display
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
         Identity.Mc mci = new Identity.Mc(e.getUniqueId());
 
         try{
