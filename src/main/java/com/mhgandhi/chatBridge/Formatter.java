@@ -332,17 +332,22 @@ public class Formatter {
         Identity.Mc claim = imgr.getClaimDc(dci);
 
         if(linked){
-            eb.setDescription(sDcStatus_linked);//linked
             eb.setColor(Color.GREEN);
+        } else if (claim!=null) {
+            eb.setColor(Color.YELLOW);
+        }else{
+            eb.setColor(Color.GRAY);
+        }
+
+        if(linked){
+            eb.setDescription(sDcStatus_linked);//linked
         }else{
             eb.setDescription(sDcStatus_notLinked);//notlinked
-            eb.setColor(Color.GRAY);
         }
 
         if(claim!=null){//info field
             eb.addField(sDcStatus_info_title, sDcStatus_info_content.formatted(claim), false);
             eb.setThumbnail(getMcAvatar(claim));
-            eb.setColor(Color.YELLOW);
         }
 
         if(!linked){
