@@ -342,7 +342,8 @@ public class Formatter {
         if(claim!=null){//info field
             eb.addField(sDcStatus_info_title, sDcStatus_info_content.formatted(claim), false);
             eb.setThumbnail(getMcAvatar(claim));
-            eb.setColor(Color.YELLOW);
+            if(!linked)
+                eb.setColor(Color.YELLOW);
         }
 
         if(!linked){
