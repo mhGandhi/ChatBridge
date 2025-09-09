@@ -10,20 +10,20 @@ whitelist:
 
 format:
   minecraftChat: #text format with minimessage https://docs.advntr.dev/minimessage
-    avatarApi: "https://mc-heads.net/avatar/%s/128" # %s -> player UUID
-    disconnectKickMsg: "Your account is no longer associated with a discord account.\nRun /connect in Discord."
+    avatarApi: "https://mc-heads.net/avatar/%s/128" # The link the plugin will use to retrieve a players head [%s -> player UUID]
+    disconnectKickMsg: "Your account is no longer associated with a discord account.\nRun /connect in Discord." # sent if someone disconnects his account while online (if whitelist and kick_on_disconnect are enabled)
     serverJoin:
       whitelistRejection: "Your account is not associated with a discord account yet.\nJoin our Discord and run /connect first."
       loginUnavailableRejection: "Login system is temporarily unavailable. Try again in a moment or contact Server Admin."
     messages:
       pluginEnabled: "ChatBridge Enabled!"
       pluginDisabled: "ChatBridge Disabled!"
-      serverMsg: "<yellow><message></yellow>"
-      linkedMsg: "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>"
-      unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>"
-      connectionReminder: "Use /connect to link your Discord account now!"
+      serverMsg: "<yellow><message></yellow>"# formatting for server messages [<message>]
+      linkedMsg: "<hover:show_text:'@<senderdc>'><blue>[D]</blue></hover> <<sender>> <message>"# formatting for message from Discord that was resolved to a Player [<message>,<sender>(mc name of sender),<senderdc>(dc name of sender)]
+      unlinkedMsg: "<blue>[D]</blue> @<sender>: <message>"# formatting for message from Discord that was not resolved to a Player [<message>,<sender>(dc name of sender)]
+      connectionReminder: "Use /connect to link your Discord account now!"# reminder sent 3 seconds after join to unlinked players if sendConnectionReminder is enabled
     commands:
-      error_reply: "Error: %s" # %s -> error msg
+      error_reply: "Error: %s" # error reply when something goes wrong while executing a command [%s -> error msg]
       connect:
         description: "Link to a Minecraft account"
         arg_description: "Minecraft UUID or player name"
@@ -31,23 +31,23 @@ format:
         description: "Remove your Discord→MC claim"
       status:
         description: "Show your link status"
-        response:
+        response: # responses, based on the nature of the active link
           unlinked: "<red>❕ Not linked</red>\n<gray>Use /connect to link (for comfort do it on discord first)</gray>"
-          linked: "<green>✅ Linked to <hover:show_text:'<dcid>'><dcname></hover></green>" #<dcid><dcname>
-          linked_toDc: "<yellow>❕ Not linked yet</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nUse /connect in discord to complete the link.</gray>" #<dcid><dcname>
-          linked_fromDc: "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>" #<dcclaims>
-          linked_fromBothNoMatch: "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>" #<dcclaims><dcid><dcname>
+          linked: "<green>✅ Linked to <hover:show_text:'<dcid>'><dcname></hover></green>" #[<dcid>,<dcname>]
+          linked_toDc: "<yellow>❕ Not linked yet</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nUse /connect in discord to complete the link.</gray>" #[<dcid>,<dcname>]
+          linked_fromDc: "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>" #[<dcclaims>]
+          linked_fromBothNoMatch: "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>" #[<dcclaims>,<dcid>,<dcname>]
 
   discordChat:
     server_online_status: "Server Online!"
     messages:
-      join: "`➕` **%s** joined the server" # %s -> player
-      leave: "`➖` **%s** left the server" # %s -> player
+      join: "`➕` **%s** joined the server" # [%s -> player]
+      leave: "`➖` **%s** left the server" # [%s -> player]
       pluginEnabled: "`🟢` **ChatBridge enabled**"
       pluginDisabled: "`🔴` **ChatBridge disabled**"
-    commands: #if you set the commands to have the same name you can go fuck yourself
-      error_reply: "❌ Error: %s" # %s -> error
-      connect:
+    commands: #if you set the commands to have the same name you can go  yourself
+      error_reply: "❌ Error: %s" # [%s -> error]
+      connect: # setup for the dc commands; you can also change how they are called here
         name: "connect"
         description: "Link to a Minecraft account"
         arg_name: "player"
@@ -55,7 +55,7 @@ format:
         response:
           resolving_status: "Resolving Player Name to UUID..."
           resolve_error:
-            reason_notExist: "'%s' does not seem to be a player. Check for typos or enter your UUID directly." # %s -> name that wasn't resolved
+            reason_notExist: "'%s' does not seem to be a player. Check for typos or enter your UUID directly." # [%s -> name that wasn't resolved]
             reason_api: "Could not Resolve name to an UUID due to API problems. Try again later or enter your UUID directly."
             reason_other: "Could not Resolve name to an UUID for an unspecified reason. Cry about it."
       disconnect:
@@ -72,9 +72,9 @@ format:
             title: "Claimed Minecraft UUID"
             content: "[%s]" # %s -> player uuid
           instruction_field:
-            complete:
+            complete: # replied when there is no link at all (dc side is missing)
               title: "How to link"
               content: "Use `/connect <mc-uuid or name>`."
-            minecraft:
+            minecraft: # replied when there is a one-sided link but the minecraft side is missing
               title: "Next step"
               content: "Run **/connect %s** in Minecraft to confirm. (autocompletes)" # %s -> user id
