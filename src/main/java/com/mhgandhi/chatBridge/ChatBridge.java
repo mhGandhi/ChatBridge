@@ -79,8 +79,7 @@ public final class ChatBridge extends JavaPlugin {
         }
 
         {///////////////////////MC CHAT
-            String sc = getConfig().getString("format.minecraftChat.messages.connectionReminder","");
-            mcChat = new MinecraftChat(this, identityManager, !sc.isBlank());
+            mcChat = new MinecraftChat(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
 
             BiConsumer<Identity, String> mcChatHandler = (author, text) -> {
                 if(discordChat !=null&&discordChat.isReady()){
