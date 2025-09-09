@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.Member;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,17 +19,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.logging.Logger;
 
 public class IdentityManager {
     private final Database db;
-    private final Logger log;
+    private final JavaPlugin plugin;
     //private JDA jda;
     private final boolean kickOnDisconnect;
 
-    public IdentityManager(Database db, Logger log, boolean kickOnDc) {
+    public IdentityManager(Database db, JavaPlugin plg, boolean kickOnDc) {
         this.db = db;
-        this.log = log;
+        this.plugin = plg;
         this.kickOnDisconnect = kickOnDc;
     }
 
@@ -39,7 +39,9 @@ public class IdentityManager {
             if(mci!=null){
                 Player p = Bukkit.getServer().getPlayer(mci.uuid);
                 if(p!=null){
-                    p.kick(ChatBridge.getFormatter().disconnectKick());
+                    Bukkit.getScheduler().runTask(plugin, () ->
+                            p.kick( ChatBridge.getFormatter().disconnectKick() )
+                    );
                 }
             }
         }
@@ -80,7 +82,7 @@ public class IdentityManager {
             var sUUID = db.getClaimedMinecraftForDc(dci.id);
             return sUUID.map(Identity.Mc::fromString).orElse(null);
         } catch (Exception e) {
-            log.severe("Error resolving Mc UUID: "+e.getMessage());
+            plugin.getLogger().severe("Error resolving Mc UUID: "+e.getMessage());
             return null;
         }
     }
@@ -91,7 +93,7 @@ public class IdentityManager {
             if(dc==null)return null;
             return new Identity.Dc(dc);
         } catch (Exception e) {
-            log.severe("Error resolving Dc Id: "+e.getMessage());
+            plugin.getLogger().severe("Error resolving Dc Id: "+e.getMessage());
             return null;
         }
     }
@@ -165,7 +167,7 @@ public class IdentityManager {
 
     public void upsertMc(OfflinePlayer p) {
         if(!p.hasPlayedBefore())return;
-        log.info("Upsert player "+p.getName());
+        plugin.getLogger().info("Upsert player "+p.getName());
         upsertMcName(Identity.get(p),p.getName());
     }
 
@@ -173,7 +175,7 @@ public class IdentityManager {
         if(mcNames.containsKey(mci.uuid)){
             return mcNames.get(mci.uuid);
         }else{
-            log.fine("cant resolve name of mc "+mci);//todo query with api async for next call
+            plugin.getLogger().fine("cant resolve name of mc "+mci);//todo query with api async for next call
             return "["+mci+"]";
         }
     }
@@ -190,7 +192,7 @@ public class IdentityManager {
     }
 
     public void upsertDc(Member m){
-        log.info("Upsert member "+m.getUser().getName());
+        plugin.getLogger().info("Upsert member "+m.getUser().getName());
         Identity.Dc dci = Identity.get(m);
         upsertDcName(dci, m.getEffectiveName());
         upsertDcAvatarUrl(dci, m.getEffectiveAvatarUrl());
@@ -200,7 +202,7 @@ public class IdentityManager {
         if(dcNames.containsKey(dci.id)){
             return dcNames.get(dci.id);
         }else{
-            log.fine("cant resolve name of dc "+dci);//todo query with api async for next call
+            plugin.getLogger().fine("cant resolve name of dc "+dci);//todo query with api async for next call
             return "["+dci+"]";
         }
     }
@@ -210,7 +212,7 @@ public class IdentityManager {
         if(dcAvatars.containsKey(dci.id)){
             return dcAvatars.get(dci.id);
         }else{
-            log.fine("cant resolve avatar of dc "+dci);//todo query with api async for next call
+            plugin.getLogger().fine("cant resolve avatar of dc "+dci);//todo query with api async for next call
             return null;
         }
     }

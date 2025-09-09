@@ -42,7 +42,7 @@ public final class ChatBridge extends JavaPlugin {
                 abort(e);
                 return;
             }
-            identityManager = new IdentityManager(db, getLogger(), getConfig().getBoolean("whitelist.kick_on_disconnect",false));
+            identityManager = new IdentityManager(db, this, getConfig().getBoolean("whitelist.kick_on_disconnect",false));
 
             formatter = new Formatter(getConfig(), identityManager);
         }
