@@ -32,10 +32,10 @@ format:
       status:
         description: "Show your link status"
         response:
-          linked: "<green>✅ Linked to</green> <dcid>" #<dcid>
-          linked_toDc: "<yellow>❕ Not linked</yellow>\nYou are currently claiming <dcid>\nDo /connect in discord to complete the link." #<dcid>
+          linked: "<green>✅ Linked to</green> <hover:show_text:'<dcid>'><dcname></hover>" #<dcid><dcname>
+          linked_toDc: "<yellow>❕ Not linked</yellow>\nYou are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nDo /connect in discord to complete the link." #<dcid><dcname>
           linked_fromDc: "<yellow>❕ Not linked</yellow>\nYour account is currently being claimed by: [<dcclaims>]\nDo /connect <any of the claiming discord users> to complete a link." #<dcclaims>
-          linked_fromBothNoMatch: "<yellow>❕ Not linked\n</yellow>You are currently claiming <dcid>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro" #<dcclaims><dcid>
+          linked_fromBothNoMatch: "<yellow>❕ Not linked\n</yellow>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nu know how the command works by now lil bro" #<dcclaims><dcid><dcname>
 
   discordChat:
     server_online_status: "Server Online!"

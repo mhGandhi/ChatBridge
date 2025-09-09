@@ -228,22 +228,27 @@ public class Formatter {
     public Component loginUnavailableReject(){return mm.deserialize(tUnavailableReject);}
 
     public Component minecraftStatus(Identity.Mc mci) {
-        //todo dc naming
         boolean linked = imgr.isLinkedMc(mci);
         Identity.Dc claim = imgr.getClaimMc(mci);
         String claimsOn;
         {
+            StringBuilder cob = new StringBuilder();
             List<String> claimsonlist = imgr.claimsOnMc(mci);
-            if(claimsonlist.isEmpty()){
-                claimsOn = "";
-            }else{
-                claimsOn = String.join(", ", claimsonlist);
+            if(!claimsonlist.isEmpty()){
+                for (int i = 0; i < claimsonlist.size(); i++) {
+                    String c = claimsonlist.get(i);
+                    cob.append(imgr.getDcName(new Identity.Dc(c)));
+                    if(i<claimsonlist.size()-1)
+                        cob.append(", ");
+                }
             }
+            claimsOn = cob.toString();
         }
 
         if(linked){
             return mm.deserialize(tMcStatus_linked,
-                    Placeholder.unparsed("dcid",claim.toString())
+                    Placeholder.unparsed("dcid",claim.toString()),
+                    Placeholder.unparsed("dcname",imgr.getDcName(claim))
             );
         }
 
@@ -252,18 +257,20 @@ public class Formatter {
                 return mm.deserialize(tMcStatus_notLinked);
             }else{
                 return mm.deserialize(tMcStatus_toDc,
-                        Placeholder.unparsed("dcid",claim.toString())
+                        Placeholder.unparsed("dcid",claim.toString()),
+                        Placeholder.unparsed("dcname",imgr.getDcName(claim))
                 );
             }
         }else{
             if(claim==null){
                 return mm.deserialize(tMcStatus_fromDc,
-                        Placeholder.unparsed("dcclaims",claimsOn)
+                        Placeholder.unparsed("dcclaims", claimsOn)
                 );
             }else{
                 return mm.deserialize(tMcStatus_fromBoth,
                         Placeholder.unparsed("dcid",claim.toString()),
-                        Placeholder.unparsed("dcclaims",claimsOn)
+                        Placeholder.unparsed("dcclaims", claimsOn),
+                        Placeholder.unparsed("dcname",imgr.getDcName(claim))
                 );
             }
         }
