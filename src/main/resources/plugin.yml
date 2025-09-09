@@ -4,16 +4,16 @@ main: com.mhgandhi.chatBridge.ChatBridge
 api-version: '1.21'
 commands:
   connect:
-    description: Link your MC account to a Discord account
-    usage: /<command> [discord-id-or-name]
+    description: Mirror your Minecraft Chat into Discord and back and link identities!
+    usage: /connect <discord-id>
     permission: chatbridge.connect
   disconnect:
     description: Remove your MC→Discord claim
-    usage: /<command>
+    usage: /disconnect
     permission: chatbridge.disconnect
   status:
     description: Show your link status
-    usage: /<command>
+    usage: /disconnect
     permission: chatbridge.status
 permissions:
   chatbridge.*:
