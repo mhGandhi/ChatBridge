@@ -88,8 +88,6 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
 
     @Override
     public void onReady(@NotNull net.dv8tion.jda.api.events.session.ReadyEvent event) {
-        registerCommands();
-
         TextChannel ch = event.getJDA().getTextChannelById(channelId);
         if (ch == null) {
             plugin.getLogger().severe("Discord channel_id " + channelId + " not found. Disabling plugin.");
@@ -104,12 +102,13 @@ public final class DiscordChat extends ListenerAdapter implements IChat {
             plugin.getLogger().severe(e.getMessage());
         }
 
-
         try{
             assertWebhook();
         } catch (RuntimeException e) {
             plugin.getLogger().severe("Exception while setting up Webhook: "+e.getMessage());
         }
+
+        registerCommands();
 
         if(onR!=null){
             final int timeout = 20*1000;//20sek timeout
