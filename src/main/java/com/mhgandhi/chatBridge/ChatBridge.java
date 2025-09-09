@@ -108,8 +108,8 @@ public final class ChatBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if(formatter!=null){
-            mcChat.sendMessage(Identity.server, formatter.mcPluginDisabled());
-            discordChat.sendMessage(Identity.server, formatter.dcPluginDisabled());
+            if(mcChat!=null)mcChat.sendMessage(Identity.server, formatter.mcPluginDisabled());
+            if(discordChat!=null)discordChat.sendMessage(Identity.server, formatter.dcPluginDisabled());
         }
 
         if (discordChat != null) {
