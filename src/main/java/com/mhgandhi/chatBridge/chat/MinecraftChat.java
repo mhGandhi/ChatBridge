@@ -57,15 +57,14 @@ public final class MinecraftChat implements Listener, IChat, CommandExecutor, Ta
 
     @EventHandler
     public void onJoin(org.bukkit.event.player.PlayerJoinEvent e) {
-        identityManager.upsertMcName(Identity.get(e.getPlayer()),e.getPlayer().getName());
+        identityManager.upsertMc(e.getPlayer());
 
         if(inboundHandler==null)return;
 
-        if(sendConRem){
-
+        if(sendConRem && !identityManager.isLinkedMc(Identity.get(e.getPlayer()))){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                e.getPlayer().sendMessage(ChatBridge.getFormatter().mcConnectionReminder());
-            }, 20L * 3); // 3 seconds delay
+                e.getPlayer().sendMessage(Objects.requireNonNull(ChatBridge.getFormatter().mcConnectionReminder()));
+            }, 20L * 3); // 3s delay
         }
 
         Identity player = identityManager.resolve(e.getPlayer());
