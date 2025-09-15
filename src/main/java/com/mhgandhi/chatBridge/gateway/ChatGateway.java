@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.gateway;
 
+import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
@@ -40,13 +41,7 @@ public abstract class ChatGateway {
 
     //always sync
     protected final void callEvent(PluginEvent pe){
-        if (Bukkit.isPrimaryThread()) {
-            Bukkit.getPluginManager().callEvent(pe);
-        } else {
-            Bukkit.getScheduler().runTask(plugin, () ->
-                    Bukkit.getPluginManager().callEvent(pe)
-            );
-        }
+        ChatBridge.callEvent(pe, plugin);
     }
 
     private void onPluginEvent(PluginEvent pluginEvent) {

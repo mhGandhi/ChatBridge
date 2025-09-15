@@ -38,7 +38,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
     private final boolean sendConnectionReminder;
 
-    protected MinecraftGateway(JavaPlugin pPlugin, IdentityManager identityManager, boolean pSendConnectionReminder) {
+    public MinecraftGateway(JavaPlugin pPlugin, IdentityManager identityManager, boolean pSendConnectionReminder) {
         super(pPlugin, identityManager);
         if(instance!=null){//todo mby throw sth?
             plugin.getLogger().severe("There may only be one instance of MinecraftGateway; overwriting existing");

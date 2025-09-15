@@ -41,7 +41,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
     private volatile WebhookClient webhookClient;//todo tf is volatile
     private volatile TextChannel mirrorChannel;
 
-    protected DiscordGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager, WebhookClient pWebhook, TextChannel pTextChannel) {
+    public DiscordGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager, WebhookClient pWebhook, TextChannel pTextChannel) {
         super(pPlugin, pIdentityManager);
 
         webhookClient = pWebhook;

@@ -2,9 +2,19 @@ package com.mhgandhi.chatBridge;
 
 import com.mhgandhi.chatBridge.chat.DiscordChat;
 import com.mhgandhi.chatBridge.chat.MinecraftChat;
+import com.mhgandhi.chatBridge.events.PluginDisableEvent;
+import com.mhgandhi.chatBridge.events.PluginEnableEvent;
+import com.mhgandhi.chatBridge.events.PluginEvent;
+import com.mhgandhi.chatBridge.gateway.ChatGateway;
+import com.mhgandhi.chatBridge.gateway.DiscordGateway;
+import com.mhgandhi.chatBridge.gateway.MinecraftGateway;
 import com.mhgandhi.chatBridge.storage.Database;
+import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
@@ -12,11 +22,12 @@ import java.util.function.BiConsumer;
 
 public final class ChatBridge extends JavaPlugin {
     //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
-    private DiscordChat discordChat;
-    private MinecraftChat mcChat;
+    //private DiscordChat discordChat;
+    //private MinecraftChat mcChat;
+    private JDAShell jdaShell;
+    private List<ChatGateway> gateways;
 
     private Database db;
-
     private static Formatter formatter;
     public static Formatter getFormatter(){return formatter;}
 
@@ -52,54 +63,39 @@ public final class ChatBridge extends JavaPlugin {
             getServer().getPluginManager().registerEvents(pr, this);
         }
 
-        {///////////////////////DC CHAT
-            Runnable onReady = ()->{//todo abstract mby
-                mcChat.sendMessage(Identity.server, formatter.mcPluginEnabled());
-                discordChat.sendMessage(Identity.server, formatter.dcPluginEnabled());
-            };
-
-            discordChat = new DiscordChat(this, identityManager, token, channelId, onReady);
-
-            BiConsumer<Identity, String> dcHandler = (author, text) -> {
-                if(mcChat==null){
-                    //todo err
-                    return;
+        getServer().getPluginManager().registerEvents(
+                new Listener() {
+                    @EventHandler
+                    public void onPluginEvent(PluginEvent e){
+                        for(ChatGateway cg : gateways){
+                            cg.handlePluginEvent(e);
+                        }
+                    }
                 }
+                ,this
+        );
 
-                mcChat.sendMessage(author, text);
-            };
-            discordChat.setMessageCallback(dcHandler);
+        Runnable onJDAReady = ()->{//todo abstract mby
+            MinecraftGateway mg = new MinecraftGateway(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
+            DiscordGateway dg = new DiscordGateway(this, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
+            gateways.add(mg);
+            gateways.add(dg);
 
             try{
-                discordChat.start();
-            } catch (Exception e) {
-                abort(e);
-                return;
-            }
-        }
-
-        {///////////////////////MC CHAT
-            mcChat = new MinecraftChat(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
-
-            BiConsumer<Identity, String> mcChatHandler = (author, text) -> {
-                if(discordChat !=null&&discordChat.isReady()){
-                    //todo resolve mentions?
-                    discordChat.sendMessage(author, text);
-                }
-            };
-            mcChat.setMessageCallback(mcChatHandler);
-
-            getServer().getPluginManager().registerEvents(mcChat, this);
-
-            try{
-                Objects.requireNonNull(getCommand("connect")).setExecutor(mcChat);
-                Objects.requireNonNull(getCommand("connect")).setTabCompleter(mcChat);
-                Objects.requireNonNull(getCommand("disconnect")).setExecutor(mcChat);
-                Objects.requireNonNull(getCommand("status")).setExecutor(mcChat);
+                Objects.requireNonNull(getCommand("connect")).setExecutor(mg);
+                Objects.requireNonNull(getCommand("connect")).setTabCompleter(mg);
+                Objects.requireNonNull(getCommand("disconnect")).setExecutor(mg);
+                Objects.requireNonNull(getCommand("status")).setExecutor(mg);
             } catch (Exception e) {
                 //ohh no
             }
-        }
+            jdaShell.addDcListener(dg);
+
+            callEvent(new PluginEnableEvent(), this);
+        };
+
+        jdaShell = new JDAShell(this,token, channelId, onJDAReady);
+        jdaShell.start();
     }
 
     private void abort(Exception e){
@@ -110,17 +106,28 @@ public final class ChatBridge extends JavaPlugin {
     @Override
     public void onDisable() {
         if(formatter!=null){
-            if(mcChat!=null)mcChat.sendMessage(Identity.server, formatter.mcPluginDisabled());
-            if(discordChat!=null)discordChat.sendMessage(Identity.server, formatter.dcPluginDisabled());
+            //Todo fix already disabled
+            callEvent(new PluginDisableEvent(), this);
         }
 
-        if (discordChat != null) {
-            discordChat.stop();
+        if (jdaShell != null) {
+            jdaShell.stop();
         }
 
         if(db!=null)
             db.close();
 
         formatter = null;
+    }
+
+    //always sync
+    public static void callEvent(PluginEvent pe, JavaPlugin pPlugin){
+        if (Bukkit.isPrimaryThread()) {
+            Bukkit.getPluginManager().callEvent(pe);
+        } else {
+            Bukkit.getScheduler().runTask(pPlugin, () ->
+                    Bukkit.getPluginManager().callEvent(pe)
+            );
+        }
     }
 }
