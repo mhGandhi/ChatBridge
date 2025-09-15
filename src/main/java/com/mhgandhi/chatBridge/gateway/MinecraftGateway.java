@@ -32,12 +32,19 @@ import java.util.List;
 import java.util.Objects;
 
 public class MinecraftGateway extends ChatGateway implements Listener, CommandExecutor, TabCompleter {
+    private static MinecraftGateway instance = null;
+
     private final PlainTextComponentSerializer serializer;
 
     private final boolean sendConnectionReminder;
 
     protected MinecraftGateway(JavaPlugin pPlugin, IdentityManager identityManager, boolean pSendConnectionReminder) {
         super(pPlugin, identityManager);
+        if(instance!=null){//todo mby throw sth?
+            plugin.getLogger().severe("There may only be one instance of MinecraftGateway; overwriting existing");
+        }
+        instance = this;
+
         sendConnectionReminder = pSendConnectionReminder;
 
         serializer = PlainTextComponentSerializer.plainText();
