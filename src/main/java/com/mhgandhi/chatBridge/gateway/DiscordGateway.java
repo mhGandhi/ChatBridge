@@ -9,6 +9,7 @@ import com.mhgandhi.chatBridge.events.LinkCreatedEvent;
 import com.mhgandhi.chatBridge.events.LinkDestroyedEvent;
 import com.mhgandhi.chatBridge.events.PluginDisableEvent;
 import com.mhgandhi.chatBridge.events.PluginEnableEvent;
+import com.mhgandhi.chatBridge.events.gatewayspecific.GDeathEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
@@ -145,7 +146,10 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         sendMessage(Identity.server, ChatBridge.getFormatter().dcPluginEnabled());
     }
 
-    //todo death
+    @Override
+    protected void onDied(GDeathEvent gde) {
+        sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerDied(gde.getDied()));
+    }
 
     /// ///////////////////////////////////////////////////////////////////////////////////////////////////////RECEIVE
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {

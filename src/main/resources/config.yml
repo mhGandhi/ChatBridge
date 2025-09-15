@@ -40,11 +40,15 @@ format:
 
   discordChat:
     server_online_status: "Server Online!"
+    server_name: "Server"
+    server_avatarOverride: "" # optional override for the URL of the Server Identities' Avatar in Discord
+    mcNameInDc: "[MC] %s" # [%s -> in-game name] what to show if a mc player can't be resolved to a discord name
     messages:
       join: "`➕` **%s** joined the server" # [%s -> player]
       leave: "`➖` **%s** left the server" # [%s -> player]
       pluginEnabled: "`🟢` **ChatBridge enabled**"
       pluginDisabled: "`🔴` **ChatBridge disabled**"
+      playerDied: "**%s** died." # [%s -> player]
     commands: #if you set the commands to have the same name you can go  yourself
       error_reply: "❌ Error: %s" # [%s -> error]
       connect: # setup for the dc commands; you can also change how they are called here

@@ -43,11 +43,15 @@ public class Formatter {
     private final String tAvatarApi; // e.g. "https://mc-heads.net/avatar/%s/128" (uuid string)
 
     // -------------------- Discord Chat: general messages ----------------------
+    private final String serverName;          // text
+    private final String avatarOverride;      // text (URL)
+    private final String sDcMcName;           // format: "%s"
     private final String sServerOnlineStatus; // text
     private final String sPlayerJoined;       // format: "%s"
     private final String sPlayerLeft;         // format: "%s"
     private final String sPluginEnabled;      // text
     private final String sPluginDisabled;     // text
+    private final String sPlayerDied;         // format: "%s"
 
     // -------------------- Discord Chat: command boilerplate -------------------
     private final String sDcCmdError; // format: "❌ Error: %s"
@@ -126,6 +130,12 @@ public class Formatter {
                 "https://mc-heads.net/avatar/%s/128");
 
         // ---------------- Discord Chat: general messages ------------------
+        serverName = pConf.getString("format.discordChat.server_name",
+                "Server");
+        avatarOverride = pConf.getString("format.discordChat.server_avatarOverride",
+                "");
+        sDcMcName = pConf.getString("format.discordChat.mcNameInDc",
+                "[MC] %s");
         sServerOnlineStatus = pConf.getString("format.discordChat.server_online_status",
                 "Server Online!");
         sPlayerJoined = pConf.getString("format.discordChat.messages.join",
@@ -136,6 +146,8 @@ public class Formatter {
                 "`🟢` **ChatBridge enabled**");
         sPluginDisabled = pConf.getString("format.discordChat.messages.pluginDisabled",
                 "`🔴` **ChatBridge disabled**");
+        sPlayerDied = pConf.getString("format.discordChat.messages.playerDied",
+                "**%s** died.");
 
         // ---------------- Discord Chat: command boilerplate ---------------
         sDcCmdError = pConf.getString("format.discordChat.commands.error_reply",
@@ -310,7 +322,7 @@ public class Formatter {
         if(i instanceof Identity.Dc dci){
             return sPlayerJoined.formatted(imgr.getDcName(dci));
         }else if(i instanceof Identity.Mc mci){
-            return sPlayerJoined.formatted(imgr.getMcName(mci));
+            return sPlayerJoined.formatted(dcMcName(imgr.getMcName(mci)));
         }
         return null;
     }
@@ -319,21 +331,32 @@ public class Formatter {
         if(i instanceof Identity.Dc dci){
             return sPlayerLeft.formatted(imgr.getDcName(dci));
         }else if(i instanceof Identity.Mc mci){
-            return sPlayerLeft.formatted(imgr.getMcName(mci));
+            return sPlayerLeft.formatted(dcMcName(imgr.getMcName(mci)));
+        }
+        return null;
+    }
+
+    public String dcPlayerDied(Identity i){
+        if(i instanceof Identity.Dc dci){
+            return sPlayerDied.formatted(imgr.getDcName(dci));
+        }else if(i instanceof Identity.Mc mci){
+            return sPlayerDied.formatted(dcMcName(imgr.getMcName(mci)));
         }
         return null;
     }
 
     public String dcMcName(String mcName) {
-        return "[MC] "+mcName;
+        return sDcMcName.formatted(mcName);
     }
 
     public String dcServerName(){
-        return "Server";
+        return serverName;
     }
 
     public String dcServerAvatarOverride(){
-        return null;
+        if(avatarOverride.isBlank())
+            return null;
+        return avatarOverride;
     }
 
     public MessageEmbed discordStatus(Identity.Dc dci) {
