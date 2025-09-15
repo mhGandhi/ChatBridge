@@ -1,8 +1,11 @@
 package com.mhgandhi.chatBridge.gateway;
 
 import com.mhgandhi.chatBridge.IdentityManager;
+import com.mhgandhi.chatBridge.events.*;
+import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
+import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
+import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GatewayEvent;
-import com.mhgandhi.chatBridge.events.PluginEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,5 +35,43 @@ public abstract class ChatGateway {
         }
     }
 
-    protected abstract void onPluginEvent(PluginEvent pluginEvent);
+    private void onPluginEvent(PluginEvent pluginEvent) {
+        if (pluginEvent instanceof GJoinEvent gje) {
+            onJoin(gje);
+            return;
+        }
+        if (pluginEvent instanceof GLeaveEvent gle) {
+            onLeave(gle);
+            return;
+        }
+        if (pluginEvent instanceof GMessageEvent gme) {
+            onMessage(gme);
+            return;
+        }
+        if (pluginEvent instanceof LinkCreatedEvent lce) {
+            onLinkCreated(lce);
+            return;
+        }
+        if (pluginEvent instanceof LinkDestroyedEvent lde) {
+            onLinkDestroyed(lde);
+            return;
+        }
+        if (pluginEvent instanceof PluginDisableEvent pde) {
+            onPluginDisable(pde);
+            return;
+        }
+        if (pluginEvent instanceof PluginEnableEvent pee) {
+            onPluginEnable(pee);
+            return;
+        }
+        plugin.getLogger().severe("o no what to do with this plugin event " + pluginEvent.toString());
+    }
+
+    protected abstract void onJoin(GJoinEvent e);
+    protected abstract void onLeave(GLeaveEvent e);
+    protected abstract void onMessage(GMessageEvent e);
+    protected abstract void onLinkCreated(LinkCreatedEvent e);
+    protected abstract void onLinkDestroyed(LinkDestroyedEvent e);
+    protected abstract void onPluginDisable(PluginDisableEvent e);
+    protected abstract void onPluginEnable(PluginEnableEvent e);
 }
