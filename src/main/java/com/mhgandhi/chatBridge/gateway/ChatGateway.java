@@ -10,11 +10,25 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class ChatGateway {
+    private final PluginEventDispatcher dispatcher;
+
     protected final JavaPlugin plugin;
     protected final IdentityManager identityManager;
     protected ChatGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager){
         plugin = pPlugin;
         identityManager = pIdentityManager;
+
+        dispatcher = new PluginEventDispatcher();
+        dispatcher.on(GJoinEvent.class, this::onJoin);
+        dispatcher.on(GLeaveEvent.class, this::onLeave);
+        dispatcher.on(GMessageEvent.class, this::onMessage);
+        dispatcher.on(LinkCreatedEvent.class, this::onLinkCreated);
+        dispatcher.on(LinkDestroyedEvent.class, this::onLinkDestroyed);
+        dispatcher.on(PluginDisableEvent.class, this::onPluginDisable);
+        dispatcher.on(PluginEnableEvent.class, this::onPluginEnable);
+
+        dispatcher.onDefault(e -> plugin.getLogger()
+                .severe("o no what to do with this plugin event " + e));
     }
 
     public final void handlePluginEvent(PluginEvent pPluginEvent){
@@ -36,35 +50,7 @@ public abstract class ChatGateway {
     }
 
     private void onPluginEvent(PluginEvent pluginEvent) {
-        if (pluginEvent instanceof GJoinEvent gje) {
-            onJoin(gje);
-            return;
-        }
-        if (pluginEvent instanceof GLeaveEvent gle) {
-            onLeave(gle);
-            return;
-        }
-        if (pluginEvent instanceof GMessageEvent gme) {
-            onMessage(gme);
-            return;
-        }
-        if (pluginEvent instanceof LinkCreatedEvent lce) {
-            onLinkCreated(lce);
-            return;
-        }
-        if (pluginEvent instanceof LinkDestroyedEvent lde) {
-            onLinkDestroyed(lde);
-            return;
-        }
-        if (pluginEvent instanceof PluginDisableEvent pde) {
-            onPluginDisable(pde);
-            return;
-        }
-        if (pluginEvent instanceof PluginEnableEvent pee) {
-            onPluginEnable(pee);
-            return;
-        }
-        plugin.getLogger().severe("o no what to do with this plugin event " + pluginEvent.toString());
+        dispatcher.dispatch(pluginEvent);
     }
 
     protected abstract void onJoin(GJoinEvent e);
