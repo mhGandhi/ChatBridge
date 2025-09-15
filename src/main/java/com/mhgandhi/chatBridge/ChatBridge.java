@@ -1,7 +1,5 @@
 package com.mhgandhi.chatBridge;
 
-import com.mhgandhi.chatBridge.chat.DiscordChat;
-import com.mhgandhi.chatBridge.chat.MinecraftChat;
 import com.mhgandhi.chatBridge.events.PluginDisableEvent;
 import com.mhgandhi.chatBridge.events.PluginEnableEvent;
 import com.mhgandhi.chatBridge.events.PluginEvent;
@@ -15,10 +13,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
