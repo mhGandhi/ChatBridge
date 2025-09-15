@@ -14,6 +14,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -63,6 +65,7 @@ public final class ChatBridge extends JavaPlugin {
             getServer().getPluginManager().registerEvents(pr, this);
         }
 
+        gateways = new ArrayList<>(2);
         getServer().getPluginManager().registerEvents(
                 new Listener() {
                     @EventHandler
@@ -89,6 +92,7 @@ public final class ChatBridge extends JavaPlugin {
             } catch (Exception e) {
                 //ohh no
             }
+            getServer().getPluginManager().registerEvents(mg,this);
             jdaShell.addDcListener(dg);
 
             callEvent(new PluginEnableEvent(), this);
@@ -107,15 +111,20 @@ public final class ChatBridge extends JavaPlugin {
     public void onDisable() {
         if(formatter!=null){
             //Todo fix already disabled
-            callEvent(new PluginDisableEvent(), this);
+            PluginEvent e = new PluginDisableEvent();
+            for(ChatGateway cg : gateways){
+                cg.handlePluginEvent(e);
+            }
         }
 
         if (jdaShell != null) {
             jdaShell.stop();
         }
+        jdaShell = null;
 
         if(db!=null)
             db.close();
+        db=null;
 
         formatter = null;
     }

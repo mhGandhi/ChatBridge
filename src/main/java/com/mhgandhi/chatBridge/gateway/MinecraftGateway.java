@@ -56,7 +56,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////SEND
     private void sendMessage(Identity author, String content){
         Component msg = ChatBridge.getFormatter().formatMcMsg(author, content);
-        if(Bukkit.isPrimaryThread() || !plugin.isEnabled()){//todo maybe dont need all these checks?
+        if(Bukkit.isPrimaryThread()){
             Bukkit.getServer().broadcast(msg);
         }else{
             Bukkit.getScheduler().runTask(plugin, ()->Bukkit.getServer().broadcast(msg) );
@@ -129,6 +129,8 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
         Identity player = identityManager.resolve(e.getPlayer());
         PluginEvent ev = new GLeaveEvent(player, this);
+
+        callEvent(ev);
     }
 
     //todo onDeath + create event + add to ChatGateway dispatch
