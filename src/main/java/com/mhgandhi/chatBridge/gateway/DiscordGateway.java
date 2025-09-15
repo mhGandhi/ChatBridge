@@ -12,10 +12,12 @@ import com.mhgandhi.chatBridge.events.PluginEnableEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -79,9 +81,9 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         if(content.isEmpty())return;
 
         if(author == Identity.server){
-            sendViaWebhook("Server",null,content);//todo customizable via config
+            sendViaWebhook(ChatBridge.getFormatter().dcServerName(),ChatBridge.getFormatter().dcServerAvatarOverride(),content);
         }else if(author instanceof Identity.Mc mca){
-            sendViaWebhook("[MC] "+identityManager.getMcName(mca), ChatBridge.getFormatter().getMcAvatar(mca), content);
+            sendViaWebhook(ChatBridge.getFormatter().dcMcName(identityManager.getMcName(mca)), ChatBridge.getFormatter().getMcAvatar(mca), content);
         }else if(author instanceof Identity.Dc dca){
             sendViaWebhook(identityManager.getDcName(dca), identityManager.getDcAvatar(dca), content);
         }
@@ -102,7 +104,8 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     private void sendToDiscord(String content) {
         mirrorChannel.sendMessage(content)
-                .queue(null, err -> plugin.getLogger().warning("Failed to send to Discord: " + err.getMessage()));
+                .queue(null, err ->
+                        plugin.getLogger().warning("Failed to send to Discord: " + err.getMessage()));
     }
 
     @Override

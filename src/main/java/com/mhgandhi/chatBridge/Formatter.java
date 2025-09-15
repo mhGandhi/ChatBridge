@@ -324,6 +324,18 @@ public class Formatter {
         return null;
     }
 
+    public String dcMcName(String mcName) {
+        return "[MC] "+mcName;
+    }
+
+    public String dcServerName(){
+        return "Server";
+    }
+
+    public String dcServerAvatarOverride(){
+        return null;
+    }
+
     public MessageEmbed discordStatus(Identity.Dc dci) {
         var eb = new EmbedBuilder().setTitle(sDcStatus_title);//title
         //eb.setAuthor(dcI.name(), null, dcI.avatarURL());
