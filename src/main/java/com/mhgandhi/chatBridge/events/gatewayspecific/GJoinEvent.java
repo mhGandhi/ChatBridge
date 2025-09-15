@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.gateway.events.gatewayspecific;
+package com.mhgandhi.chatBridge.events.gatewayspecific;
 
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
@@ -6,8 +6,8 @@ import com.mhgandhi.chatBridge.gateway.ChatGateway;
 public class GJoinEvent extends GatewayEvent {
     private final Identity joined;
 
-    public GJoinEvent(Identity pJoined, ChatGateway source, boolean async) {
-        super(source, async);
+    public GJoinEvent(Identity pJoined, ChatGateway source) {
+        super(source);
 
         this.joined = pJoined;
     }

@@ -1,14 +1,13 @@
-package com.mhgandhi.chatBridge.gateway.events.gatewayspecific;
+package com.mhgandhi.chatBridge.events.gatewayspecific;
 
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
-import com.mhgandhi.chatBridge.gateway.events.PluginEvent;
+import com.mhgandhi.chatBridge.events.PluginEvent;
 
 public class GatewayEvent extends PluginEvent {
 
     private final ChatGateway source;
 
-    protected GatewayEvent(ChatGateway source, boolean async) {
-        super(async);
+    protected GatewayEvent(ChatGateway source) {
         this.source = source;
     }
 

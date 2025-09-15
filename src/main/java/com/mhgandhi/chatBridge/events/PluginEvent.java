@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.gateway.events;
+package com.mhgandhi.chatBridge.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.Cancellable;
@@ -9,8 +9,9 @@ public class PluginEvent extends Event implements Cancellable {//todo why even c
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
 
-    protected PluginEvent(boolean async) {
-        super(async);
+    protected PluginEvent() {
+        //events should be called through ChatGateway.callEvent(PluginEvent), where sync is enforced
+        super(false);
         cancelled = false;
     }
 

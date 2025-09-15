@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.gateway.events.gatewayspecific;
+package com.mhgandhi.chatBridge.events.gatewayspecific;
 
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
@@ -10,8 +10,8 @@ public class GMessageEvent extends GatewayEvent {
 
     //todo time?
 
-    public GMessageEvent(Identity pSender, GatewayMessage pMsg, ChatGateway source, boolean async) {
-        super(source, async);
+    public GMessageEvent(Identity pSender, GatewayMessage pMsg, ChatGateway source) {
+        super(source);
 
         this.sender = pSender;
         this.message = pMsg;
