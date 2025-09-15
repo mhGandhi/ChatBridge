@@ -32,5 +32,5 @@ public abstract class ChatGateway {
         }
     }
 
-    protected abstract void onPluginEvent(PluginEvent gatewayEvent);
+    protected abstract void onPluginEvent(PluginEvent pluginEvent);
 }
