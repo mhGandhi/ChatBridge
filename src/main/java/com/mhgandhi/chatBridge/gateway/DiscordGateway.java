@@ -38,18 +38,20 @@ import java.util.concurrent.CompletionException;
 
 public class DiscordGateway extends ChatGateway implements EventListener {
 
-    private final net.dv8tion.jda.api.JDA jda;
-    private volatile WebhookClient webhookClient;
+    private volatile WebhookClient webhookClient;//todo tf is volatile
     private volatile TextChannel mirrorChannel;
 
-    protected DiscordGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager, JDA pJda, WebhookClient pWebhook, TextChannel pTextChannel) {
+    protected DiscordGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager, WebhookClient pWebhook, TextChannel pTextChannel) {
         super(pPlugin, pIdentityManager);
 
-        jda = pJda;
         webhookClient = pWebhook;
         mirrorChannel = pTextChannel;
 
-        jda.addEventListener(this);
+        try{
+            mirrorChannel.getGuild().loadMembers(identityManager::upsertDc);
+        } catch (Exception e) {
+            plugin.getLogger().severe(e.getMessage());
+        }
 
         registerCommands();
     }
