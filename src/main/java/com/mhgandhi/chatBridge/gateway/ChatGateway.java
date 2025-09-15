@@ -3,10 +3,7 @@ package com.mhgandhi.chatBridge.gateway;
 import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
-import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
-import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
-import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
-import com.mhgandhi.chatBridge.events.gatewayspecific.GatewayEvent;
+import com.mhgandhi.chatBridge.events.gatewayspecific.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,6 +24,7 @@ public abstract class ChatGateway {
         dispatcher.on(LinkDestroyedEvent.class, this::onLinkDestroyed);
         dispatcher.on(PluginDisableEvent.class, this::onPluginDisable);
         dispatcher.on(PluginEnableEvent.class, this::onPluginEnable);
+        dispatcher.on(GDeathEvent.class, this::onDied);
 
         dispatcher.onDefault(e -> plugin.getLogger()
                 .severe("o no what to do with this plugin event " + e));
@@ -55,4 +53,5 @@ public abstract class ChatGateway {
     protected abstract void onLinkDestroyed(LinkDestroyedEvent e);
     protected abstract void onPluginDisable(PluginDisableEvent e);
     protected abstract void onPluginEnable(PluginEnableEvent e);
+    protected abstract void onDied(GDeathEvent gde);
 }

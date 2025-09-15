@@ -4,6 +4,7 @@ import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
+import com.mhgandhi.chatBridge.events.gatewayspecific.GDeathEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -65,12 +67,12 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
     @Override
     protected void onJoin(GJoinEvent e) {
-        sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerJoined(e.getJoined()));
+        //msg already sent by mc
     }
 
     @Override
     protected void onLeave(GLeaveEvent e) {
-        sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerLeft(e.getLeft()));
+        //msg already sent by mc
     }
 
     @Override
@@ -96,6 +98,11 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     @Override
     protected void onPluginEnable(PluginEnableEvent e) {
         sendMessage(Identity.server, ChatBridge.getFormatter().mcPluginEnabled());
+    }
+
+    @Override
+    protected void onDied(GDeathEvent gde) {
+        //msg already sent by mc
     }
 
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////RECEIVE
@@ -133,7 +140,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
         callEvent(ev);
     }
 
-    //todo onDeath + create event + add to ChatGateway dispatch
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent e){//todo killed by etc
+        Identity player = identityManager.resolve(e.getPlayer());
+
+        callEvent(new GDeathEvent(player, this));
+    }
+
 
     ///  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////COMMANDS
     @Override
