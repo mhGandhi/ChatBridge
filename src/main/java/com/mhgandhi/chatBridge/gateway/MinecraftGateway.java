@@ -26,7 +26,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -144,7 +143,14 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     public void onPlayerDeath(PlayerDeathEvent e){//todo killed by etc
         Identity player = identityManager.resolve(e.getPlayer());
 
-        callEvent(new GDeathEvent(player, this));
+        String dm;
+        if(e.deathMessage()==null){
+            dm = null;
+        }else{
+            dm = serializer.serialize(Objects.requireNonNull(e.deathMessage()));
+        }
+
+        callEvent(new GDeathEvent(player, dm, this));
     }
 
 
