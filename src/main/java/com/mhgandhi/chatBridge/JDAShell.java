@@ -69,32 +69,21 @@ public class JDAShell extends ListenerAdapter {
             boolean timedOut = false;
             while (webhookClient == null && !timedOut) {//heheheha (dafür komme ich in die hölle) nvm jz mit timeout
                 Thread.onSpinWait();
-                if(startTime-System.currentTimeMillis()>timeout)timedOut = true;
+                if(timeout+startTime>System.currentTimeMillis())timedOut = true;
             }
             if(timedOut)
                 plugin.getLogger().warning("Timed out while waiting for webhookClient for "+timeout/1000.0+"s; proceeding without webhook");
+
             onReady.run();
         }
     }
 
-    private void assertWebhook() throws RuntimeException{
+    private void assertWebhook() throws RuntimeException {//todo remove hardcoding for release ofc
         try {
-            mirrorChannel.retrieveWebhooks().queue(webhooks -> {
-                Webhook existing = webhooks.stream()
-                        .filter(w -> WEBHOOK_NAME.equalsIgnoreCase(w.getName()))
-                        .findFirst().orElse(null);
-
-                if (existing != null) {
-                    createWebhookClient(existing.getUrl());
-                    return;
-                }
-                mirrorChannel.createWebhook(WEBHOOK_NAME).queue(newHook -> {
-                    createWebhookClient(newHook.getUrl());
-                    plugin.getLogger().info("Created channel webhook for ChatBridge.");
-                }, err -> plugin.getLogger().warning("Failed to create webhook (using bot fallback): " + err.getMessage()));
-            }, err -> plugin.getLogger().warning("Failed to list webhooks: " + err.getMessage()));
+            createWebhookClient("https://discord.com/api/webhooks/1434682316479008858/D4NfbWGA0Ti7GPy09NUStsgKIiGnyxwSqJbLhOT39lQeCd1_Rqioulnw2d9cjMwjhWa4");
+            plugin.getLogger().info("Using hardcoded webhook URL.");
         } catch (Exception e) {
-            plugin.getLogger().warning("Something went wrong during Webhook Connection: "+ e.getMessage());
+            plugin.getLogger().severe("Failed to init hardcoded webhook: " + e.getMessage());
             throw new RuntimeException("Webhook not connected.");
         }
     }
@@ -104,8 +93,8 @@ public class JDAShell extends ListenerAdapter {
             webhookClient = WebhookClient.withUrl(url);
             plugin.getLogger().info("Webhook client ready.");
         } catch (Exception e) {
-            plugin.getLogger().warning("Could not init WebhookClient ["+url+"]: " + e.getMessage());
-            webhookClient=null;
+            plugin.getLogger().warning("Could not init WebhookClient [" + url + "]: " + e.getMessage());
+            webhookClient = null;
         }
     }
 
