@@ -104,7 +104,7 @@ public class JDAShell extends ListenerAdapter {
             webhookClient = WebhookClient.withUrl(url);
             plugin.getLogger().info("Webhook client ready.");
         } catch (Exception e) {
-            plugin.getLogger().warning("Could not init WebhookClient: " + e.getMessage());
+            plugin.getLogger().warning("Could not init WebhookClient ["+url+"]: " + e.getMessage());
             webhookClient=null;
         }
     }
