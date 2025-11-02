@@ -94,8 +94,13 @@ public final class ChatBridge extends JavaPlugin {
             callEvent(new PluginEnableEvent(), this);
         };
 
+
         jdaShell = new JDAShell(this,token, channelId, onJDAReady);
-        jdaShell.start();
+        try{
+            jdaShell.start();
+        }catch (Exception e){
+            abort(e);//todo add extra info for fixing mby
+        }
     }
 
     private void abort(Exception e){

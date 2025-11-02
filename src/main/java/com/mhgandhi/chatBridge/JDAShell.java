@@ -33,7 +33,7 @@ public class JDAShell extends ListenerAdapter {
         this.channelId = pChannelId;
     }
 
-    public void start(){
+    public void start() throws Exception{
         JDABuilder builder = JDABuilder.createDefault(token)
                 .enableIntents(
                         GatewayIntent.GUILD_MESSAGES,
