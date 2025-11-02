@@ -99,6 +99,8 @@ public final class ChatBridge extends JavaPlugin {
         try{
             jdaShell.start();
         }catch (Exception e){
+            int len = token.length();
+            getLogger().info("TOK: "+token.substring(0, (len/4))+"-[...]-"+token.substring(3*(len/4)));
             abort(e);//todo add extra info for fixing mby
         }
     }
