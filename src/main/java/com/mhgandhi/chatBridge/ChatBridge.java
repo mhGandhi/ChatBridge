@@ -37,11 +37,17 @@ public final class ChatBridge extends JavaPlugin {
         String channelId = getConfig().getString("discord.channel_id", null);
         boolean whitelist = getConfig().getBoolean("whitelist.enabled",false);
 
-        if (token == null || token.isBlank() || channelId == null || channelId.isBlank()) {
-            getLogger().severe("discord.token and discord.channel_id must be set in config.yml. Disabling.");
+        if (token == null || token.isBlank()) {
+            getLogger().severe("Missing discord.token in config.yml (must be the Discord BOT token). Disabling.");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        if (channelId == null || channelId.isBlank()) {
+            getLogger().severe("Missing discord.channel_id in config.yml (numeric Discord channel ID). Disabling.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
 
         IdentityManager identityManager;
         {///////database and iM
