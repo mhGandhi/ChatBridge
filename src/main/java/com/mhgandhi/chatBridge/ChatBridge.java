@@ -76,23 +76,32 @@ public final class ChatBridge extends JavaPlugin {
         );
 
         Runnable onJDAReady = ()->{//todo abstract mby
-            MinecraftGateway mg = new MinecraftGateway(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
-            DiscordGateway dg = new DiscordGateway(this, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
-            gateways.add(mg);
-            gateways.add(dg);
-
             try{
-                Objects.requireNonNull(getCommand("connect")).setExecutor(mg);
-                Objects.requireNonNull(getCommand("connect")).setTabCompleter(mg);
-                Objects.requireNonNull(getCommand("disconnect")).setExecutor(mg);
-                Objects.requireNonNull(getCommand("status")).setExecutor(mg);
-            } catch (Exception e) {
-                //ohh no
-            }
-            getServer().getPluginManager().registerEvents(mg,this);
-            jdaShell.addDcListener(dg);
+                MinecraftGateway mg = new MinecraftGateway(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
+                DiscordGateway dg = new DiscordGateway(this, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
+                gateways.add(mg);
+                gateways.add(dg);
 
-            callEvent(new PluginEnableEvent(), this);
+                Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
+                        .setExecutor(mg);
+                Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
+                        .setTabCompleter(mg);
+                Objects.requireNonNull(getCommand("disconnect"), "Missing command 'disconnect' in plugin.yml")
+                        .setExecutor(mg);
+                Objects.requireNonNull(getCommand("status"), "Missing command 'status' in plugin.yml")
+                        .setExecutor(mg);
+
+                getServer().getPluginManager().registerEvents(mg,this);
+                jdaShell.addDcListener(dg);
+
+                callEvent(new PluginEnableEvent(), this);
+            }catch(Exception e){
+                getLogger().log(java.util.logging.Level.SEVERE,
+                        "ChatBridge failed during JDA ready initialization:", e);
+                Bukkit.getScheduler().runTask(this, () ->
+                        getServer().getPluginManager().disablePlugin(this));
+            }
+
         };
 
         jdaShell = new JDAShell(this,token, channelId, onJDAReady);
