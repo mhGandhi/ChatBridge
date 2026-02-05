@@ -7,6 +7,7 @@ import com.mhgandhi.chatBridge.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.gateway.DiscordGateway;
 import com.mhgandhi.chatBridge.gateway.MinecraftGateway;
 import com.mhgandhi.chatBridge.storage.Database;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -95,11 +96,23 @@ public final class ChatBridge extends JavaPlugin {
         };
 
         jdaShell = new JDAShell(this,token, channelId, onJDAReady);
-        jdaShell.start();
+        try {
+            jdaShell.start();
+        }catch(InvalidTokenException e){
+            getLogger().severe("Discord login failed: invalid bot token. " +
+                    "Check config.yml: discord.token (BOT token, not client secret).");
+            abort(e);
+            //todo ig msg?
+        }catch (Exception e){
+            getLogger().severe("Discord login failed while starting JDA: " + e.getClass().getSimpleName()
+                    + ": " + e.getMessage());
+            abort(e);
+        }
     }
 
     private void abort(Exception e){
-        getLogger().severe("ChatBridge disabled due to error: " + e.getMessage());
+        getLogger().log(java.util.logging.Level.SEVERE,
+                "ChatBridge disabled due to error:", e);
         getServer().getPluginManager().disablePlugin(this);
     }
 
