@@ -172,12 +172,27 @@ public class IdentityManager {
     }
 
     public String getMcName(Identity.Mc mci){
-        if(mcNames.containsKey(mci.uuid)){
-            return mcNames.get(mci.uuid);
-        }else{
-            plugin.getLogger().fine("cant resolve name of mc "+mci);//todo query with api async for next call
-            return "["+mci+"]";
+        String cached = mcNames.get(mci.uuid);
+        if (cached != null && !cached.isBlank()) return cached;
+
+        Player online = Bukkit.getPlayer(mci.uuid);
+        if (online != null) {
+            String name = online.getName();
+            if (name != null && !name.isBlank()) {
+                mcNames.put(mci.uuid, name);
+                return name;
+            }
         }
+
+        OfflinePlayer off = Bukkit.getOfflinePlayer(mci.uuid);
+        String name = off.getName(); // can be null
+        if (name != null && !name.isBlank()) {
+            mcNames.put(mci.uuid, name);
+            return name;
+        }
+
+        plugin.getLogger().fine("cant resolve name of mc "+mci);//todo query with api async for next call
+        return "["+mci+"]";
     }
 
     private final Map<String,String> dcNames = new HashMap<>();
