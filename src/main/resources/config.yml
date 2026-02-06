@@ -50,7 +50,8 @@ format:
       leave: "`➖` **%s** left the server" # [%s -> player]
       pluginEnabled: "`🟢` **ChatBridge enabled**"
       pluginDisabled: "`🔴` **ChatBridge disabled**"
-      playerDied: "**%s** died." # [%s -> player], will be appended with the death message in Server Language.
+      playerDied: "`💀` **%s** died." # [%s -> player], will be appended with the death message in Server Language.
+      playerKilled: "`💀` **%s** was killed by **%s**." # [%s -> player, %s -> killer], will be appended with the death message in Server Language. Always #1 Killed #2 Killer
     commands: #if you set the commands to have the same name you can go  yourself
       error_reply: "❌ Error: %s" # [%s -> error]
       connect: # setup for the dc commands; you can also change how they are called here

@@ -142,6 +142,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){//todo killed by etc
         Identity player = identityManager.resolve(e.getPlayer());
+        Identity killer = null;
+
+        try{
+            var k = e.getEntity().getKiller();
+            if(k!=null)
+                killer =  identityManager.resolve(k);
+        }catch(Exception ignored){}
 
         String dm;
         if(e.deathMessage()==null){
@@ -150,7 +157,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
             dm = serializer.serialize(Objects.requireNonNull(e.deathMessage()));
         }
 
-        callEvent(new GDeathEvent(player, dm, this));
+        callEvent(new GDeathEvent(player, killer, dm, this));
     }
 
 

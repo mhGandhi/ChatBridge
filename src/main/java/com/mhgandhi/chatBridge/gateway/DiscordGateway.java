@@ -148,11 +148,20 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     @Override
     protected void onDied(GDeathEvent gde) {
-        if(gde.getDeathMessage()==null){
-            sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerDied(gde.getDied()));
+        if(gde.getKiller()!=null){
+            if(gde.getDeathMessage()==null){
+                sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller()));
+            }else{
+                sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller())+"\n`"
+                        +gde.getDeathMessage()+"`");
+            }
         }else{
-            sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerDied(gde.getDied())+"\n`"
-                    +gde.getDeathMessage()+"`");
+            if(gde.getDeathMessage()==null){
+                sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerDied(gde.getDied()));
+            }else{
+                sendMessage(Identity.server, ChatBridge.getFormatter().dcPlayerDied(gde.getDied())+"\n`"
+                        +gde.getDeathMessage()+"`");
+            }
         }
     }
 

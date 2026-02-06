@@ -53,6 +53,8 @@ public class Formatter {
     private final String sPluginDisabled;     // text
     private final String sPlayerDied;         // format: "%s"
 
+    private final String sPlayerKilled;       // format: "%s %s"
+
     // -------------------- Discord Chat: command boilerplate -------------------
     private final String sDcCmdError; // format: "❌ Error: %s"
     private final String sDcCmdConnect_desc;
@@ -147,7 +149,9 @@ public class Formatter {
         sPluginDisabled = pConf.getString("format.discordChat.messages.pluginDisabled",
                 "`🔴` **ChatBridge disabled**");
         sPlayerDied = pConf.getString("format.discordChat.messages.playerDied",
-                "**%s** died.");
+                "`\uD83D\uDC80` **%s** died.");
+        sPlayerKilled = pConf.getString("format.discordChat.messages.playerKilled",
+                "`\uD83D\uDC80` **%s** was killed by **%s**.");//todo allow switching to active case
 
         // ---------------- Discord Chat: command boilerplate ---------------
         sDcCmdError = pConf.getString("format.discordChat.commands.error_reply",
@@ -341,6 +345,26 @@ public class Formatter {
             return sPlayerDied.formatted(imgr.getDcName(dci));
         }else if(i instanceof Identity.Mc mci){
             return sPlayerDied.formatted(dcMcName(imgr.getMcName(mci)));
+        }
+        return null;
+    }
+
+    public String dcPlayerKilled(Identity i, Identity killer){
+        //holy spaghetti
+        if(i instanceof Identity.Dc dci){
+            if(killer instanceof Identity.Dc dck){
+                return sPlayerKilled.formatted(imgr.getDcName(dci), imgr.getDcName(dck));
+            }else if(killer instanceof Identity.Mc mck){
+                return sPlayerKilled.formatted(imgr.getDcName(dci), dcMcName(imgr.getMcName(mck)));
+            }
+
+        }else if(i instanceof Identity.Mc mci){
+            if(killer instanceof Identity.Dc dck){
+                return sPlayerKilled.formatted(dcMcName(imgr.getMcName(mci)), imgr.getDcName(dck));
+            }else if(killer instanceof Identity.Mc mck){
+                return sPlayerKilled.formatted(dcMcName(imgr.getMcName(mci)), dcMcName(imgr.getMcName(mck)));
+            }
+
         }
         return null;
     }
