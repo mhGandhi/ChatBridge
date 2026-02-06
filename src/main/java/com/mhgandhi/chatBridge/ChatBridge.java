@@ -34,9 +34,21 @@ public final class ChatBridge extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         String token = getConfig().getString("discord.token", null);
+
         String channelId = getConfig().getString("discord.channel_id", null);
-        long savedWebhookID = getConfig().getLong("discord.webhook_id", 0L);
-        String savedWebhookToken = getConfig().getString("discord.webhook_token", "");
+
+        String savedWebhookIDs = getConfig().getString("discord.webhook_id", null);
+        long savedWebhookID = 0L;
+        if(savedWebhookIDs != null) {
+            try {
+                savedWebhookID = Long.parseLong(savedWebhookIDs.trim());
+            }catch (NumberFormatException e){
+                getLogger().warning("discord.webhook_id is not a valid number; ignoring saved webhook id.");
+            }
+        }
+
+        String savedWebhookToken = getConfig().getString("discord.webhook_token", "").trim();
+
         boolean whitelist = getConfig().getBoolean("whitelist.enabled",false);
 
         if (token == null || token.isBlank()) {
