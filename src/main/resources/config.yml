@@ -1,6 +1,8 @@
 discord:
   token: ""      # bot token (apparently you are not supposed to post this one online)
   channel_id: ""  # ID of Discord channel to mirror into MC
+  webhook_id: "" # LEAVE EMPTY! - ID of the webhook. If Manage Webhooks permission is granted to the bot you can leave this empty and it will be filled automatically on first start.
+  webhook_token: "" # LEAVE EMPTY! - Token for the webhook. If Manage Webhooks permission is granted to the bot you can leave this empty and it will be filled automatically on first start.
 
 sendConnectionReminder: true
 

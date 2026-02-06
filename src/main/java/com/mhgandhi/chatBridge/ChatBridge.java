@@ -35,6 +35,8 @@ public final class ChatBridge extends JavaPlugin {
         saveDefaultConfig();
         String token = getConfig().getString("discord.token", null);
         String channelId = getConfig().getString("discord.channel_id", null);
+        long savedWebhookID = getConfig().getLong("discord.webhook_id", 0L);
+        String savedWebhookToken = getConfig().getString("discord.webhook_token", "");
         boolean whitelist = getConfig().getBoolean("whitelist.enabled",false);
 
         if (token == null || token.isBlank()) {
@@ -110,7 +112,7 @@ public final class ChatBridge extends JavaPlugin {
 
         };
 
-        jdaShell = new JDAShell(this,token, channelId, onJDAReady);
+        jdaShell = new JDAShell(this,token, channelId, savedWebhookID, savedWebhookToken, onJDAReady);
         try {
             jdaShell.start();
         }catch(InvalidTokenException e){
