@@ -1,6 +1,7 @@
 package com.mhgandhi.chatBridge;
 
 import club.minnced.discord.webhook.WebhookClient;
+import com.mhgandhi.chatBridge.platform.paper.ChatBridge;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;

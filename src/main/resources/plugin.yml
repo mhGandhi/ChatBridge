@@ -1,6 +1,6 @@
 name: ChatBridge
 version: '2.0'
-main: com.mhgandhi.chatBridge.ChatBridge
+main: com.mhgandhi.chatBridge.platform.paper.ChatBridge
 api-version: '1.21'
 commands:
   connect:

@@ -1,11 +1,13 @@
-package com.mhgandhi.chatBridge;
+package com.mhgandhi.chatBridge.platform.paper;
 
+import com.mhgandhi.chatBridge.Formatter;
+import com.mhgandhi.chatBridge.IdentityManager;
+import com.mhgandhi.chatBridge.JDAShell;
 import com.mhgandhi.chatBridge.events.PluginDisableEvent;
 import com.mhgandhi.chatBridge.events.PluginEnableEvent;
 import com.mhgandhi.chatBridge.events.PluginEvent;
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.gateway.DiscordGateway;
-import com.mhgandhi.chatBridge.gateway.MinecraftGateway;
 import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import org.bukkit.Bukkit;

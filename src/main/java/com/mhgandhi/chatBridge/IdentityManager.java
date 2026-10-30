@@ -2,6 +2,7 @@ package com.mhgandhi.chatBridge;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mhgandhi.chatBridge.platform.paper.ChatBridge;
 import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.entities.Member;
 import org.bukkit.Bukkit;

@@ -1,10 +1,9 @@
 package com.mhgandhi.chatBridge.gateway;
 
-import com.mhgandhi.chatBridge.ChatBridge;
+import com.mhgandhi.chatBridge.platform.paper.ChatBridge;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
 import com.mhgandhi.chatBridge.events.gatewayspecific.*;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class ChatGateway {

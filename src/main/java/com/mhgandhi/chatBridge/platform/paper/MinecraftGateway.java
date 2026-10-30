@@ -1,6 +1,5 @@
-package com.mhgandhi.chatBridge.gateway;
+package com.mhgandhi.chatBridge.platform.paper;
 
-import com.mhgandhi.chatBridge.ChatBridge;
 import com.mhgandhi.chatBridge.Identity;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
@@ -8,6 +7,8 @@ import com.mhgandhi.chatBridge.events.gatewayspecific.GDeathEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GJoinEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GLeaveEvent;
 import com.mhgandhi.chatBridge.events.gatewayspecific.GMessageEvent;
+import com.mhgandhi.chatBridge.gateway.ChatGateway;
+import com.mhgandhi.chatBridge.gateway.GatewayMessage;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
