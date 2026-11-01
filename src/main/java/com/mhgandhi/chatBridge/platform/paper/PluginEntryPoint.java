@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
+import com.mhgandhi.chatBridge.Config;
 import com.mhgandhi.chatBridge.Formatter;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.JDAShell;
@@ -35,11 +36,23 @@ public final class PluginEntryPoint extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        String token = getConfig().getString("discord.token", null);
+        Config config = new Config() {
+            @Override
+            public String getString(String pKey, String pFallback) {
+                return getConfig().getString(pKey, pFallback);
+            }
 
-        String channelId = getConfig().getString("discord.channel_id", null);
+            @Override
+            public boolean getBoolean(String pKey, boolean pFallback) {
+                return getConfig().getBoolean(pKey, pFallback);
+            }
+        };
 
-        String savedWebhookIDs = getConfig().getString("discord.webhook_id", null);
+        String token = config.getString("discord.token", null);
+
+        String channelId = config.getString("discord.channel_id", null);
+
+        String savedWebhookIDs = config.getString("discord.webhook_id", null);
         long savedWebhookID = 0L;
         if(savedWebhookIDs != null) {
             try {
@@ -49,9 +62,9 @@ public final class PluginEntryPoint extends JavaPlugin {
             }
         }
 
-        String savedWebhookToken = getConfig().getString("discord.webhook_token", "").trim();
+        String savedWebhookToken = config.getString("discord.webhook_token", "").trim();
 
-        boolean whitelist = getConfig().getBoolean("whitelist.enabled",false);
+        boolean whitelist = config.getBoolean("whitelist.enabled",false);
 
         if (token == null || token.isBlank()) {
             getLogger().severe("Missing discord.token in config.yml (must be the Discord BOT token). Disabling.");
@@ -75,10 +88,10 @@ public final class PluginEntryPoint extends JavaPlugin {
                 return;
             }
             identityManager = new IdentityManager(
-                    db, this, getConfig().getBoolean("whitelist.kick_on_disconnect",false)
+                    db, this, config.getBoolean("whitelist.kick_on_disconnect",false)
             );
 
-            formatter = new Formatter(getConfig(), identityManager);
+            formatter = new Formatter(config, identityManager);
         }
 
         if(whitelist){

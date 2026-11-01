@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
@@ -85,7 +84,7 @@ public class Formatter {
     private final String sDcStatus_instr_mc_title;         // field title
     private final String sDcStatus_instr_mc_content;       // format: "Run **/connect %s** ..." (user id)
 
-    public Formatter(FileConfiguration pConf, IdentityManager pImgr){
+    public Formatter(Config pConf, IdentityManager pImgr){
         mm = MiniMessage.miniMessage();
         imgr = pImgr;
 
