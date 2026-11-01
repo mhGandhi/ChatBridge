@@ -52,7 +52,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
         serializer = PlainTextComponentSerializer.plainText();
 
         for(OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()){
-            identityManager.upsertMc(p);
+            identityManager.upsertMc(new PaperPlayer(p));
         }
     }
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////SEND
@@ -111,22 +111,22 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
         if (e.isCancelled()) return;
 
         String body = serializer.serialize(e.message());
-        ServerEvent ev = new GMessageEvent(identityManager.resolve(e.getPlayer()),new GatewayMessage(body),this);
+        ServerEvent ev = new GMessageEvent(identityManager.resolve(e.getPlayer().getUniqueId()),new GatewayMessage(body),this);
 
         callEvent(ev);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        identityManager.upsertMc(e.getPlayer());
+        identityManager.upsertMc(new PaperPlayer(e.getPlayer()));
 
-        if(sendConnectionReminder && !identityManager.isLinkedMc(Identity.get(e.getPlayer()))){
+        if(sendConnectionReminder && !identityManager.isLinkedMc(Identity.get(new PaperPlayer(e.getPlayer())))){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 e.getPlayer().sendMessage(Objects.requireNonNull(PluginEntryPoint.getFormatter().mcConnectionReminder()));
             }, 20L * 3); // 3s delay
         }
 
-        Identity player = identityManager.resolve(e.getPlayer());
+        Identity player = identityManager.resolve(e.getPlayer().getUniqueId());
         ServerEvent ev = new GJoinEvent(player, this);
 
         callEvent(ev);
@@ -134,7 +134,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
     @EventHandler
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
-        Identity player = identityManager.resolve(e.getPlayer());
+        Identity player = identityManager.resolve(e.getPlayer().getUniqueId());
         ServerEvent ev = new GLeaveEvent(player, this);
 
         callEvent(ev);
@@ -142,13 +142,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){//todo killed by etc
-        Identity player = identityManager.resolve(e.getPlayer());
+        Identity player = identityManager.resolve(e.getPlayer().getUniqueId());
         Identity killer = null;
 
         try{
             var k = e.getEntity().getKiller();
             if(k!=null)
-                killer =  identityManager.resolve(k);
+                killer =  identityManager.resolve(k.getUniqueId());
         }catch(Exception ignored){}
 
         String dm;

@@ -5,10 +5,6 @@ import com.google.gson.JsonParser;
 import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.storage.Database;
 import net.dv8tion.jda.api.entities.Member;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -20,16 +16,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.logging.Logger;
 
 public class IdentityManager {
     private final Database db;
-    private final JavaPlugin plugin;
+    private final Logger logger;
+    private final Game game;
     //private JDA jda;
     private final boolean kickOnDisconnect;
 
-    public IdentityManager(Database db, JavaPlugin plg, boolean kickOnDc) {
+    public IdentityManager(Database db, Logger lgg, Game pGame, boolean kickOnDc) {
         this.db = db;
-        this.plugin = plg;
+        this.logger = lgg;
+        this.game = pGame;
         this.kickOnDisconnect = kickOnDc;
     }
 
@@ -38,12 +37,7 @@ public class IdentityManager {
         if(kickOnDisconnect){
             Identity.Mc mci = getClaimDc(dci);
             if(mci!=null){
-                Player p = Bukkit.getServer().getPlayer(mci.uuid);
-                if(p!=null){
-                    Bukkit.getScheduler().runTask(plugin, () ->
-                            p.kick( PluginEntryPoint.getFormatter().disconnectKick() )
-                    );
-                }
+                game.kick(mci.uuid);
             }
         }
 
@@ -83,7 +77,7 @@ public class IdentityManager {
             var sUUID = db.getClaimedMinecraftForDc(dci.id);
             return sUUID.map(Identity.Mc::fromString).orElse(null);
         } catch (Exception e) {
-            plugin.getLogger().severe("Error resolving Mc UUID: "+e.getMessage());
+            logger.severe("Error resolving Mc UUID: "+e.getMessage());
             return null;
         }
     }
@@ -94,7 +88,7 @@ public class IdentityManager {
             if(dc==null)return null;
             return new Identity.Dc(dc);
         } catch (Exception e) {
-            plugin.getLogger().severe("Error resolving Dc Id: "+e.getMessage());
+            logger.severe("Error resolving Dc Id: "+e.getMessage());
             return null;
         }
     }
@@ -109,12 +103,12 @@ public class IdentityManager {
         }
     }
 
-    public Identity resolve(OfflinePlayer player) {
-        Identity.Mc mci = new Identity.Mc(player.getUniqueId());
+    public Identity resolve(UUID uuid) {
+        Identity.Mc mci = new Identity.Mc(uuid);
         if(isLinkedMc(mci)){
             return getClaimMc(mci);
         }else{
-            return new Identity.Mc(player.getUniqueId());
+            return new Identity.Mc(uuid);
         }
     }
 
@@ -166,9 +160,9 @@ public class IdentityManager {
         mcNames.put(mci.uuid, name);
     }
 
-    public void upsertMc(OfflinePlayer p) {
+    public void upsertMc(Player p) {
         if(!p.hasPlayedBefore())return;
-        plugin.getLogger().info("Upsert player "+p.getName());
+        logger.info("Upsert player "+p.getName());
         upsertMcName(Identity.get(p),p.getName());
     }
 
@@ -176,7 +170,7 @@ public class IdentityManager {
         String cached = mcNames.get(mci.uuid);
         if (cached != null && !cached.isBlank()) return cached;
 
-        Player online = Bukkit.getPlayer(mci.uuid);
+        Player online = game.getPlayer(mci.uuid);
         if (online != null) {
             String name = online.getName();
             if (name != null && !name.isBlank()) {
@@ -185,14 +179,14 @@ public class IdentityManager {
             }
         }
 
-        OfflinePlayer off = Bukkit.getOfflinePlayer(mci.uuid);
+        Player off = game.getOfflinePlayer(mci.uuid);
         String name = off.getName(); // can be null
         if (name != null && !name.isBlank()) {
             mcNames.put(mci.uuid, name);
             return name;
         }
 
-        plugin.getLogger().fine("cant resolve name of mc "+mci);//todo query with api async for next call
+        logger.fine("cant resolve name of mc "+mci);//todo query with api async for next call
         return "["+mci+"]";
     }
 
@@ -208,7 +202,7 @@ public class IdentityManager {
     }
 
     public void upsertDc(Member m){
-        plugin.getLogger().info("Upsert member "+m.getUser().getName());
+        logger.info("Upsert member "+m.getUser().getName());
         Identity.Dc dci = Identity.get(m);
         upsertDcName(dci, m.getEffectiveName());
         upsertDcAvatarUrl(dci, m.getEffectiveAvatarUrl());
@@ -218,7 +212,7 @@ public class IdentityManager {
         if(dcNames.containsKey(dci.id)){
             return dcNames.get(dci.id);
         }else{
-            plugin.getLogger().fine("cant resolve name of dc "+dci);//todo query with api async for next call
+            logger.fine("cant resolve name of dc "+dci);//todo query with api async for next call
             return "["+dci+"]";
         }
     }
@@ -228,7 +222,7 @@ public class IdentityManager {
         if(dcAvatars.containsKey(dci.id)){
             return dcAvatars.get(dci.id);
         }else{
-            plugin.getLogger().fine("cant resolve avatar of dc "+dci);//todo query with api async for next call
+            logger.fine("cant resolve avatar of dc "+dci);//todo query with api async for next call
             return null;
         }
     }

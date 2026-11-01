@@ -78,7 +78,7 @@ public final class PluginEntryPoint extends JavaPlugin {
                 return;
             }
             identityManager = new IdentityManager(
-                    db, this, config.getBoolean("whitelist.kick_on_disconnect",false)
+                    db, this.getLogger(), new PaperGame(this), config.getBoolean("whitelist.kick_on_disconnect",false)
             );
 
             formatter = new Formatter(config, identityManager);

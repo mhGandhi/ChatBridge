@@ -49,7 +49,7 @@ public class Identity {
     public static Identity.Dc get(User u){
         return new Dc(u.getId());
     }
-    public static Identity.Mc get(OfflinePlayer p){
+    public static Identity.Mc get(Player p){
         return new Mc(p.getUniqueId());
     }
 }
