@@ -36,17 +36,7 @@ public final class PluginEntryPoint extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        Config config = new Config() {
-            @Override
-            public String getString(String pKey, String pFallback) {
-                return getConfig().getString(pKey, pFallback);
-            }
-
-            @Override
-            public boolean getBoolean(String pKey, boolean pFallback) {
-                return getConfig().getBoolean(pKey, pFallback);
-            }
-        };
+        Config config = new PaperConfig(getConfig());
 
         String token = config.getString("discord.token", null);
 
