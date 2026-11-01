@@ -1,5 +1,5 @@
 package com.mhgandhi.chatBridge.events;
 
-public class LinkDestroyedEvent extends PluginEvent{
+public class LinkDestroyedEvent extends ServerEvent {
     //todo who
 }

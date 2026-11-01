@@ -57,7 +57,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     }
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////SEND
     private void sendMessage(Identity author, String content){
-        Component msg = ChatBridge.getFormatter().formatMcMsg(author, content);
+        Component msg = PluginEntryPoint.getFormatter().formatMcMsg(author, content);
         if(Bukkit.isPrimaryThread()){
             Bukkit.getServer().broadcast(msg);
         }else{
@@ -91,13 +91,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     }
 
     @Override
-    protected void onPluginDisable(PluginDisableEvent e) {
-        sendMessage(Identity.server, ChatBridge.getFormatter().mcPluginDisabled());
+    protected void onPluginDisable(ServerDisableEvent e) {
+        sendMessage(Identity.server, PluginEntryPoint.getFormatter().mcPluginDisabled());
     }
 
     @Override
-    protected void onPluginEnable(PluginEnableEvent e) {
-        sendMessage(Identity.server, ChatBridge.getFormatter().mcPluginEnabled());
+    protected void onPluginEnable(ServerEnableEvent e) {
+        sendMessage(Identity.server, PluginEntryPoint.getFormatter().mcPluginEnabled());
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
         if (e.isCancelled()) return;
 
         String body = serializer.serialize(e.message());
-        PluginEvent ev = new GMessageEvent(identityManager.resolve(e.getPlayer()),new GatewayMessage(body),this);
+        ServerEvent ev = new GMessageEvent(identityManager.resolve(e.getPlayer()),new GatewayMessage(body),this);
 
         callEvent(ev);
     }
@@ -122,12 +122,12 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
         if(sendConnectionReminder && !identityManager.isLinkedMc(Identity.get(e.getPlayer()))){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                e.getPlayer().sendMessage(Objects.requireNonNull(ChatBridge.getFormatter().mcConnectionReminder()));
+                e.getPlayer().sendMessage(Objects.requireNonNull(PluginEntryPoint.getFormatter().mcConnectionReminder()));
             }, 20L * 3); // 3s delay
         }
 
         Identity player = identityManager.resolve(e.getPlayer());
-        PluginEvent ev = new GJoinEvent(player, this);
+        ServerEvent ev = new GJoinEvent(player, this);
 
         callEvent(ev);
     }
@@ -135,7 +135,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     @EventHandler
     public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
         Identity player = identityManager.resolve(e.getPlayer());
-        PluginEvent ev = new GLeaveEvent(player, this);
+        ServerEvent ev = new GLeaveEvent(player, this);
 
         callEvent(ev);
     }
@@ -173,13 +173,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
+                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("disconnect")) {
                 identityManager.clearMc(mci);
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
+                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
@@ -193,10 +193,10 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
                 Identity.Dc claim = new Identity.Dc(claimId);
 
                 identityManager.claimMcDc(mci,claim);
-                p.sendMessage(ChatBridge.getFormatter().minecraftStatus(mci));
+                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
             }
         } catch (Exception ex) {
-            sender.sendMessage(Component.text(ChatBridge.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
+            sender.sendMessage(Component.text(PluginEntryPoint.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
             return false;
         }
 

@@ -1,7 +1,7 @@
 package com.mhgandhi.chatBridge;
 
 import club.minnced.discord.webhook.WebhookClient;
-import com.mhgandhi.chatBridge.platform.paper.ChatBridge;
+import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -47,7 +47,7 @@ public class JDAShell extends ListenerAdapter {
                         GatewayIntent.GUILD_MEMBERS
                 )
                 .setStatus(OnlineStatus.ONLINE)
-                .setActivity(Activity.customStatus(ChatBridge.getFormatter().dcServerOnlineStatus()))
+                .setActivity(Activity.customStatus(PluginEntryPoint.getFormatter().dcServerOnlineStatus()))
                 .addEventListeners(this);
 
         jda = builder.build();

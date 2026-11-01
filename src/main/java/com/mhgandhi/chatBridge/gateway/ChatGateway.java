@@ -1,6 +1,6 @@
 package com.mhgandhi.chatBridge.gateway;
 
-import com.mhgandhi.chatBridge.platform.paper.ChatBridge;
+import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.events.*;
 import com.mhgandhi.chatBridge.events.gatewayspecific.*;
@@ -21,28 +21,28 @@ public abstract class ChatGateway {
         dispatcher.on(GMessageEvent.class, this::onMessage);
         dispatcher.on(LinkCreatedEvent.class, this::onLinkCreated);
         dispatcher.on(LinkDestroyedEvent.class, this::onLinkDestroyed);
-        dispatcher.on(PluginDisableEvent.class, this::onPluginDisable);
-        dispatcher.on(PluginEnableEvent.class, this::onPluginEnable);
+        dispatcher.on(ServerDisableEvent.class, this::onPluginDisable);
+        dispatcher.on(ServerEnableEvent.class, this::onPluginEnable);
         dispatcher.on(GDeathEvent.class, this::onDied);
 
         dispatcher.onDefault(e -> plugin.getLogger()
                 .severe("o no what to do with this plugin event " + e));
     }
 
-    public final void handlePluginEvent(PluginEvent pPluginEvent){
-        if(pPluginEvent.isCancelled())return;
-        if(pPluginEvent instanceof GatewayEvent ge && ge.getSource()==this)return;
+    public final void handlePluginEvent(ServerEvent pServerEvent){
+        if(pServerEvent.isCancelled())return;
+        if(pServerEvent instanceof GatewayEvent ge && ge.getSource()==this)return;
 
-        onPluginEvent(pPluginEvent);//todo or directly disperse into different events
+        onPluginEvent(pServerEvent);//todo or directly disperse into different events
     }
 
     //always sync
-    protected final void callEvent(PluginEvent pe){
-        ChatBridge.callEvent(pe, plugin);
+    protected final void callEvent(ServerEvent pe){
+        PluginEntryPoint.callEvent(pe, plugin);
     }
 
-    private void onPluginEvent(PluginEvent pluginEvent) {
-        dispatcher.dispatch(pluginEvent);
+    private void onPluginEvent(ServerEvent ServerEvent) {
+        dispatcher.dispatch(ServerEvent);
     }
 
     protected abstract void onJoin(GJoinEvent e);
@@ -50,7 +50,7 @@ public abstract class ChatGateway {
     protected abstract void onMessage(GMessageEvent e);
     protected abstract void onLinkCreated(LinkCreatedEvent e);
     protected abstract void onLinkDestroyed(LinkDestroyedEvent e);
-    protected abstract void onPluginDisable(PluginDisableEvent e);
-    protected abstract void onPluginEnable(PluginEnableEvent e);
+    protected abstract void onPluginDisable(ServerDisableEvent e);
+    protected abstract void onPluginEnable(ServerEnableEvent e);
     protected abstract void onDied(GDeathEvent gde);
 }

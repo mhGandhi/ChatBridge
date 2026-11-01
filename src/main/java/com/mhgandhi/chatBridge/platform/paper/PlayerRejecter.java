@@ -28,14 +28,14 @@ public class PlayerRejecter implements Listener {
             if (!allowed) {
                 e.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                        ChatBridge.getFormatter().whitelistReject()
+                        PluginEntryPoint.getFormatter().whitelistReject()
                 );
                 plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] from joining because the uuid is not claimed");
             }
         } catch (Exception ex) {
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    ChatBridge.getFormatter().loginUnavailableReject()
+                    PluginEntryPoint.getFormatter().loginUnavailableReject()
             );
             plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] there was an db exception.");
         }

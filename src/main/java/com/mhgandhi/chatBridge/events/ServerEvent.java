@@ -5,11 +5,11 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PluginEvent extends Event implements Cancellable {//todo why even cancellable?
+public class ServerEvent extends Event implements Cancellable {//todo why even cancellable?
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
 
-    protected PluginEvent() {
+    protected ServerEvent() {
         //events should be called through ChatGateway.callEvent(PluginEvent), where sync is enforced
         super(false);
         cancelled = false;

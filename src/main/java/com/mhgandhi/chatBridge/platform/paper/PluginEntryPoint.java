@@ -3,9 +3,9 @@ package com.mhgandhi.chatBridge.platform.paper;
 import com.mhgandhi.chatBridge.Formatter;
 import com.mhgandhi.chatBridge.IdentityManager;
 import com.mhgandhi.chatBridge.JDAShell;
-import com.mhgandhi.chatBridge.events.PluginDisableEvent;
-import com.mhgandhi.chatBridge.events.PluginEnableEvent;
-import com.mhgandhi.chatBridge.events.PluginEvent;
+import com.mhgandhi.chatBridge.events.ServerDisableEvent;
+import com.mhgandhi.chatBridge.events.ServerEnableEvent;
+import com.mhgandhi.chatBridge.events.ServerEvent;
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.gateway.DiscordGateway;
 import com.mhgandhi.chatBridge.storage.Database;
@@ -21,7 +21,7 @@ import java.util.Objects;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
-public final class ChatBridge extends JavaPlugin {
+public final class PluginEntryPoint extends JavaPlugin {
     //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
     //private DiscordChat discordChat;
     //private MinecraftChat mcChat;
@@ -74,7 +74,9 @@ public final class ChatBridge extends JavaPlugin {
                 abort(e);
                 return;
             }
-            identityManager = new IdentityManager(db, this, getConfig().getBoolean("whitelist.kick_on_disconnect",false));
+            identityManager = new IdentityManager(
+                    db, this, getConfig().getBoolean("whitelist.kick_on_disconnect",false)
+            );
 
             formatter = new Formatter(getConfig(), identityManager);
         }
@@ -88,7 +90,7 @@ public final class ChatBridge extends JavaPlugin {
         getServer().getPluginManager().registerEvents(
                 new Listener() {
                     @EventHandler
-                    public void onPluginEvent(PluginEvent e){
+                    public void onPluginEvent(ServerEvent e){
                         for(ChatGateway cg : gateways){
                             cg.handlePluginEvent(e);
                         }
@@ -116,7 +118,7 @@ public final class ChatBridge extends JavaPlugin {
                 getServer().getPluginManager().registerEvents(mg,this);
                 jdaShell.addDcListener(dg);
 
-                callEvent(new PluginEnableEvent(), this);
+                callEvent(new ServerEnableEvent(), this);
             }catch(Exception e){
                 getLogger().log(java.util.logging.Level.SEVERE,
                         "ChatBridge failed during JDA ready initialization:", e);
@@ -151,7 +153,7 @@ public final class ChatBridge extends JavaPlugin {
     public void onDisable() {
         if(formatter!=null){
             //Todo fix already disabled
-            PluginEvent e = new PluginDisableEvent();
+            ServerEvent e = new ServerDisableEvent();
             for(ChatGateway cg : gateways){
                 cg.handlePluginEvent(e);
             }
@@ -170,7 +172,7 @@ public final class ChatBridge extends JavaPlugin {
     }
 
     //always sync
-    public static void callEvent(PluginEvent pe, JavaPlugin pPlugin){
+    public static void callEvent(ServerEvent pe, JavaPlugin pPlugin){
         if (Bukkit.isPrimaryThread()) {
             Bukkit.getPluginManager().callEvent(pe);
         } else {

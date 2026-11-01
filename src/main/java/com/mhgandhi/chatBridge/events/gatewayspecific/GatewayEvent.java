@@ -1,9 +1,9 @@
 package com.mhgandhi.chatBridge.events.gatewayspecific;
 
 import com.mhgandhi.chatBridge.gateway.ChatGateway;
-import com.mhgandhi.chatBridge.events.PluginEvent;
+import com.mhgandhi.chatBridge.events.ServerEvent;
 
-public class GatewayEvent extends PluginEvent {
+public class GatewayEvent extends ServerEvent {
 
     private final ChatGateway source;
 
