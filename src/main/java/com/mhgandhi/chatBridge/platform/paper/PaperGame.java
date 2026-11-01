@@ -33,4 +33,23 @@ public class PaperGame implements Game {
     public com.mhgandhi.chatBridge.Player getOfflinePlayer(UUID uuid) {
         return new PaperPlayer(Bukkit.getOfflinePlayer(uuid));
     }
+
+    @Override
+    public void disableCB() {
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
+    }
+
+    @Override
+    public void saveWebhookCredentials(long idToSave, String tokenToSave) {
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            try {
+                plugin.getConfig().set("discord.webhook_id", Long.toString(idToSave));
+                plugin.getConfig().set("discord.webhook_token", tokenToSave);
+                plugin.saveConfig();
+                plugin.getLogger().info("Saved webhook credentials to config.yml.");
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to save webhook credentials to config.yml: " + e.getMessage());
+            }
+        });
+    }
 }

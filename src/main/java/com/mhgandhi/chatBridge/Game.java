@@ -8,4 +8,8 @@ public interface Game {
     void kick(UUID pUUId);
 
     Player getOfflinePlayer(UUID uuid);
+
+    void disableCB();
+
+    void saveWebhookCredentials(long idToSave, String tokenToSave);
 }

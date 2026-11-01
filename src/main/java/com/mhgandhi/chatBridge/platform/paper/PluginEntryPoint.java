@@ -131,7 +131,7 @@ public final class PluginEntryPoint extends JavaPlugin {
 
         };
 
-        jdaShell = new JDAShell(this,token, channelId, savedWebhookID, savedWebhookToken, onJDAReady);
+        jdaShell = new JDAShell(getLogger(), new PaperGame(this), token, channelId, savedWebhookID, savedWebhookToken, onJDAReady);
         try {
             jdaShell.start();
         }catch(InvalidTokenException e){

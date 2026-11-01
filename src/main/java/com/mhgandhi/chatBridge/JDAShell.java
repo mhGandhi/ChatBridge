@@ -11,14 +11,16 @@ import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 public class JDAShell extends ListenerAdapter {
     private static final String WEBHOOK_NAME = "ChatBridge";
 
-    private final JavaPlugin plugin;
     private final Runnable onReady;
+    private final Logger logger;
+    private final Game game;
 
     private final String token;
     private final String channelId;
@@ -30,8 +32,9 @@ public class JDAShell extends ListenerAdapter {
     private volatile WebhookClient webhookClient;
     private volatile TextChannel mirrorChannel;
 
-    public JDAShell(JavaPlugin pPlugin, String pToken, String pChannelId, long pSavedWebhookID, String pSavedWebhookToken, Runnable pOnReady){
-        this.plugin = pPlugin;
+    public JDAShell(Logger pLogger, Game pGame, String pToken, String pChannelId, long pSavedWebhookID, String pSavedWebhookToken, Runnable pOnReady){
+        this.logger = pLogger;
+        this.game = pGame;
         this.onReady = pOnReady;
         this.token = pToken;
         this.channelId = pChannelId;
@@ -57,8 +60,8 @@ public class JDAShell extends ListenerAdapter {
     public void onReady(@NotNull ReadyEvent event) {
         TextChannel ch = event.getJDA().getTextChannelById(channelId);
         if (ch == null) {
-            plugin.getLogger().severe("Discord channel_id " + channelId + " not found. Disabling plugin.");
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            logger.severe("Discord channel_id " + channelId + " not found. Disabling plugin.");
+            game.disableCB();
             return;
         }
         mirrorChannel = ch;
@@ -66,7 +69,7 @@ public class JDAShell extends ListenerAdapter {
         try{
             assertWebhook();
         } catch (RuntimeException e) {
-            plugin.getLogger().severe("Exception while setting up Webhook: "+e.getMessage());
+            logger.severe("Exception while setting up Webhook: "+e.getMessage());
         }
 
         if(onReady!=null){
@@ -78,7 +81,7 @@ public class JDAShell extends ListenerAdapter {
                 if(System.currentTimeMillis() > timeout+startTime) timedOut = true;
             }
             if(timedOut)
-                plugin.getLogger().warning("Timed out while waiting for webhookClient for "+timeout/1000.0+"s; proceeding without webhook");
+                logger.warning("Timed out while waiting for webhookClient for "+timeout/1000.0+"s; proceeding without webhook");
 
             onReady.run();
         }
@@ -89,21 +92,21 @@ public class JDAShell extends ListenerAdapter {
             if(createWebhookClient(savedWebhookID, savedWebhookToken)) {
                 return;
             }else{
-                plugin.getLogger().warning("Saved webhook credentials invalid; recreating webhook...");
+                logger.warning("Saved webhook credentials invalid; recreating webhook...");
             }
         }else{
-            plugin.getLogger().info("No saved webhook credentials found; creating webhook...");
+            logger.info("No saved webhook credentials found; creating webhook...");
         }
 
         createWebhookAndClient();
     }
 
     private void createWebhookAndClient() {
-        plugin.getLogger().info("No valid saved webhook found. Creating a new webhook named '" + WEBHOOK_NAME + "'...");
+        logger.info("No valid saved webhook found. Creating a new webhook named '" + WEBHOOK_NAME + "'...");
 
         TextChannel ch = mirrorChannel;
         if (ch == null) {
-            plugin.getLogger().severe("mirrorChannel is null; cannot create webhook.");
+            logger.severe("mirrorChannel is null; cannot create webhook.");
             return;
         }
 
@@ -115,11 +118,11 @@ public class JDAShell extends ListenerAdapter {
                 id = webhook.getIdLong();
                 token = webhook.getToken(); // token is available on creation
             } catch (Exception e) {
-                plugin.getLogger().severe("Webhook created but could not read id/token: " + e.getMessage());
+                logger.severe("Webhook created but could not read id/token: " + e.getMessage());
             }
 
             if (id == 0L || token == null || token.isBlank()) {
-                plugin.getLogger().severe("Webhook token missing after creation; cannot initialize WebhookClient.");
+                logger.severe("Webhook token missing after creation; cannot initialize WebhookClient.");
                 webhookClient = null;
                 return;
             }
@@ -127,26 +130,17 @@ public class JDAShell extends ListenerAdapter {
             final long idToSave = id;
             final String tokenToSave = token;
             // 1) Save credentials to config on Bukkit main thread
-            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                try {
-                    plugin.getConfig().set("discord.webhook_id", Long.toString(idToSave));
-                    plugin.getConfig().set("discord.webhook_token", tokenToSave);
-                    plugin.saveConfig();
-                    plugin.getLogger().info("Saved webhook credentials to config.yml.");
-                } catch (Exception e) {
-                    plugin.getLogger().severe("Failed to save webhook credentials to config.yml: " + e.getMessage());
-                }
-            });
+            game.saveWebhookCredentials(idToSave, tokenToSave);
 
             // 2) Init client
             if (createWebhookClient(id, token)) {
-                plugin.getLogger().info("Created and connected new webhook successfully (id=" + id + ").");
+                logger.info("Created and connected new webhook successfully (id=" + id + ").");
             } else {
-                plugin.getLogger().severe("Created webhook but failed to initialize WebhookClient (id=" + id + ").");
+                logger.severe("Created webhook but failed to initialize WebhookClient (id=" + id + ").");
             }
 
         }, err -> {
-            plugin.getLogger().severe("Failed to create webhook (missing Manage Webhooks permission?): " + err.getMessage());
+            logger.severe("Failed to create webhook (missing Manage Webhooks permission?): " + err.getMessage());
             webhookClient = null;
         });
     }
@@ -155,10 +149,10 @@ public class JDAShell extends ListenerAdapter {
     private boolean createWebhookClient(long id, String token) {
         try {
             webhookClient = WebhookClient.withId(id, token);
-            plugin.getLogger().info("Webhook client ready.");
+            logger.info("Webhook client ready.");
             return true;
         } catch (Exception e) {
-            plugin.getLogger().warning("Could not init WebhookClient [" + id + "|token.len="+token.length()+"]: " + e.getMessage());
+            logger.warning("Could not init WebhookClient [" + id + "|token.len="+token.length()+"]: " + e.getMessage());
             webhookClient = null;
             return false;
         }
