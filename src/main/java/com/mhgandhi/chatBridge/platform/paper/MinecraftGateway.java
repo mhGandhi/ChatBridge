@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-public class MinecraftGateway extends ChatGateway implements Listener, CommandExecutor, TabCompleter {
+public class MinecraftGateway extends ChatGateway implements Listener {
     private static MinecraftGateway instance = null;
 
     private final PlainTextComponentSerializer serializer;
@@ -165,72 +165,5 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
         }
 
         callEvent(new GDeathEvent(player, killer, dm, this));
-    }
-
-
-    ///  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////COMMANDS
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String @NotNull [] args) {
-        if (!(sender instanceof Player p)) {//todo Brigadeer for Config names etc
-            sender.sendMessage("Players only.");
-            return true;
-        }
-        Identity.Mc mci = new Identity.Mc(p.getUniqueId());
-
-        try {
-            if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
-                return true;
-            }
-
-            if (cmd.getName().equalsIgnoreCase("disconnect")) {
-                identityManager.clearMc(mci);
-                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
-                return true;
-            }
-
-            if (cmd.getName().equalsIgnoreCase("connect")) {
-                if (args.length == 0) {
-                    return false;
-                }
-
-                String claimId = args[0];
-                //todo resolve if name
-                Identity.Dc claim = new Identity.Dc(claimId);
-
-                identityManager.claimMcDc(mci,claim);
-                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
-            }
-        } catch (Exception ex) {
-            sender.sendMessage(Component.text(Application.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, String @NotNull [] args) {
-        if (!(sender instanceof Player p)) return Collections.emptyList();
-        if (!cmd.getName().equalsIgnoreCase("connect")) return Collections.emptyList();
-        if (args.length != 1) return Collections.emptyList();
-
-        Identity.Mc mci = new Identity.Mc(p.getUniqueId());
-
-        try {
-            List<String> claimers = identityManager.claimsOnMc(mci);
-            if (claimers.isEmpty()) return Collections.emptyList();
-
-            String prefix = args[0].toLowerCase();
-            ArrayList<String> out = new ArrayList<>();
-            for (String claim : claimers) {
-                //var name = claim.name();
-                //if (name.toLowerCase().startsWith(prefix)) out.add(name);
-                if (claim.startsWith(prefix)) out.add(claim);
-            }
-            return out;
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
     }
 }

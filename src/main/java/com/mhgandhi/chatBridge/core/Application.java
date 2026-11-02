@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.core;
 
+import com.mhgandhi.chatBridge.core.domain.CommandRegistrar;
 import com.mhgandhi.chatBridge.core.domain.Config;
 import com.mhgandhi.chatBridge.core.domain.Game;
 import com.mhgandhi.chatBridge.core.events.EventRouter;
@@ -35,6 +36,7 @@ public final class Application implements AutoCloseable{
     public Application(
             Config config,
             Game pGame,
+            CommandRegistrar pCommandRegistrar,
             Logger pLogger
     ){
         this.logger = pLogger;
@@ -94,6 +96,11 @@ public final class Application implements AutoCloseable{
 
         /////// FORMATTER
         formatter = new Formatter(config, identityManager);
+        ///////
+
+        /////// COMMANDS
+        McCommands cmd = new McCommands(identityManager, formatter);
+        cmd.registerInto(pCommandRegistrar);
         ///////
 
 

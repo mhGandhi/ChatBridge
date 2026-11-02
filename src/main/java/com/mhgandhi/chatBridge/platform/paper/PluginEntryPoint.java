@@ -1,6 +1,7 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
 import com.mhgandhi.chatBridge.core.*;
+import com.mhgandhi.chatBridge.platform.paper.implementation.PaperCommandRegistrar;
 import com.mhgandhi.chatBridge.platform.paper.implementation.PaperConfig;
 import com.mhgandhi.chatBridge.platform.paper.implementation.PaperGame;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,6 +22,7 @@ public final class PluginEntryPoint extends JavaPlugin {
         cb = new Application(
                 new PaperConfig(getConfig()),
                 new PaperGame(this),
+                new PaperCommandRegistrar(this),
                 getLogger()
         );
 
@@ -30,16 +32,8 @@ public final class PluginEntryPoint extends JavaPlugin {
         }
 
         MinecraftGateway mg = new MinecraftGateway(cb.getLogger(), cb.getEventRouter(), cb.getIdentityManager(), cb.confConnectionReminders, this);
-        cb.registerGateway(mg);
 
-        Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
-                .setExecutor(mg);
-        Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
-                .setTabCompleter(mg);
-        Objects.requireNonNull(getCommand("disconnect"), "Missing command 'disconnect' in plugin.yml")
-                .setExecutor(mg);
-        Objects.requireNonNull(getCommand("status"), "Missing command 'status' in plugin.yml")
-                .setExecutor(mg);
+        cb.registerGateway(mg);
 
         getServer().getPluginManager().registerEvents(mg,this);
 
