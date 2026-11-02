@@ -27,6 +27,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionException;
@@ -75,15 +77,20 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         }
     }
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////SEND
+
     private void sendMessage(Identity author, String content){
+        sendMessage(author,content,null, "");
+    }
+
+    private void sendMessage(Identity author, String content, String avatarOverride, String serverNameSuffix){
         if(content.isEmpty())return;
 
         if(author == Identity.server){
-            sendViaWebhook(Application.getFormatter().dcServerName(), Application.getFormatter().dcServerAvatarOverride(),content);
+            sendViaWebhook(Application.getFormatter().dcServerName()+serverNameSuffix, avatarOverride!=null?avatarOverride: Application.getFormatter().dcServerAvatarOverride(),content);
         }else if(author instanceof Identity.Mc mca){
-            sendViaWebhook(Application.getFormatter().dcMcName(identityManager.getMcName(mca)), Application.getFormatter().getMcAvatar(mca), content);
+            sendViaWebhook(Application.getFormatter().dcMcName(identityManager.getMcName(mca)), avatarOverride!=null?avatarOverride: Application.getFormatter().getMcAvatar(mca), content);
         }else if(author instanceof Identity.Dc dca){
-            sendViaWebhook(identityManager.getDcName(dca), identityManager.getDcAvatar(dca), content);
+            sendViaWebhook(identityManager.getDcName(dca), avatarOverride!=null?avatarOverride: identityManager.getDcAvatar(dca), content);
         }
     }
 
@@ -108,11 +115,43 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     @Override
     protected void onJoin(GJoinEvent e) {
+
+        /*
+        String avtOverride = null; //todo make nicer
+        if(e.getJoined() instanceof Identity.Mc mca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +URLEncoder.encode(Application.getFormatter().getMcAvatar(mca), StandardCharsets.UTF_8)
+                    +"&tint=green";
+        }else if(e.getJoined() instanceof Identity.Dc dca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +identityManager.getDcAvatar(dca)
+                    +"&tint=green";
+        }
+        */
+
         sendMessage(Identity.server, Application.getFormatter().dcPlayerJoined(e.getJoined()));
     }
 
     @Override
     protected void onLeave(GLeaveEvent e) {
+
+        /*
+        String avtOverride = null;
+        if(e.getLeft() instanceof Identity.Mc mca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +URLEncoder.encode(Application.getFormatter().getMcAvatar(mca), StandardCharsets.UTF_8)
+                    +"&filt=greyscale";
+        }else if(e.getLeft() instanceof Identity.Dc dca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +identityManager.getDcAvatar(dca)
+                    +"&filt=greyscale";
+        }
+        */
+
         sendMessage(Identity.server, Application.getFormatter().dcPlayerLeft(e.getLeft()));
     }
 
@@ -143,6 +182,21 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     @Override
     protected void onDied(GDeathEvent gde) {
+        /*
+        String avtOverride = null;
+        if(gde.getDied() instanceof Identity.Mc mca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +URLEncoder.encode(Application.getFormatter().getMcAvatar(mca), StandardCharsets.UTF_8)
+                    +"&tint=red";
+        }else if(gde.getDied() instanceof Identity.Dc dca){
+            avtOverride =
+                    "https://wsrv.nl/?url="
+                    +identityManager.getDcAvatar(dca)
+                    +"&tint=red";
+        }
+        */
+
         if(gde.getKiller()!=null){
             if(gde.getDeathMessage()==null){
                 sendMessage(Identity.server, Application.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller()));
