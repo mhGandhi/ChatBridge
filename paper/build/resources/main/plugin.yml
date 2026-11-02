@@ -1,0 +1,24 @@
+name: ChatBridge
+version: '2.0'
+main: com.mhgandhi.chatBridge.paper.PluginEntryPoint
+api-version: '1.21'
+commands:
+  connect:
+    description: Mirror your Minecraft Chat into Discord and back and link identities!
+    usage: /connect <discord-id> (do it in discord first)
+    permission: chatbridge.connect
+  disconnect:
+    description: Remove your MC→Discord claim
+    usage: /disconnect
+    permission: chatbridge.disconnect
+  status:
+    description: Show your link status
+    usage: /disconnect
+    permission: chatbridge.status
+permissions:
+  chatbridge.*:
+    default: true
+    children:
+      chatbridge.connect: true
+      chatbridge.disconnect: true
+      chatbridge.status: true
