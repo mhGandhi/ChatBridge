@@ -5,18 +5,16 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class ServerEvent extends Event implements Cancellable {//todo why even cancellable?
+public class ServerEvent {
     private static final HandlerList HANDLERS = new HandlerList();
     private boolean cancelled;
 
     protected ServerEvent() {
         //events should be called through ChatGateway.callEvent(PluginEvent), where sync is enforced
-        super(false);
         cancelled = false;
     }
 
-    @Override public boolean isCancelled() { return cancelled; }
-    @Override public void setCancelled(boolean c) { cancelled = c; }
-    @Override public @NotNull HandlerList getHandlers() { return HANDLERS; }
+    public boolean isCancelled() { return cancelled; }
+    public void setCancelled(boolean c) { cancelled = c; }
     public static HandlerList getHandlerList() { return HANDLERS; }
 }

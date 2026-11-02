@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class PluginEventDispatcher {//chatty crazy
+public final class EventDispatcher {//chatty crazy
     private final Map<Class<?>, Consumer<? super ServerEvent>> handlers = new LinkedHashMap<>();
     private Consumer<? super ServerEvent> defaultHandler = null;
 

@@ -1,21 +1,23 @@
 package com.mhgandhi.chatBridge.core.gateway;
 
-import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.core.IdentityManager;
 import com.mhgandhi.chatBridge.core.events.*;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.*;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Logger;
 
 public abstract class ChatGateway {
-    private final PluginEventDispatcher dispatcher;
+    private final EventDispatcher dispatcher;
+    protected final Logger logger;
+    private final EventRouter router;
 
-    protected final JavaPlugin plugin;
     protected final IdentityManager identityManager;
-    protected ChatGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager){
-        plugin = pPlugin;
+    protected ChatGateway(Logger pLogger, EventRouter pRouter, IdentityManager pIdentityManager){
+        logger = pLogger;
+        router = pRouter;
         identityManager = pIdentityManager;
 
-        dispatcher = new PluginEventDispatcher();
+        dispatcher = new EventDispatcher();
         dispatcher.on(GJoinEvent.class, this::onJoin);
         dispatcher.on(GLeaveEvent.class, this::onLeave);
         dispatcher.on(GMessageEvent.class, this::onMessage);
@@ -25,7 +27,7 @@ public abstract class ChatGateway {
         dispatcher.on(ServerEnableEvent.class, this::onPluginEnable);
         dispatcher.on(GDeathEvent.class, this::onDied);
 
-        dispatcher.onDefault(e -> plugin.getLogger()
+        dispatcher.onDefault(e -> logger
                 .severe("o no what to do with this plugin event " + e));
     }
 
@@ -38,7 +40,7 @@ public abstract class ChatGateway {
 
     //always sync
     protected final void callEvent(ServerEvent pe){
-        PluginEntryPoint.callEvent(pe, plugin);
+        router.publish(pe);
     }
 
     private void onPluginEvent(ServerEvent ServerEvent) {

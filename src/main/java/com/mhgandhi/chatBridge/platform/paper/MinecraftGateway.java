@@ -32,20 +32,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class MinecraftGateway extends ChatGateway implements Listener, CommandExecutor, TabCompleter {
     private static MinecraftGateway instance = null;
 
     private final PlainTextComponentSerializer serializer;
+    private final JavaPlugin plugin;
 
     private final boolean sendConnectionReminder;
 
-    public MinecraftGateway(JavaPlugin pPlugin, IdentityManager identityManager, boolean pSendConnectionReminder) {
-        super(pPlugin, identityManager);
+    public MinecraftGateway(Logger pLogger, EventRouter pRouter, IdentityManager identityManager, boolean pSendConnectionReminder, JavaPlugin pPlugin) {
+        super(pLogger, pRouter, identityManager);
         if(instance!=null){//todo mby throw sth?
-            plugin.getLogger().severe("There may only be one instance of MinecraftGateway; overwriting existing");
+            logger.severe("There may only be one instance of MinecraftGateway; overwriting existing");
         }
         instance = this;
+
+        plugin = pPlugin;
 
         sendConnectionReminder = pSendConnectionReminder;
 

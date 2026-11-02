@@ -2,13 +2,10 @@ package com.mhgandhi.chatBridge.core.gateway;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import com.mhgandhi.chatBridge.core.events.*;
 import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.core.Identity;
 import com.mhgandhi.chatBridge.core.IdentityManager;
-import com.mhgandhi.chatBridge.core.events.LinkCreatedEvent;
-import com.mhgandhi.chatBridge.core.events.LinkDestroyedEvent;
-import com.mhgandhi.chatBridge.core.events.ServerDisableEvent;
-import com.mhgandhi.chatBridge.core.events.ServerEnableEvent;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.GDeathEvent;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.GJoinEvent;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.GLeaveEvent;
@@ -33,14 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletionException;
+import java.util.logging.Logger;
 
 public class DiscordGateway extends ChatGateway implements EventListener {
 
     private volatile WebhookClient webhookClient;//todo tf is volatile
     private volatile TextChannel mirrorChannel;
 
-    public DiscordGateway(JavaPlugin pPlugin, IdentityManager pIdentityManager, WebhookClient pWebhook, TextChannel pTextChannel) {
-        super(pPlugin, pIdentityManager);
+    public DiscordGateway(Logger pLogger, EventRouter pRouter, IdentityManager pIdentityManager, WebhookClient pWebhook, TextChannel pTextChannel) {
+        super(pLogger, pRouter, pIdentityManager);
 
         webhookClient = pWebhook;
         mirrorChannel = pTextChannel;
@@ -48,7 +46,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         try{
             mirrorChannel.getGuild().loadMembers(identityManager::upsertDc);
         } catch (Exception e) {
-            plugin.getLogger().severe(e.getMessage());
+            logger.severe(e.getMessage());
         }
 
         registerCommands();
@@ -91,7 +89,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     private void sendViaWebhook(String username, String avatarUrl, String content) {
         if (webhookClient == null) {
-            plugin.getLogger().warning("Webhook not ready, sending msg over Bot");
+            logger.warning("Webhook not ready, sending msg over Bot");
             sendToDiscord("**" + username + "**: " + content);
             return;
         }
@@ -105,7 +103,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
     private void sendToDiscord(String content) {
         mirrorChannel.sendMessage(content)
                 .queue(null, err ->
-                        plugin.getLogger().warning("Failed to send to Discord: " + err.getMessage()));
+                        logger.warning("Failed to send to Discord: " + err.getMessage()));
     }
 
     @Override
@@ -257,7 +255,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
     private void handleConnect(SlashCommandInteractionEvent e) {
         OptionMapping option = e.getOption(PluginEntryPoint.getFormatter().dcCmdConnectArg_name());
         if (option == null) {
-            plugin.getLogger().severe("Idk how but someone managed to execute /connect without args on dc");
+            logger.severe("Idk how but someone managed to execute /connect without args on dc");
             return;
         }
 
@@ -287,7 +285,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
                             try {
                                 hook.sendMessageEmbeds(PluginEntryPoint.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
                             } catch (Exception ex) {
-                                plugin.getLogger().severe("Ex replying to user after deferring: "+ex.getMessage());
+                                logger.severe("Ex replying to user after deferring: "+ex.getMessage());
                             }
                         }
                 ).exceptionally(

@@ -4,6 +4,7 @@ import com.mhgandhi.chatBridge.core.Config;
 import com.mhgandhi.chatBridge.core.Formatter;
 import com.mhgandhi.chatBridge.core.IdentityManager;
 import com.mhgandhi.chatBridge.core.JDAShell;
+import com.mhgandhi.chatBridge.core.events.EventRouter;
 import com.mhgandhi.chatBridge.core.events.ServerDisableEvent;
 import com.mhgandhi.chatBridge.core.events.ServerEnableEvent;
 import com.mhgandhi.chatBridge.core.events.ServerEvent;
@@ -90,24 +91,18 @@ public final class PluginEntryPoint extends JavaPlugin {
         }
 
         gateways = new ArrayList<>(2);
-        getServer().getPluginManager().registerEvents(
-                new Listener() {
-                    @EventHandler
-                    public void onPluginEvent(ServerEvent e){
-                        for(ChatGateway cg : gateways){
-                            cg.handlePluginEvent(e);
-                        }
-                    }
-                }
-                ,this
-        );
+        EventRouter eventRouter = new EventRouter();
+
 
         Runnable onJDAReady = ()->{//todo abstract mby
             try{
-                MinecraftGateway mg = new MinecraftGateway(this, identityManager, getConfig().getBoolean("sendConnectionReminders",true));
-                DiscordGateway dg = new DiscordGateway(this, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
+                MinecraftGateway mg = new MinecraftGateway(getLogger(), eventRouter, identityManager, config.getBoolean("sendConnectionReminders",true), this);
+                DiscordGateway dg = new DiscordGateway(getLogger(), eventRouter, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
                 gateways.add(mg);
                 gateways.add(dg);
+
+                eventRouter.register(mg);
+                eventRouter.register(dg);
 
                 Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
                         .setExecutor(mg);
@@ -121,7 +116,7 @@ public final class PluginEntryPoint extends JavaPlugin {
                 getServer().getPluginManager().registerEvents(mg,this);
                 jdaShell.addDcListener(dg);
 
-                callEvent(new ServerEnableEvent(), this);
+                eventRouter.publish(new ServerEnableEvent());
             }catch(Exception e){
                 getLogger().log(java.util.logging.Level.SEVERE,
                         "ChatBridge failed during JDA ready initialization:", e);
@@ -172,16 +167,5 @@ public final class PluginEntryPoint extends JavaPlugin {
         db=null;
 
         formatter = null;
-    }
-
-    //always sync
-    public static void callEvent(ServerEvent pe, JavaPlugin pPlugin){
-        if (Bukkit.isPrimaryThread()) {
-            Bukkit.getPluginManager().callEvent(pe);
-        } else {
-            Bukkit.getScheduler().runTask(pPlugin, () ->
-                    Bukkit.getPluginManager().callEvent(pe)
-            );
-        }
     }
 }
