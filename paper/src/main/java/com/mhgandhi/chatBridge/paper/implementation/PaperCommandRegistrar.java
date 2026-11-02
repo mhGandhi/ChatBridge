@@ -69,7 +69,7 @@ public class PaperCommandRegistrar implements CommandRegistrar {
                     }
 
                     try {
-                        player.sendMessage(execute.apply(player.getUniqueId(), args[0]));
+                        player.sendMessage(execute.apply(player.getUniqueId(), args.length>0?args[0]:null ));
                     } catch (RuntimeException error) {
                         sendCommandError(sender, error);
                     }

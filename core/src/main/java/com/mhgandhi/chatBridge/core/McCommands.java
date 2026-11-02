@@ -30,6 +30,10 @@ public final class McCommands {
         //if(identities.isLinkedMc(new Identity.Mc(playerId))){
             //todo send "already linked" msg
         //}
+        if(discordId == null){
+            throw new RuntimeException("Please enter the Id of the Discord-User you are trying to link to your Minecraft account. It will autocomplete as soon as you link from the other side so you dont have to type all the numbers"); //todo formatter
+        }
+
         identities.claimMcDc(
                 new Identity.Mc(playerId),
                 new Identity.Dc(discordId)
