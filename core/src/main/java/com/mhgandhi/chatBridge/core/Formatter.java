@@ -125,7 +125,7 @@ public class Formatter {
         tMcStatus_fromDc = pConf.getString("format.minecraftChat.commands.status.response.linked_fromDc",
                 "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>");
         tMcStatus_fromBoth = pConf.getString("format.minecraftChat.commands.status.response.linked_fromBothNoMatch",
-                "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>");
+                "<yellow>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>");
 
         // ---------------- Minecraft Chat: avatar API ----------------------
         tAvatarApi = pConf.getString("format.minecraftChat.avatarApi",

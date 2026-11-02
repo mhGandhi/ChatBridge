@@ -38,7 +38,7 @@ format:
           linked: "<green>✅ Linked to <hover:show_text:'<dcid>'><dcname></hover></green>" #[<dcid>,<dcname>]
           linked_toDc: "<yellow>❕ Not linked yet</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nUse /connect in discord to complete the link.</gray>" #[<dcid>,<dcname>]
           linked_fromDc: "<yellow>❕ Not linked yet</yellow>\n<gray>Your account is currently being claimed by: [<dcclaims>]\nUse /connect to complete a link.</gray>" #[<dcclaims>]
-          linked_fromBothNoMatch: "<>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>" #[<dcclaims>,<dcid>,<dcname>]
+          linked_fromBothNoMatch: "<yellow>❕Not linked</yellow>\n<gray>You are currently claiming <hover:show_text:'<dcid>'><dcname></hover>\nYour account is currently being claimed by: [<dcclaims>]\nUse /connect at any time on either end to update your claims.</gray>" #[<dcclaims>,<dcid>,<dcname>]
 
   discordChat:
     server_online_status: "Server Online!"
