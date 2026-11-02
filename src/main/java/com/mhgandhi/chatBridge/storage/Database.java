@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.storage;
 
+import com.mhgandhi.chatBridge.Game;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Files;
@@ -10,17 +11,17 @@ import java.util.List;
 import java.util.Optional;
 
 public final class Database implements AutoCloseable {
-    private final JavaPlugin plugin;
+    private final Game game;
     private final Path dbPath;
     private Connection conn;
 
-    public Database(JavaPlugin plugin) {
-        this.plugin = plugin;
-        this.dbPath = plugin.getDataFolder().toPath().resolve("data.db");
+    public Database(Game pGame) {
+        this.game = pGame;
+        this.dbPath = game.getDataFolder().toPath().resolve("data.db");
     }
 
     public void open() throws Exception {
-        Files.createDirectories(plugin.getDataFolder().toPath());
+        Files.createDirectories(game.getDataFolder().toPath());
         conn = DriverManager.getConnection("jdbc:sqlite:" + dbPath.toAbsolutePath());
         conn.setAutoCommit(false);
 

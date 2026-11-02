@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge;
 
+import java.io.File;
 import java.util.UUID;
 
 public interface Game {
@@ -12,4 +13,6 @@ public interface Game {
     void disableCB();
 
     void saveWebhookCredentials(long idToSave, String tokenToSave);
+
+    File getDataFolder();
 }

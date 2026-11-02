@@ -70,7 +70,7 @@ public final class PluginEntryPoint extends JavaPlugin {
 
         IdentityManager identityManager;
         {///////database and iM
-            db = new Database(this);
+            db = new Database(new PaperGame(this));
             try {
                 db.open();
             } catch (Exception e) {

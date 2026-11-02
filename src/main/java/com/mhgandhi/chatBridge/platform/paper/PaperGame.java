@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.UUID;
 
 public class PaperGame implements Game {
@@ -51,5 +52,10 @@ public class PaperGame implements Game {
                 plugin.getLogger().severe("Failed to save webhook credentials to config.yml: " + e.getMessage());
             }
         });
+    }
+
+    @Override
+    public File getDataFolder() {
+        return plugin.getDataFolder();
     }
 }
