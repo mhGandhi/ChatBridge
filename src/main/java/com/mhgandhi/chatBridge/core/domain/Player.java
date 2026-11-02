@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.core;
+package com.mhgandhi.chatBridge.core.domain;
 
 import java.util.UUID;
 

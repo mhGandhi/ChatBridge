@@ -1,5 +1,7 @@
 package com.mhgandhi.chatBridge.core;
 
+import com.mhgandhi.chatBridge.core.domain.Config;
+import com.mhgandhi.chatBridge.core.domain.Game;
 import com.mhgandhi.chatBridge.core.events.EventRouter;
 import com.mhgandhi.chatBridge.core.events.ServerDisableEvent;
 import com.mhgandhi.chatBridge.core.events.ServerEnableEvent;
@@ -8,7 +10,6 @@ import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.core.gateway.DiscordGateway;
 import com.mhgandhi.chatBridge.core.storage.Database;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
-import org.bukkit.Bukkit;
 
 import java.util.logging.Logger;
 

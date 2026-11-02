@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.core;
 
+import com.mhgandhi.chatBridge.core.domain.Player;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 

@@ -1,6 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper.implementation;
 
-import com.mhgandhi.chatBridge.core.Config;
+import com.mhgandhi.chatBridge.core.domain.Config;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public record PaperConfig(FileConfiguration config) implements Config {

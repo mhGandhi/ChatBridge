@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.core;
+package com.mhgandhi.chatBridge.core.domain;
 
 public interface Config {
     String getString(String pKey, String pFallback);

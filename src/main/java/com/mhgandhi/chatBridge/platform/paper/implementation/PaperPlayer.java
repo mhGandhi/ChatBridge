@@ -1,6 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper.implementation;
 
-import com.mhgandhi.chatBridge.core.Player;
+import com.mhgandhi.chatBridge.core.domain.Player;
 import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;

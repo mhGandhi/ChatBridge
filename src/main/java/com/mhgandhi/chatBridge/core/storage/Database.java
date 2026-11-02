@@ -1,6 +1,6 @@
 package com.mhgandhi.chatBridge.core.storage;
 
-import com.mhgandhi.chatBridge.core.Game;
+import com.mhgandhi.chatBridge.core.domain.Game;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

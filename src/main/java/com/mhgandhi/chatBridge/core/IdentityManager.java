@@ -2,6 +2,8 @@ package com.mhgandhi.chatBridge.core;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mhgandhi.chatBridge.core.domain.Game;
+import com.mhgandhi.chatBridge.core.domain.Player;
 import com.mhgandhi.chatBridge.core.storage.Database;
 import net.dv8tion.jda.api.entities.Member;
 

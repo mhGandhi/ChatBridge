@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.core;
 
+import com.mhgandhi.chatBridge.core.domain.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.kyori.adventure.text.Component;
