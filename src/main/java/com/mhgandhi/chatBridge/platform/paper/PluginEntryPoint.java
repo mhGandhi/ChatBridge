@@ -6,8 +6,6 @@ import com.mhgandhi.chatBridge.platform.paper.implementation.PaperConfig;
 import com.mhgandhi.chatBridge.platform.paper.implementation.PaperGame;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Objects;
-
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
 public final class PluginEntryPoint extends JavaPlugin {
@@ -26,12 +24,8 @@ public final class PluginEntryPoint extends JavaPlugin {
                 getLogger()
         );
 
-        if(cb.confWhitelist){
-            PlayerRejecter pr = new PlayerRejecter(this, cb.getIdentityManager());
-            getServer().getPluginManager().registerEvents(pr, this);
-        }
 
-        MinecraftGateway mg = new MinecraftGateway(cb.getLogger(), cb.getEventRouter(), cb.getIdentityManager(), cb.confConnectionReminders, this);
+        PaperMinecraftGateway mg = new PaperMinecraftGateway(cb.getLogger(), cb.getEventRouter(), cb.getIdentityManager(), cb.confConnectionReminders, cb.confWhitelist, this);
 
         cb.registerGateway(mg);
 

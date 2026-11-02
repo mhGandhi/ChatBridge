@@ -2,13 +2,14 @@ package com.mhgandhi.chatBridge.platform.paper.implementation;
 
 import com.mhgandhi.chatBridge.core.domain.Player;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public class PaperPlayer implements Player {
     private final OfflinePlayer player;
 
-    public PaperPlayer(OfflinePlayer player) {
+    public PaperPlayer(@NotNull OfflinePlayer player) {
         this.player = player;
     }
 
