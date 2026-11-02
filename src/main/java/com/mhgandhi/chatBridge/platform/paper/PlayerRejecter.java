@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
+import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.Identity;
 import com.mhgandhi.chatBridge.core.IdentityManager;
 import org.bukkit.event.EventHandler;
@@ -28,14 +29,14 @@ public class PlayerRejecter implements Listener {
             if (!allowed) {
                 e.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                        PluginEntryPoint.getFormatter().whitelistReject()
+                        Application.getFormatter().whitelistReject()
                 );
                 plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] from joining because the uuid is not claimed");
             }
         } catch (Exception ex) {
             e.disallow(
                     AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-                    PluginEntryPoint.getFormatter().loginUnavailableReject()
+                    Application.getFormatter().loginUnavailableReject()
             );
             plugin.getLogger().fine("Rejecting Player ["+e.getName()+"|"+mci+"] there was an db exception.");
         }

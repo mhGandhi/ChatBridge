@@ -50,7 +50,7 @@ public class JDAShell extends ListenerAdapter {
                         GatewayIntent.GUILD_MEMBERS
                 )
                 .setStatus(OnlineStatus.ONLINE)
-                .setActivity(Activity.customStatus(PluginEntryPoint.getFormatter().dcServerOnlineStatus()))
+                .setActivity(Activity.customStatus(Application.getFormatter().dcServerOnlineStatus()))
                 .addEventListeners(this);
 
         jda = builder.build();

@@ -1,6 +1,8 @@
-package com.mhgandhi.chatBridge.platform.paper;
+package com.mhgandhi.chatBridge.platform.paper.implementation;
 
+import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.Game;
+import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,7 +27,7 @@ public class PaperGame implements Game {
         Player p = Bukkit.getServer().getPlayer(pUUID);
         if(p!=null){
             Bukkit.getScheduler().runTask(plugin, () ->
-                    p.kick( PluginEntryPoint.getFormatter().disconnectKick() )
+                    p.kick( Application.getFormatter().disconnectKick() )
             );
         }
     }

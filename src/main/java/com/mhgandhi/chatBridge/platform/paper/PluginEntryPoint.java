@@ -1,171 +1,57 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
-import com.mhgandhi.chatBridge.core.Config;
-import com.mhgandhi.chatBridge.core.Formatter;
-import com.mhgandhi.chatBridge.core.IdentityManager;
-import com.mhgandhi.chatBridge.core.JDAShell;
-import com.mhgandhi.chatBridge.core.events.EventRouter;
-import com.mhgandhi.chatBridge.core.events.ServerDisableEvent;
-import com.mhgandhi.chatBridge.core.events.ServerEnableEvent;
-import com.mhgandhi.chatBridge.core.events.ServerEvent;
-import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
-import com.mhgandhi.chatBridge.core.gateway.DiscordGateway;
-import com.mhgandhi.chatBridge.core.storage.Database;
-import net.dv8tion.jda.api.exceptions.InvalidTokenException;
-import org.bukkit.Bukkit;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import com.mhgandhi.chatBridge.core.*;
+import com.mhgandhi.chatBridge.platform.paper.implementation.PaperConfig;
+import com.mhgandhi.chatBridge.platform.paper.implementation.PaperGame;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
 public final class PluginEntryPoint extends JavaPlugin {
     //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
-    //private DiscordChat discordChat;
-    //private MinecraftChat mcChat;
-    private JDAShell jdaShell;
-    private List<ChatGateway> gateways;
 
-    private Database db;
-    private static Formatter formatter;
-    public static Formatter getFormatter(){return formatter;}
+    private Application cb;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        Config config = new PaperConfig(getConfig());
 
-        String token = config.getString("discord.token", null);
+        cb = new Application(
+                new PaperConfig(getConfig()),
+                new PaperGame(this),
+                getLogger()
+        );
 
-        String channelId = config.getString("discord.channel_id", null);
-
-        String savedWebhookIDs = config.getString("discord.webhook_id", null);
-        long savedWebhookID = 0L;
-        if(savedWebhookIDs != null) {
-            try {
-                savedWebhookID = Long.parseLong(savedWebhookIDs.trim());
-            }catch (NumberFormatException e){
-                getLogger().warning("discord.webhook_id is not a valid number; ignoring saved webhook id.");
-            }
-        }
-
-        String savedWebhookToken = config.getString("discord.webhook_token", "").trim();
-
-        boolean whitelist = config.getBoolean("whitelist.enabled",false);
-
-        if (token == null || token.isBlank()) {
-            getLogger().severe("Missing discord.token in config.yml (must be the Discord BOT token). Disabling.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        if (channelId == null || channelId.isBlank()) {
-            getLogger().severe("Missing discord.channel_id in config.yml (numeric Discord channel ID). Disabling.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
-
-        IdentityManager identityManager;
-        {///////database and iM
-            db = new Database(new PaperGame(this));
-            try {
-                db.open();
-            } catch (Exception e) {
-                abort(e);
-                return;
-            }
-            identityManager = new IdentityManager(
-                    db, this.getLogger(), new PaperGame(this), config.getBoolean("whitelist.kick_on_disconnect",false)
-            );
-
-            formatter = new Formatter(config, identityManager);
-        }
-
-        if(whitelist){
-            PlayerRejecter pr = new PlayerRejecter(this, identityManager);
+        if(cb.confWhitelist){
+            PlayerRejecter pr = new PlayerRejecter(this, cb.getIdentityManager());
             getServer().getPluginManager().registerEvents(pr, this);
         }
 
-        gateways = new ArrayList<>(2);
-        EventRouter eventRouter = new EventRouter();
+        MinecraftGateway mg = new MinecraftGateway(cb.getLogger(), cb.getEventRouter(), cb.getIdentityManager(), cb.confConnectionReminders, this);
+        cb.registerGateway(mg);
 
+        Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
+                .setExecutor(mg);
+        Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
+                .setTabCompleter(mg);
+        Objects.requireNonNull(getCommand("disconnect"), "Missing command 'disconnect' in plugin.yml")
+                .setExecutor(mg);
+        Objects.requireNonNull(getCommand("status"), "Missing command 'status' in plugin.yml")
+                .setExecutor(mg);
 
-        Runnable onJDAReady = ()->{//todo abstract mby
-            try{
-                MinecraftGateway mg = new MinecraftGateway(getLogger(), eventRouter, identityManager, config.getBoolean("sendConnectionReminders",true), this);
-                DiscordGateway dg = new DiscordGateway(getLogger(), eventRouter, identityManager, jdaShell.getWebhook(), jdaShell.getMirrorChannel());
-                gateways.add(mg);
-                gateways.add(dg);
+        getServer().getPluginManager().registerEvents(mg,this);
 
-                eventRouter.register(mg);
-                eventRouter.register(dg);
-
-                Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
-                        .setExecutor(mg);
-                Objects.requireNonNull(getCommand("connect"), "Missing command 'connect' in plugin.yml")
-                        .setTabCompleter(mg);
-                Objects.requireNonNull(getCommand("disconnect"), "Missing command 'disconnect' in plugin.yml")
-                        .setExecutor(mg);
-                Objects.requireNonNull(getCommand("status"), "Missing command 'status' in plugin.yml")
-                        .setExecutor(mg);
-
-                getServer().getPluginManager().registerEvents(mg,this);
-                jdaShell.addDcListener(dg);
-
-                eventRouter.publish(new ServerEnableEvent());
-            }catch(Exception e){
-                getLogger().log(java.util.logging.Level.SEVERE,
-                        "ChatBridge failed during JDA ready initialization:", e);
-                Bukkit.getScheduler().runTask(this, () ->
-                        getServer().getPluginManager().disablePlugin(this));
-            }
-
-        };
-
-        jdaShell = new JDAShell(getLogger(), new PaperGame(this), token, channelId, savedWebhookID, savedWebhookToken, onJDAReady);
-        try {
-            jdaShell.start();
-        }catch(InvalidTokenException e){
-            getLogger().severe("Discord login failed: invalid bot token. " +
-                    "Check config.yml: discord.token (BOT token, not client secret).");
-            abort(e);
-            //todo ig msg?
-        }catch (Exception e){
-            getLogger().severe("Discord login failed while starting JDA: " + e.getClass().getSimpleName()
-                    + ": " + e.getMessage());
-            abort(e);
-        }
-    }
-
-    private void abort(Exception e){
-        getLogger().log(java.util.logging.Level.SEVERE,
-                "ChatBridge disabled due to error:", e);
-        getServer().getPluginManager().disablePlugin(this);
+        cb.start();
     }
 
     @Override
     public void onDisable() {
-        if(formatter!=null){
-            //Todo fix already disabled
-            ServerEvent e = new ServerDisableEvent();
-            for(ChatGateway cg : gateways){
-                cg.handlePluginEvent(e);
-            }
+        try {
+            cb.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        if (jdaShell != null) {
-            jdaShell.stop();
-        }
-        jdaShell = null;
-
-        if(db!=null)
-            db.close();
-        db=null;
-
-        formatter = null;
     }
 }

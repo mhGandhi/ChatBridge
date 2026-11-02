@@ -1,5 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
+import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.Identity;
 import com.mhgandhi.chatBridge.core.IdentityManager;
 import com.mhgandhi.chatBridge.core.events.*;
@@ -9,6 +10,7 @@ import com.mhgandhi.chatBridge.core.events.gatewayspecific.GLeaveEvent;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.GMessageEvent;
 import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.core.gateway.GatewayMessage;
+import com.mhgandhi.chatBridge.platform.paper.implementation.PaperPlayer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -61,7 +63,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
     }
     /// /////////////////////////////////////////////////////////////////////////////////////////////////////////SEND
     private void sendMessage(Identity author, String content){
-        Component msg = PluginEntryPoint.getFormatter().formatMcMsg(author, content);
+        Component msg = Application.getFormatter().formatMcMsg(author, content);
         if(Bukkit.isPrimaryThread()){
             Bukkit.getServer().broadcast(msg);
         }else{
@@ -96,12 +98,12 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
     @Override
     protected void onPluginDisable(ServerDisableEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().mcPluginDisabled());
+        sendMessage(Identity.server, Application.getFormatter().mcPluginDisabled());
     }
 
     @Override
     protected void onPluginEnable(ServerEnableEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().mcPluginEnabled());
+        sendMessage(Identity.server, Application.getFormatter().mcPluginEnabled());
     }
 
     @Override
@@ -126,7 +128,7 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
         if(sendConnectionReminder && !identityManager.isLinkedMc(Identity.get(new PaperPlayer(e.getPlayer())))){
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                e.getPlayer().sendMessage(Objects.requireNonNull(PluginEntryPoint.getFormatter().mcConnectionReminder()));
+                e.getPlayer().sendMessage(Objects.requireNonNull(Application.getFormatter().mcConnectionReminder()));
             }, 20L * 3); // 3s delay
         }
 
@@ -177,13 +179,13 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
 
         try {
             if (cmd.getName().equalsIgnoreCase("status")) {
-                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
+                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
             if (cmd.getName().equalsIgnoreCase("disconnect")) {
                 identityManager.clearMc(mci);
-                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
+                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
                 return true;
             }
 
@@ -197,10 +199,10 @@ public class MinecraftGateway extends ChatGateway implements Listener, CommandEx
                 Identity.Dc claim = new Identity.Dc(claimId);
 
                 identityManager.claimMcDc(mci,claim);
-                p.sendMessage(PluginEntryPoint.getFormatter().minecraftStatus(mci));
+                p.sendMessage(Application.getFormatter().minecraftStatus(mci));
             }
         } catch (Exception ex) {
-            sender.sendMessage(Component.text(PluginEntryPoint.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
+            sender.sendMessage(Component.text(Application.getFormatter().mcCommandError(ex.getMessage()), NamedTextColor.RED));
             return false;
         }
 

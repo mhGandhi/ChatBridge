@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.platform.paper;
+package com.mhgandhi.chatBridge.platform.paper.implementation;
 
 import com.mhgandhi.chatBridge.core.Config;
 import org.bukkit.configuration.file.FileConfiguration;

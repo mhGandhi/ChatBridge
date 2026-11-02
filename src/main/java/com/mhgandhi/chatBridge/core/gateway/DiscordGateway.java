@@ -2,6 +2,7 @@ package com.mhgandhi.chatBridge.core.gateway;
 
 import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.events.*;
 import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.core.Identity;
@@ -78,9 +79,9 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         if(content.isEmpty())return;
 
         if(author == Identity.server){
-            sendViaWebhook(PluginEntryPoint.getFormatter().dcServerName(), PluginEntryPoint.getFormatter().dcServerAvatarOverride(),content);
+            sendViaWebhook(Application.getFormatter().dcServerName(), Application.getFormatter().dcServerAvatarOverride(),content);
         }else if(author instanceof Identity.Mc mca){
-            sendViaWebhook(PluginEntryPoint.getFormatter().dcMcName(identityManager.getMcName(mca)), PluginEntryPoint.getFormatter().getMcAvatar(mca), content);
+            sendViaWebhook(Application.getFormatter().dcMcName(identityManager.getMcName(mca)), Application.getFormatter().getMcAvatar(mca), content);
         }else if(author instanceof Identity.Dc dca){
             sendViaWebhook(identityManager.getDcName(dca), identityManager.getDcAvatar(dca), content);
         }
@@ -107,12 +108,12 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     @Override
     protected void onJoin(GJoinEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerJoined(e.getJoined()));
+        sendMessage(Identity.server, Application.getFormatter().dcPlayerJoined(e.getJoined()));
     }
 
     @Override
     protected void onLeave(GLeaveEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerLeft(e.getLeft()));
+        sendMessage(Identity.server, Application.getFormatter().dcPlayerLeft(e.getLeft()));
     }
 
     @Override
@@ -132,28 +133,28 @@ public class DiscordGateway extends ChatGateway implements EventListener {
 
     @Override
     protected void onPluginDisable(ServerDisableEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPluginDisabled());
+        sendMessage(Identity.server, Application.getFormatter().dcPluginDisabled());
     }
 
     @Override
     protected void onPluginEnable(ServerEnableEvent e) {
-        sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPluginEnabled());
+        sendMessage(Identity.server, Application.getFormatter().dcPluginEnabled());
     }
 
     @Override
     protected void onDied(GDeathEvent gde) {
         if(gde.getKiller()!=null){
             if(gde.getDeathMessage()==null){
-                sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller()));
+                sendMessage(Identity.server, Application.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller()));
             }else{
-                sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller())+"\n`"
+                sendMessage(Identity.server, Application.getFormatter().dcPlayerKilled(gde.getDied(), gde.getKiller())+"\n`"
                         +gde.getDeathMessage()+"`");
             }
         }else{
             if(gde.getDeathMessage()==null){
-                sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerDied(gde.getDied()));
+                sendMessage(Identity.server, Application.getFormatter().dcPlayerDied(gde.getDied()));
             }else{
-                sendMessage(Identity.server, PluginEntryPoint.getFormatter().dcPlayerDied(gde.getDied())+"\n`"
+                sendMessage(Identity.server, Application.getFormatter().dcPlayerDied(gde.getDied())+"\n`"
                         +gde.getDeathMessage()+"`");
             }
         }
@@ -218,10 +219,10 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         Guild g = mirrorChannel.getGuild();
         g.updateCommands()
                 .addCommands(
-                        Commands.slash(PluginEntryPoint.getFormatter().dcCmdConnect_name(), PluginEntryPoint.getFormatter().dcCmdConnect_desc())
-                                .addOption(OptionType.STRING, PluginEntryPoint.getFormatter().dcCmdConnectArg_name(), PluginEntryPoint.getFormatter().dcCmdConnectArg_desc(), true),
-                        Commands.slash(PluginEntryPoint.getFormatter().dcCmdDisconnect_name(), PluginEntryPoint.getFormatter().dcCmdDisconnect_desc()),
-                        Commands.slash(PluginEntryPoint.getFormatter().dcCmdStatus_name(), PluginEntryPoint.getFormatter().dcCmdStatus_desc())
+                        Commands.slash(Application.getFormatter().dcCmdConnect_name(), Application.getFormatter().dcCmdConnect_desc())
+                                .addOption(OptionType.STRING, Application.getFormatter().dcCmdConnectArg_name(), Application.getFormatter().dcCmdConnectArg_desc(), true),
+                        Commands.slash(Application.getFormatter().dcCmdDisconnect_name(), Application.getFormatter().dcCmdDisconnect_desc()),
+                        Commands.slash(Application.getFormatter().dcCmdStatus_name(), Application.getFormatter().dcCmdStatus_desc())
                 ).queue();
     }
 
@@ -230,29 +231,29 @@ public class DiscordGateway extends ChatGateway implements EventListener {
             identityManager.upsertDc(e.getMember());
 
         try {
-            if(e.getName().equals(PluginEntryPoint.getFormatter().dcCmdConnect_name())){
+            if(e.getName().equals(Application.getFormatter().dcCmdConnect_name())){
                 handleConnect(e);
-            } else if (e.getName().equals(PluginEntryPoint.getFormatter().dcCmdDisconnect_name())) {
+            } else if (e.getName().equals(Application.getFormatter().dcCmdDisconnect_name())) {
                 handleDisconnect(e);
-            } else if (e.getName().equals(PluginEntryPoint.getFormatter().dcCmdStatus_name())) {
+            } else if (e.getName().equals(Application.getFormatter().dcCmdStatus_name())) {
                 handleStatus(e);
             }
         } catch (Exception ex) {
-            e.reply(PluginEntryPoint.getFormatter().dcCommandError(ex.getMessage())).setEphemeral(true).queue();
+            e.reply(Application.getFormatter().dcCommandError(ex.getMessage())).setEphemeral(true).queue();
         }
     }
 
     private void handleStatus(SlashCommandInteractionEvent e) {
-        e.replyEmbeds(PluginEntryPoint.getFormatter().discordStatus( new Identity.Dc(e.getUser().getId()) )).setEphemeral(true).queue();
+        e.replyEmbeds(Application.getFormatter().discordStatus( new Identity.Dc(e.getUser().getId()) )).setEphemeral(true).queue();
     }
 
     private void handleDisconnect(SlashCommandInteractionEvent e) {
         Identity.Dc dci = new Identity.Dc(e.getUser().getId());
         identityManager.clearDc(dci);
-        e.replyEmbeds( PluginEntryPoint.getFormatter().discordStatus(dci) ).setEphemeral(true).queue();    }
+        e.replyEmbeds( Application.getFormatter().discordStatus(dci) ).setEphemeral(true).queue();    }
 
     private void handleConnect(SlashCommandInteractionEvent e) {
-        OptionMapping option = e.getOption(PluginEntryPoint.getFormatter().dcCmdConnectArg_name());
+        OptionMapping option = e.getOption(Application.getFormatter().dcCmdConnectArg_name());
         if (option == null) {
             logger.severe("Idk how but someone managed to execute /connect without args on dc");
             return;
@@ -271,10 +272,10 @@ public class DiscordGateway extends ChatGateway implements EventListener {
         if(mci!=null){
             identityManager.claimDcMc(dci, mci);
 
-            e.replyEmbeds(PluginEntryPoint.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
+            e.replyEmbeds(Application.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
         }else{
             e.deferReply(true).queue(hook -> {
-                hook.editOriginal(PluginEntryPoint.getFormatter().dcResolvingUUIDStatus()).queue();
+                hook.editOriginal(Application.getFormatter().dcResolvingUUIDStatus()).queue();
 
                 identityManager.resolveMcName(raw).thenAccept(
                         resolvedMci -> {
@@ -282,7 +283,7 @@ public class DiscordGateway extends ChatGateway implements EventListener {
                             hook.deleteOriginal().queue();
                             identityManager.claimDcMc(dci, resolvedMci);
                             try {
-                                hook.sendMessageEmbeds(PluginEntryPoint.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
+                                hook.sendMessageEmbeds(Application.getFormatter().discordStatus(dci)).setEphemeral(true).queue();
                             } catch (Exception ex) {
                                 logger.severe("Ex replying to user after deferring: "+ex.getMessage());
                             }
@@ -291,12 +292,12 @@ public class DiscordGateway extends ChatGateway implements EventListener {
                         ex ->{
                             if(ex instanceof CompletionException ce){
                                 if(ce.getCause() instanceof IllegalArgumentException){
-                                    hook.editOriginal(PluginEntryPoint.getFormatter().dcPlayerResolve_notExist(raw)).queue();
+                                    hook.editOriginal(Application.getFormatter().dcPlayerResolve_notExist(raw)).queue();
                                 }else{
-                                    hook.editOriginal(PluginEntryPoint.getFormatter().dcPlayerResolve_api()).queue();
+                                    hook.editOriginal(Application.getFormatter().dcPlayerResolve_api()).queue();
                                 }
                             }else{
-                                hook.editOriginal(PluginEntryPoint.getFormatter().dcPlayerResolve_unknown()).queue();
+                                hook.editOriginal(Application.getFormatter().dcPlayerResolve_unknown()).queue();
                             }
                             return null;
                         }
