@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge;
+package com.mhgandhi.chatBridge.core;
 
 import java.io.File;
 import java.util.UUID;

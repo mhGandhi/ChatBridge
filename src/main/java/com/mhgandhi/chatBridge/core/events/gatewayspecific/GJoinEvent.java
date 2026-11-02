@@ -1,7 +1,7 @@
-package com.mhgandhi.chatBridge.events.gatewayspecific;
+package com.mhgandhi.chatBridge.core.events.gatewayspecific;
 
-import com.mhgandhi.chatBridge.Identity;
-import com.mhgandhi.chatBridge.gateway.ChatGateway;
+import com.mhgandhi.chatBridge.core.Identity;
+import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
 
 public class GJoinEvent extends GatewayEvent {
     private final Identity joined;

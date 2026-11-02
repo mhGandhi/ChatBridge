@@ -1,7 +1,7 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
-import com.mhgandhi.chatBridge.Identity;
-import com.mhgandhi.chatBridge.IdentityManager;
+import com.mhgandhi.chatBridge.core.Identity;
+import com.mhgandhi.chatBridge.core.IdentityManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

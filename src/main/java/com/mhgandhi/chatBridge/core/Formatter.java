@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge;
+package com.mhgandhi.chatBridge.core;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;

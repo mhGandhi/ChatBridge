@@ -1,9 +1,8 @@
-package com.mhgandhi.chatBridge;
+package com.mhgandhi.chatBridge.core;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
-import com.mhgandhi.chatBridge.storage.Database;
+import com.mhgandhi.chatBridge.core.storage.Database;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.net.URI;

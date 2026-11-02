@@ -1,6 +1,6 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
-import com.mhgandhi.chatBridge.Game;
+import com.mhgandhi.chatBridge.core.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,7 +16,7 @@ public class PaperGame implements Game {
     }
 
     @Override
-    public com.mhgandhi.chatBridge.Player getPlayer(UUID uuid) {
+    public com.mhgandhi.chatBridge.core.Player getPlayer(UUID uuid) {
         return new PaperPlayer(Bukkit.getPlayer(uuid));
     }
 
@@ -31,7 +31,7 @@ public class PaperGame implements Game {
     }
 
     @Override
-    public com.mhgandhi.chatBridge.Player getOfflinePlayer(UUID uuid) {
+    public com.mhgandhi.chatBridge.core.Player getOfflinePlayer(UUID uuid) {
         return new PaperPlayer(Bukkit.getOfflinePlayer(uuid));
     }
 

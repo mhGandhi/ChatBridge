@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.events;
+package com.mhgandhi.chatBridge.core.events;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

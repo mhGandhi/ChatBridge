@@ -1,7 +1,7 @@
-package com.mhgandhi.chatBridge.events.gatewayspecific;
+package com.mhgandhi.chatBridge.core.events.gatewayspecific;
 
-import com.mhgandhi.chatBridge.gateway.ChatGateway;
-import com.mhgandhi.chatBridge.events.ServerEvent;
+import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
+import com.mhgandhi.chatBridge.core.events.ServerEvent;
 
 public class GatewayEvent extends ServerEvent {
 

@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.events;
+package com.mhgandhi.chatBridge.core.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.Cancellable;

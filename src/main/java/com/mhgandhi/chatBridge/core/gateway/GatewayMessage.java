@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.gateway;
+package com.mhgandhi.chatBridge.core.gateway;
 
 public class GatewayMessage {
     private final String content;//todo parse content

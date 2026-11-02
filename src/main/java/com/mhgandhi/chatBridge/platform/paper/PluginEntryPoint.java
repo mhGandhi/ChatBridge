@@ -1,15 +1,15 @@
 package com.mhgandhi.chatBridge.platform.paper;
 
-import com.mhgandhi.chatBridge.Config;
-import com.mhgandhi.chatBridge.Formatter;
-import com.mhgandhi.chatBridge.IdentityManager;
-import com.mhgandhi.chatBridge.JDAShell;
-import com.mhgandhi.chatBridge.events.ServerDisableEvent;
-import com.mhgandhi.chatBridge.events.ServerEnableEvent;
-import com.mhgandhi.chatBridge.events.ServerEvent;
-import com.mhgandhi.chatBridge.gateway.ChatGateway;
-import com.mhgandhi.chatBridge.gateway.DiscordGateway;
-import com.mhgandhi.chatBridge.storage.Database;
+import com.mhgandhi.chatBridge.core.Config;
+import com.mhgandhi.chatBridge.core.Formatter;
+import com.mhgandhi.chatBridge.core.IdentityManager;
+import com.mhgandhi.chatBridge.core.JDAShell;
+import com.mhgandhi.chatBridge.core.events.ServerDisableEvent;
+import com.mhgandhi.chatBridge.core.events.ServerEnableEvent;
+import com.mhgandhi.chatBridge.core.events.ServerEvent;
+import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
+import com.mhgandhi.chatBridge.core.gateway.DiscordGateway;
+import com.mhgandhi.chatBridge.core.storage.Database;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

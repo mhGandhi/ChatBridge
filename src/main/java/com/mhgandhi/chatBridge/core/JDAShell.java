@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge;
+package com.mhgandhi.chatBridge.core;
 
 import club.minnced.discord.webhook.WebhookClient;
 import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;

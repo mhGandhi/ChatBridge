@@ -1,7 +1,6 @@
-package com.mhgandhi.chatBridge.storage;
+package com.mhgandhi.chatBridge.core.storage;
 
-import com.mhgandhi.chatBridge.Game;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.mhgandhi.chatBridge.core.Game;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
