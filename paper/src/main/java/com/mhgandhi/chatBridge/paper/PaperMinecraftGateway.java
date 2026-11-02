@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.platform.paper;
+package com.mhgandhi.chatBridge.paper;
 
 import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.Identity;
@@ -11,10 +11,9 @@ import com.mhgandhi.chatBridge.core.events.gatewayspecific.GMessageEvent;
 import com.mhgandhi.chatBridge.core.gateway.ChatGateway;
 import com.mhgandhi.chatBridge.core.gateway.GatewayMessage;
 import com.mhgandhi.chatBridge.core.gateway.MinecraftGateway;
-import com.mhgandhi.chatBridge.platform.paper.implementation.PaperPlayer;
+import com.mhgandhi.chatBridge.paper.implementation.PaperPlayer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -26,7 +25,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.awt.print.Paper;
 import java.util.Objects;
 import java.util.logging.Logger;
 

@@ -16,26 +16,31 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
-    implementation('net.dv8tion:JDA:5.0.0'){exclude group: 'club.minnced', module:'opus-java'}
-    implementation('club.minnced:discord-webhooks:0.8.4')
-    implementation 'org.xerial:sqlite-jdbc:3.46.0.1'
+    implementation project(':core')
+
+    compileOnly 'io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT'
 }
 
-tasks {
-    shadowJar {
-        archiveClassifier.set('')   // output: build/libs/<name>-1.0-SNAPSHOT.jar (shaded)
-        // Relocation optional; skip unless you need isolation:
-        // relocate 'net.dv8tion', 'com.mhgandhi.bridge.libs.jda'
-        // relocate 'okhttp3', 'com.mhgandhi.bridge.libs.okhttp3'
-        // relocate 'okio', 'com.mhgandhi.bridge.libs.okio'
-        // relocate 'com.fasterxml', 'com.mhgandhi.bridge.libs.jackson'
-        // DO NOT use minimize() with JDA
-    }
-    runServer {
-        minecraftVersion("1.21.11")
-        dependsOn(shadowJar)
-    }
+tasks.named('jar') {
+    archiveClassifier.set('plain')
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName.set('ChatBridge')
+    archiveClassifier.set('')
+
+    mergeServiceFiles()
+
+    // Keep minimize() disabled.
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
+}
+
+tasks.named('runServer') {
+    minecraftVersion('1.21.11')
+    dependsOn tasks.named('shadowJar')
 }
 
 def targetJavaVersion = 21

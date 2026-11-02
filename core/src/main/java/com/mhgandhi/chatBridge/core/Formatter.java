@@ -7,7 +7,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.Nullable;
 
 import java.awt.*;
 import java.util.List;
@@ -214,7 +213,7 @@ public class Formatter {
     public String mcPluginDisabled(){return tPluginDisabled;}
 
     // returns null if disabled via empty config value
-    public @Nullable Component mcConnectionReminder(){
+    public Component mcConnectionReminder(){
         if (tMcConnectReminder == null || tMcConnectReminder.isBlank()) return null;
         return mm.deserialize(tMcConnectReminder);
     }
@@ -426,7 +425,7 @@ public class Formatter {
     }
 
     // returns null if disabled via empty config value
-    public @Nullable Component disconnectKick() {
+    public Component disconnectKick() {
         if (tDisconnectKick == null || tDisconnectKick.isBlank()) return null;
         return mm.deserialize(tDisconnectKick);
     }

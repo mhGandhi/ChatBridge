@@ -4,7 +4,6 @@ import club.minnced.discord.webhook.WebhookClient;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.events.*;
-import com.mhgandhi.chatBridge.platform.paper.PluginEntryPoint;
 import com.mhgandhi.chatBridge.core.Identity;
 import com.mhgandhi.chatBridge.core.IdentityManager;
 import com.mhgandhi.chatBridge.core.events.gatewayspecific.GDeathEvent;

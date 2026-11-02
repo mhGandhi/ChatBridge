@@ -1,4 +1,4 @@
-package com.mhgandhi.chatBridge.platform.paper.implementation;
+package com.mhgandhi.chatBridge.paper.implementation;
 
 import com.mhgandhi.chatBridge.core.domain.Player;
 import org.bukkit.OfflinePlayer;

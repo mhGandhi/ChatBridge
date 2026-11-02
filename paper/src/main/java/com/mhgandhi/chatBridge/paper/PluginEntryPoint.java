@@ -1,9 +1,9 @@
-package com.mhgandhi.chatBridge.platform.paper;
+package com.mhgandhi.chatBridge.paper;
 
-import com.mhgandhi.chatBridge.core.*;
-import com.mhgandhi.chatBridge.platform.paper.implementation.PaperCommandRegistrar;
-import com.mhgandhi.chatBridge.platform.paper.implementation.PaperConfig;
-import com.mhgandhi.chatBridge.platform.paper.implementation.PaperGame;
+import com.mhgandhi.chatBridge.core.Application;
+import com.mhgandhi.chatBridge.paper.implementation.PaperCommandRegistrar;
+import com.mhgandhi.chatBridge.paper.implementation.PaperConfig;
+import com.mhgandhi.chatBridge.paper.implementation.PaperGame;
 import org.bukkit.plugin.java.JavaPlugin;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
