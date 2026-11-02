@@ -1,9 +1,6 @@
 package com.mhgandhi.chatBridge.core.events;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 public class ServerEvent {
     private static final HandlerList HANDLERS = new HandlerList();
