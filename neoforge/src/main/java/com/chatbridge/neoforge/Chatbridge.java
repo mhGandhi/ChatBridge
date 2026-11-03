@@ -18,16 +18,14 @@ import java.util.logging.Logger;
 @Mod(Chatbridge.MODID)
 public final class Chatbridge {
     public static final String MODID = "chatbridge";
-
-    // Your Paper adapter passes java.util.logging.Logger to Application.
-    // Keep that type unless you change the core's logging abstraction.
     private static final Logger LOGGER = Logger.getLogger(MODID);
 
     private final NeoForgeCommandRegistrar commands =
             new NeoForgeCommandRegistrar();
 
-    private Application cb;
     private NeoForgeMinecraftGateway gateway;
+
+    private Application cb;
 
     public Chatbridge() {
         NeoForge.EVENT_BUS.register(this);
@@ -42,6 +40,8 @@ public final class Chatbridge {
     public void onServerStarting(ServerStartingEvent event) {
         var server = event.getServer();
 
+
+
         Executor serverExecutor = task -> {
             if (server.isSameThread()) {
                 task.run();
@@ -51,15 +51,7 @@ public final class Chatbridge {
         };
 
         try {
-            // Proposed adapter API:
-            // load local configuration, creating defaults if necessary.
-            NeoForgeConfig config = NeoForgeConfig.load();
 
-            NeoForgeGame game = new NeoForgeGame(
-                    server,
-                    config,
-                    LOGGER
-            );
 
             cb = new Application(
                     serverExecutor,
@@ -117,7 +109,7 @@ public final class Chatbridge {
             );
         } finally {
             cb = null;
-            commands.clearCallbacks();
+            //todo commands.clearCallbacks();
         }
     }
 }
