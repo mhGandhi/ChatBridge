@@ -1,5 +1,6 @@
 package com.chatbridge.neoforge;
 
+import com.mhgandhi.chatBridge.core.Application;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -13,6 +14,8 @@ public final class Chatbridge {
     public static final String MODID = "chatbridge";
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private Application cb;
+
     public Chatbridge() {
         NeoForge.EVENT_BUS.register(this);
     }
@@ -21,7 +24,6 @@ public final class Chatbridge {
     public void onServerStarting(ServerStartingEvent event) {
         var server = event.getServer();
 
-        LOGGER.info("Starting ChatBridge");
 
         // Next:
         // 1. Load NeoForgeConfig.
@@ -33,7 +35,6 @@ public final class Chatbridge {
 
     @SubscribeEvent
     public void onServerStopping(ServerStoppingEvent event) {
-        LOGGER.info("Stopping ChatBridge");
 
         // Close Application here.
     }
