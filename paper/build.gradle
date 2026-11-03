@@ -4,8 +4,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-group = 'com.mhgandhi'
-version = '2.0'
+version = mod_version
+group = mod_group_id
 
 repositories {
     mavenCentral()
