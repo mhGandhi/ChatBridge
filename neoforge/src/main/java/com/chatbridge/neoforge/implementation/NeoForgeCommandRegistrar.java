@@ -4,7 +4,6 @@ import com.mhgandhi.chatBridge.core.domain.CommandRegistrar;
 import net.kyori.adventure.text.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
