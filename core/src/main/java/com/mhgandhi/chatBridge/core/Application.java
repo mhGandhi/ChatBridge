@@ -24,6 +24,7 @@ public final class Application implements AutoCloseable{
     private Game game;
 
 
+
     public IdentityManager getIdentityManager(){return identityManager;}
     public Logger getLogger(){return logger;}
     public EventRouter getEventRouter(){return eventRouter;}
@@ -66,13 +67,11 @@ public final class Application implements AutoCloseable{
 
         if (token == null || token.isBlank()) {
             logger.severe("Missing discord.token in config.yml (must be the Discord BOT token). Disabling.");
-            pGame.disableCB();
-            return;
+            throw new IllegalArgumentException("Missing discord.token");
         }
         if (channelId == null || channelId.isBlank()) {
             logger.severe("Missing discord.channel_id in config.yml (numeric Discord channel ID). Disabling.");
-            pGame.disableCB();
-            return;
+            throw new IllegalArgumentException("Missing discord.channel_id");
         }
         ///////
 
@@ -83,8 +82,8 @@ public final class Application implements AutoCloseable{
         } catch (Exception e) {
             //abort(e);
             logger.severe("Database could not open. Disabling.");
-            pGame.disableCB();
-            return;
+            database.close();
+            throw new IllegalStateException("Could not open ChatBridge database", e);
         }
         ///////
 
