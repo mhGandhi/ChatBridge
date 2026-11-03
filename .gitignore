@@ -1,7 +1,14 @@
 # Project exclude paths
 /.gradle/
+
+/core/build/
+
 /build/
 /build/classes/java/main/
+
 /paper/run/
+/paper/build/
+
 /neoforge/run/
+/neoforge/build/
 /.idea/
