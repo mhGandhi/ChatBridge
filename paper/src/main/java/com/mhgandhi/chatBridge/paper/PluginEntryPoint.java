@@ -12,8 +12,6 @@ import java.util.concurrent.Executor;
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
 public final class PluginEntryPoint extends JavaPlugin {
-    //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
-
     private Application cb;
 
     @Override

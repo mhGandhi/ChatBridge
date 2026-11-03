@@ -16,6 +16,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 public final class Application implements AutoCloseable{
+    //public static final int MSG_LIMIT = 2000;//todo implement msg limit (2000?) in the gateways (mby seperate limits?)
+
     private Database database;
     private IdentityManager identityManager;
     private static Formatter formatter;
