@@ -18,7 +18,8 @@ public class PaperGame implements Game {
 
     @Override
     public com.mhgandhi.chatBridge.core.domain.Player getPlayer(UUID uuid) {
-        return new PaperPlayer(Bukkit.getPlayer(uuid));
+        var player = Bukkit.getPlayer(uuid);
+        return player == null ? null : new PaperPlayer(player);
     }
 
     @Override
