@@ -105,6 +105,7 @@ public final class Application implements AutoCloseable{
 
         /////// COMMANDS
         McCommands cmd = new McCommands(identityManager, formatter);
+        if(pCommandRegistrar!=null) //todo rm
         cmd.registerInto(pCommandRegistrar);
         ///////
 

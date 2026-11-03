@@ -1,8 +1,6 @@
 package com.chatbridge.neoforge;
 
 import com.chatbridge.neoforge.implementation.NeoForgeCommandRegistrar;
-import com.chatbridge.neoforge.implementation.NeoForgeConfig;
-import com.chatbridge.neoforge.implementation.NeoForgeGame;
 import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.core.YamlConfig;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -67,7 +65,7 @@ public final class Chatbridge {
                     serverExecutor,
                     config,
                     null,
-                    commands,
+                    null,
                     LOGGER
             );
 
