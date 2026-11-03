@@ -18,6 +18,8 @@ dependencies {
 
     implementation 'org.xerial:sqlite-jdbc:3.46.0.1'
 
+    implementation("org.yaml:snakeyaml:2.5")
+
     // Explicit dependency if core still directly imports Gson.
     implementation 'com.google.code.gson:gson:2.11.0'
 

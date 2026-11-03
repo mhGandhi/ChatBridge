@@ -4,13 +4,16 @@ import com.chatbridge.neoforge.implementation.NeoForgeCommandRegistrar;
 import com.chatbridge.neoforge.implementation.NeoForgeConfig;
 import com.chatbridge.neoforge.implementation.NeoForgeGame;
 import com.mhgandhi.chatBridge.core.Application;
+import com.mhgandhi.chatBridge.core.YamlConfig;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,14 +36,12 @@ public final class Chatbridge {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
-        commands.registerCommands(event.getDispatcher());
+        //todo commands.registerCommands(event.getDispatcher());
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         var server = event.getServer();
-
-
 
         Executor serverExecutor = task -> {
             if (server.isSameThread()) {
@@ -51,12 +52,21 @@ public final class Chatbridge {
         };
 
         try {
+            var config = new YamlConfig(
+                    FMLPaths.CONFIGDIR.get()
+                            .resolve("chatbridge")
+                            .resolve("config.yml"),
 
+                    Objects.requireNonNull(
+                            Chatbridge.class.getResourceAsStream("/config.yml"),
+                            "Missing bundled config.yml"
+                    )
+            );
 
             cb = new Application(
                     serverExecutor,
                     config,
-                    game,
+                    null,
                     commands,
                     LOGGER
             );
