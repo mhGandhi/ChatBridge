@@ -161,10 +161,14 @@ public class IdentityManager {
         mcNames.put(mci.uuid, name);
     }
 
-    public void upsertMc(Player p) {
-        if(!p.hasPlayedBefore())return;
-        logger.info("Upsert player "+p.getName());
-        upsertMcName(Identity.get(p),p.getName());
+    public void upsertMc(Player player) {
+        String name = player.getName();
+        if (name == null || name.isBlank()) {
+            return;
+        }
+        logger.info("Upsert player "+player.getName());
+
+        upsertMcName(Identity.get(player), name);
     }
 
     public String getMcName(Identity.Mc mci){
