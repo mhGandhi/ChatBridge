@@ -36,10 +36,18 @@ public final class PluginEntryPoint extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (cb == null) return;
+
         try {
             cb.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            getLogger().log(
+                    java.util.logging.Level.SEVERE,
+                    "Failed to close ChatBridge",
+                    e
+            );
+        } finally {
+            cb = null;
         }
     }
 }
