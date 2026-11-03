@@ -1,0 +1,29 @@
+tasks.register('runPaper') {
+    group = 'application'
+    description = 'Starts the Paper development server'
+    dependsOn ':paper:runServer'
+}
+
+tasks.register('runNeoForge') {
+    group = 'application'
+    description = 'Starts the NeoForge development server'
+    dependsOn ':neoforge:runServer'
+}
+
+tasks.register('buildPaper') {
+    group = 'build'
+    description = 'Builds the deployable Paper plugin JAR'
+    dependsOn ':paper:build'
+}
+
+tasks.register('buildNeoForge') {
+    group = 'build'
+    description = 'Builds the NeoForge mod JAR'
+    dependsOn ':neoforge:build'
+}
+
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Builds both platform JARs'
+    dependsOn 'buildPaper', 'buildNeoForge'
+}

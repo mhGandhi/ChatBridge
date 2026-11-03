@@ -1,0 +1,45 @@
+[03Nov.2026 01:47:35.250] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, forgeserverdev, --gameDir, ., --fml.fmlVersion, 4.0.45, --fml.mcVersion, 1.21.1, --fml.neoForgeVersion, 21.1.265, --fml.neoFormVersion, 20240808.144430, --nogui]
+[03Nov.2026 01:47:35.253] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Oracle Corporation Java HotSpot(TM) 64-Bit Server VM 21.0.4+8-LTS-274
+[03Nov.2026 01:47:35.254] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.5+main.901c6ea8 starting: java version 21.0.4 by Oracle Corporation; OS Windows 10 arch amd64 version 10.0
+[03Nov.2026 01:47:35.333] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: ImmediateWindowProvider not loading because launch target is forgeserverdev
+[03Nov.2026 01:47:35.378] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/rando/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.16.4+mixin.0.8.7/26d01f0567ab46e9ca0d2ed89d0ecc11aadbd433/sponge-mixin-0.16.4+mixin.0.8.7.jar%2394!/ Service=ModLauncher Env=SERVER
+[03Nov.2026 01:47:35.697] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[03Nov.2026 01:47:35.698] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		ChatBridge 3.0 (chatbridge)
+		Minecraft 1.21.1 (minecraft)
+		NeoForge 21.1.265 (neoforge)
+[03Nov.2026 01:47:36.312] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'forgeserverdev' with arguments [--gameDir, ., --nogui]
+[03Nov.2026 01:47:37.406] [main/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[03Nov.2026 01:47:41.101] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[03Nov.2026 01:47:41.102] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[03Nov.2026 01:47:41.104] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[03Nov.2026 01:47:41.105] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[03Nov.2026 01:47:41.106] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[03Nov.2026 01:47:41.153] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.1.265, for MC 1.21.1
+[03Nov.2026 01:47:41.324] [modloading-worker-0/INFO] [com.chatbridge.neoforge.Chatbridge/]: HELLO FROM COMMON SETUP
+[03Nov.2026 01:47:41.386] [main/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[03Nov.2026 01:47:41.466] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/rando/IdeaProjects/ChatBridge/neoforge/build/moddev/artifacts/neoforge-21.1.265.jar%23125!/assets/.mcassetsroot' uses unexpected schema
+[03Nov.2026 01:47:41.466] [main/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/rando/IdeaProjects/ChatBridge/neoforge/build/moddev/artifacts/neoforge-21.1.265.jar%23125!/data/.mcassetsroot' uses unexpected schema
+[03Nov.2026 01:47:42.104] [main/INFO] [net.minecraft.world.item.crafting.RecipeManager/]: Loaded 1290 recipes
+[03Nov.2026 01:47:42.202] [main/INFO] [net.minecraft.advancements.AdvancementTree/]: Loaded 1399 advancements
+[03Nov.2026 01:47:42.537] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting minecraft server version 1.21.1
+[03Nov.2026 01:47:42.537] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Loading properties
+[03Nov.2026 01:47:42.538] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Default game type: SURVIVAL
+[03Nov.2026 01:47:42.538] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Generating keypair
+[03Nov.2026 01:47:42.585] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Starting Minecraft server on *:25565
+[03Nov.2026 01:47:42.632] [Server thread/INFO] [net.minecraft.server.network.ServerConnectionListener/]: Using default channel type
+[03Nov.2026 01:47:42.658] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[03Nov.2026 01:47:42.658] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: The server will make no attempt to authenticate usernames. Beware.
+[03Nov.2026 01:47:42.658] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[03Nov.2026 01:47:42.658] [Server thread/WARN] [net.minecraft.server.dedicated.DedicatedServer/]: To change this, set "online-mode" to "true" in the server.properties file.
+[03Nov.2026 01:47:42.686] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Preparing level "world"
+[03Nov.2026 01:47:43.309] [Server thread/INFO] [net.minecraft.server.MinecraftServer/]: Preparing start region for dimension minecraft:overworld
+[03Nov.2026 01:47:43.348] [worldgen/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Preparing spawn area: 2%
+[03Nov.2026 01:47:43.430] [Server thread/INFO] [net.minecraft.server.level.progress.LoggerChunkProgressListener/]: Time elapsed: 121 ms
+[03Nov.2026 01:47:43.431] [Server thread/INFO] [net.minecraft.server.dedicated.DedicatedServer/]: Done (0.763s)! For help, type "help"
+[03Nov.2026 01:47:43.466] [Server thread/INFO] [net.neoforged.neoforge.gametest.GameTestHooks/]: Enabled Gametest Namespaces: [chatbridge]
+[03Nov.2026 01:47:43.471] [Server thread/INFO] [net.neoforged.neoforge.server.permission.PermissionAPI/]: Successfully initialized permission handler neoforge:default_handler
+[03Nov.2026 01:47:43.471] [Server thread/INFO] [com.chatbridge.neoforge.Chatbridge/]: HELLO from server starting
