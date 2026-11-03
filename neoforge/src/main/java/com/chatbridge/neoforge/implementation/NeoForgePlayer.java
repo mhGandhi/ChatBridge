@@ -4,19 +4,24 @@ import com.mhgandhi.chatBridge.core.domain.Player;
 
 import java.util.UUID;
 
-public class NeoForgePlayer implements Player {
-    @Override
-    public String getName() {
-        return "";
-    }
+public record NeoForgePlayer(
+        UUID uniqueId,
+        String name,
+        boolean playedBefore
+) implements Player {
 
     @Override
     public UUID getUniqueId() {
-        return null;
+        return uniqueId;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
     public boolean hasPlayedBefore() {
-        return false;
+        return playedBefore;
     }
 }
