@@ -4,7 +4,10 @@ import com.mhgandhi.chatBridge.core.Application;
 import com.mhgandhi.chatBridge.paper.implementation.PaperCommandRegistrar;
 import com.mhgandhi.chatBridge.paper.implementation.PaperConfig;
 import com.mhgandhi.chatBridge.paper.implementation.PaperGame;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.concurrent.Executor;
 
 //todo keep list of IChats; message events with fields message, sender, sourceChat; and like that it would be nicer
 
@@ -17,7 +20,16 @@ public final class PluginEntryPoint extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
 
+        Executor serverExecutor = task -> {
+            if(Bukkit.isPrimaryThread()){
+                task.run();
+            }else{
+                Bukkit.getScheduler().runTask(this, task);
+            }
+        };
+
         cb = new Application(
+                serverExecutor,
                 new PaperConfig(getConfig()),
                 new PaperGame(this),
                 new PaperCommandRegistrar(this),

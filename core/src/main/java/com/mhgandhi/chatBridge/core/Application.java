@@ -12,6 +12,7 @@ import com.mhgandhi.chatBridge.core.gateway.DiscordGateway;
 import com.mhgandhi.chatBridge.core.storage.Database;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 public final class Application implements AutoCloseable{
@@ -22,7 +23,7 @@ public final class Application implements AutoCloseable{
     private final Logger logger;
     private JDAShell discord;
     private Game game;
-
+    private final Executor serverExecutor;
 
 
     public IdentityManager getIdentityManager(){return identityManager;}
@@ -33,13 +34,16 @@ public final class Application implements AutoCloseable{
     public boolean confConnectionReminders = false;
 
     private boolean started = false;
+    private boolean closed = false;
 
     public Application(
+            Executor pExecutor,
             Config config,
             Game pGame,
             CommandRegistrar pCommandRegistrar,
             Logger pLogger
     ){
+        this.serverExecutor = pExecutor;
         this.logger = pLogger;
         this.game = pGame;
 
@@ -105,7 +109,7 @@ public final class Application implements AutoCloseable{
 
 
         /////// DISCORD
-        Runnable onJDAReady = ()->{//todo abstract mby
+        Runnable onJDAReady = ()->serverExecutor.execute(()->{
             try{
                 DiscordGateway dg = new DiscordGateway(getLogger(), eventRouter, identityManager, discord.getWebhook(), discord.getMirrorChannel());
                 eventRouter.register(dg);
@@ -118,7 +122,7 @@ public final class Application implements AutoCloseable{
                 game.disableCB();
             }
 
-        };
+        });
         discord = new JDAShell(getLogger(), game, token, channelId, savedWebhookID, savedWebhookToken, onJDAReady);
         ///////
     }
@@ -144,8 +148,10 @@ public final class Application implements AutoCloseable{
 
     @Override
     public void close() throws Exception {
+        if(closed)return;
+        closed=true;
+
         if(formatter!=null){
-            //Todo fix already disabled
             ServerEvent e = new ServerDisableEvent();
             eventRouter.publish(e);
         }
